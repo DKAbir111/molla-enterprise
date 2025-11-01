@@ -20,6 +20,7 @@ import {
   Camera
 } from 'lucide-react'
 import { getMyOrganization, updateOrganization } from '@/lib/api'
+import { useTheme } from '@/store/useTheme'
 import { toast } from 'sonner'
 
 export default function SettingsPage() {
@@ -113,6 +114,8 @@ export default function SettingsPage() {
     lowStock: true,
     paymentReminders: true,
   })
+
+  const { theme, setTheme } = useTheme()
 
   return (
     <div className="space-y-6">
@@ -328,30 +331,42 @@ export default function SettingsPage() {
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-3">
-            <div className="p-4 rounded-lg border-2 border-purple-600 bg-gradient-to-r from-purple-50 to-blue-50 cursor-pointer">
+            <button
+              type="button"
+              onClick={() => setTheme('default')}
+              className={`p-4 rounded-lg border-2 cursor-pointer ${theme === 'default' ? 'border-purple-600 bg-gradient-to-r from-purple-50 to-blue-50' : 'border-gray-200 hover:border-gray-300'}`}
+            >
               <h4 className="font-medium mb-2">Default Theme</h4>
               <div className="flex gap-2">
                 <div className="h-6 w-6 rounded bg-purple-600"></div>
                 <div className="h-6 w-6 rounded bg-blue-600"></div>
                 <div className="h-6 w-6 rounded bg-gray-200"></div>
               </div>
-            </div>
-            <div className="p-4 rounded-lg border hover:border-gray-300 cursor-pointer">
+            </button>
+            <button
+              type="button"
+              onClick={() => setTheme('dark')}
+              className={`p-4 rounded-lg border cursor-pointer ${theme === 'dark' ? 'border-purple-600' : 'hover:border-gray-300'}`}
+            >
               <h4 className="font-medium mb-2">Dark Theme</h4>
               <div className="flex gap-2">
                 <div className="h-6 w-6 rounded bg-gray-900"></div>
                 <div className="h-6 w-6 rounded bg-gray-800"></div>
                 <div className="h-6 w-6 rounded bg-gray-700"></div>
               </div>
-            </div>
-            <div className="p-4 rounded-lg border hover:border-gray-300 cursor-pointer">
+            </button>
+            <button
+              type="button"
+              onClick={() => setTheme('contrast')}
+              className={`p-4 rounded-lg border cursor-pointer ${theme === 'contrast' ? 'border-purple-600' : 'hover:border-gray-300'}`}
+            >
               <h4 className="font-medium mb-2">High Contrast</h4>
               <div className="flex gap-2">
                 <div className="h-6 w-6 rounded bg-black"></div>
                 <div className="h-6 w-6 rounded bg-white border"></div>
                 <div className="h-6 w-6 rounded bg-yellow-400"></div>
               </div>
-            </div>
+            </button>
           </div>
         </CardContent>
       </Card>

@@ -45,9 +45,9 @@ export default function AccountsPage() {
       fetchTransactions<any[]>()
         .then((res) => {
           if (!mounted) return
-          ;(res || []).map(normalizeTransaction).forEach(addTransaction)
+            ; (res || []).map(normalizeTransaction).forEach(addTransaction)
         })
-        .catch(() => {})
+        .catch(() => { })
     }
     return () => { mounted = false }
   }, [transactions.length, addTransaction])
@@ -116,7 +116,7 @@ export default function AccountsPage() {
         </div>
         <Card className="border-dashed">
           <CardContent className="py-16 text-center">
-            <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white flex items-center justify-center text-2xl">ℹ️</div>
+            <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white flex items-center justify-center text-2xl">+</div>
             <h3 className="text-lg font-semibold mb-1">{t('emptyTitle') || 'No transactions yet'}</h3>
             <p className="text-gray-600">{t('emptyDescription') || 'As you add orders and record payments/expenses, analytics will appear here.'}</p>
           </CardContent>
@@ -152,7 +152,7 @@ export default function AccountsPage() {
             )}
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
@@ -172,7 +172,7 @@ export default function AccountsPage() {
             )}
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
@@ -205,12 +205,12 @@ export default function AccountsPage() {
               <AreaChart data={monthlyData}>
                 <defs>
                   <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="colorExpense" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -287,11 +287,10 @@ export default function AccountsPage() {
                   </TableCell>
                   <TableCell>{transaction.description}</TableCell>
                   <TableCell>
-                    <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full ${
-                      transaction.type === 'income'
+                    <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full ${transaction.type === 'income'
                         ? 'bg-green-100 text-green-700'
                         : 'bg-red-100 text-red-700'
-                    }`}>
+                      }`}>
                       {transaction.type === 'income' ? (
                         <ArrowUpRight className="h-3 w-3" />
                       ) : (
@@ -300,9 +299,8 @@ export default function AccountsPage() {
                       {t(transaction.type)}
                     </span>
                   </TableCell>
-                  <TableCell className={`text-right font-medium ${
-                    transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
-                  }`}>
+                  <TableCell className={`text-right font-medium ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
+                    }`}>
                     {transaction.type === 'income' ? '+' : '-'}
                     {formatCurrency(transaction.amount, locale)}
                   </TableCell>

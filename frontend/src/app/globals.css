@@ -4,16 +4,96 @@
   :root {
     --font-inter: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
     --font-noto-bengali: "Noto Sans Bengali", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    /* Theme tokens */
+    --app-bg: linear-gradient(to bottom right, #f5f3ff, #ffffff, #eff6ff);
+    --text: #111827;
+    --card-bg: rgba(255, 255, 255, 0.8);
+    --card-border: #e5e7eb;
   }
 
   body {
     font-family: var(--font-inter);
+    color: var(--text);
   }
 
   [lang="bn"] body {
     font-family: var(--font-noto-bengali), var(--font-inter);
   }
 }
+
+/* Theme modifiers */
+html.theme-dark {
+  --app-bg: linear-gradient(to bottom right, #0b1220, #0b1220, #111827);
+  --text: #e5e7eb;
+  --card-bg: rgba(17, 24, 39, 0.9);
+  --card-border: #334155;
+}
+
+html.theme-contrast {
+  --app-bg: #000000;
+  --text: #ffffff;
+  --card-bg: #0a0a0a;
+  --card-border: #ffffff;
+}
+
+/* App wrapper background */
+.app-bg {
+  background: var(--app-bg);
+}
+
+/* Card variable styles override */
+.card {
+  background: var(--card-bg) !important;
+  border-color: var(--card-border) !important;
+}
+
+/* Dark theme readability overrides (for components that use fixed gray classes) */
+html.theme-dark .text-gray-900 { color: #f3f4f6 !important; }
+html.theme-dark .text-gray-800 { color: #e5e7eb !important; }
+html.theme-dark .text-gray-700 { color: #d1d5db !important; }
+html.theme-dark .text-gray-600 { color: #cbd5e1 !important; }
+html.theme-dark .text-gray-500 { color: #9ca3af !important; }
+html.theme-dark .text-gray-400 { color: #94a3b8 !important; }
+
+html.theme-dark .border-gray-200 { border-color: var(--card-border) !important; }
+html.theme-dark .hover\:bg-gray-100:hover { background-color: rgba(255,255,255,0.06) !important; }
+
+/* Surfaces that used hard white */
+html.theme-dark .bg-white { background-color: var(--card-bg) !important; }
+html.theme-dark .bg-white\/80 { background-color: var(--card-bg) !important; }
+
+/* Inputs & selects in dark */
+html.theme-dark input,
+html.theme-dark select,
+html.theme-dark textarea {
+  background-color: #0f172a !important; /* slate-900 */
+  border-color: var(--card-border) !important;
+  color: var(--text) !important;
+}
+html.theme-dark input::placeholder,
+html.theme-dark textarea::placeholder {
+  color: #94a3b8 !important; /* slate-400 */
+}
+
+/* High-contrast inputs */
+html.theme-contrast input,
+html.theme-contrast select,
+html.theme-contrast textarea {
+  background-color: #000 !important;
+  border-color: #fff !important;
+  color: #fff !important;
+}
+html.theme-contrast input::placeholder,
+html.theme-contrast textarea::placeholder {
+  color: #d1d5db !important;
+}
+html.theme-contrast .text-gray-900,
+html.theme-contrast .text-gray-800,
+html.theme-contrast .text-gray-700,
+html.theme-contrast .text-gray-600,
+html.theme-contrast .text-gray-500,
+html.theme-contrast .text-gray-400 { color: #ffffff !important; }
+html.theme-contrast .border-gray-200 { border-color: #ffffff !important; }
 
 @layer utilities {
   .glass {
@@ -33,9 +113,12 @@
   }
 
   @keyframes float {
-    0%, 100% {
+
+    0%,
+    100% {
       transform: translateY(0px);
     }
+
     50% {
       transform: translateY(-10px);
     }
@@ -47,39 +130,43 @@
   .print\:hidden {
     display: none !important;
   }
-  
+
   .print\:block {
     display: block !important;
   }
-  
+
   .print\:p-8 {
     padding: 2rem !important;
   }
-  
+
   /* Hide navigation and other UI elements when printing */
-  nav, .sidebar, .header, button:not(.print-button) {
+  nav,
+  .sidebar,
+  .header,
+  button:not(.print-button) {
     display: none !important;
   }
-  
+
   /* Ensure proper page breaks */
   .print-page-break {
     page-break-before: always;
   }
-  
+
   /* Optimize table printing */
   table {
     page-break-inside: avoid;
   }
-  
-  th, td {
+
+  th,
+  td {
     page-break-inside: avoid;
   }
-  
+
   /* Ensure proper colors for print */
   .print\:text-black {
     color: black !important;
   }
-  
+
   .print\:bg-white {
     background-color: white !important;
   }

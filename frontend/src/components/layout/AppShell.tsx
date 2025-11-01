@@ -6,12 +6,14 @@ import { useLocale } from 'next-intl'
 import { Header } from './header'
 import { Sidebar } from './sidebar'
 import { getAuthToken, getMyOrganization } from '@/lib/api'
+import { useTheme } from '@/store/useTheme'
 import { Toaster } from 'sonner'
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const locale = useLocale()
   const router = useRouter()
+  const { theme } = useTheme()
 
   const base = `/${locale}`
   const hide = [
@@ -40,7 +42,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   if (shouldHide) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-white to-blue-50 p-6">
+      <div className="min-h-screen flex items-center justify-center app-bg p-6">
         <Toaster position="bottom-right" richColors closeButton />
         {children}
       </div>
@@ -48,7 +50,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gradient-to-br from-purple-50 via-white to-blue-50">
+    <div className="flex h-screen overflow-hidden app-bg">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />

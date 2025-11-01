@@ -19,11 +19,10 @@ export function Header() {
   }
 
   return (
-    <header className="h-16 border-b border-gray-200 bg-white/80 backdrop-blur-sm px-6 flex items-center justify-between">
-      <div className="flex items-center gap-4">
-        <h1 className="text-xl font-semibold gradient-text">
-          Sand Business Management
-        </h1>
+    <header className="h-16 px-6 flex items-center justify-between border-b border-[color:var(--card-border)] bg-[var(--card-bg)]/90 backdrop-blur-md">
+      <div className="flex items-center gap-3">
+        <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-purple-600 to-blue-600"></div>
+        <h1 className="text-lg font-semibold text-[color:var(--text)]">Sand Business Management</h1>
       </div>
       
       <div className="flex items-center gap-3">
