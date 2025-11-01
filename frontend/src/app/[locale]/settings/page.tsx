@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -16,7 +16,8 @@ import {
   MapPin,
   CreditCard,
   Shield,
-  Palette
+  Palette,
+  Camera
 } from 'lucide-react'
 import { getMyOrganization, updateOrganization } from '@/lib/api'
 import { toast } from 'sonner'
@@ -32,6 +33,8 @@ export default function SettingsPage() {
     logoUrl: '' as string | null,
   })
   const [logoFile, setLogoFile] = useState<File | null>(null)
+  const [logoPreview, setLogoPreview] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
@@ -40,13 +43,15 @@ export default function SettingsPage() {
       .then((org) => {
         if (!mounted || !org) return
         setOrgId(org.id)
-        setBusinessInfo({
+        const next = {
           name: org.name || '',
           email: org.email || '',
           phone: org.phone || '',
           address: org.address || '',
           logoUrl: org.logoUrl || '',
-        })
+        }
+        setBusinessInfo(next)
+        setLogoPreview(next.logoUrl || null)
       })
       .catch(() => {})
     return () => { mounted = false }
@@ -72,11 +77,32 @@ export default function SettingsPage() {
         address: updated?.address ?? prev.address,
         logoUrl: updated?.logoUrl ?? prev.logoUrl,
       }))
+      // Update preview to the saved public URL
+      if (updated?.logoUrl) {
+        if (logoPreview && logoPreview.startsWith('blob:')) URL.revokeObjectURL(logoPreview)
+        setLogoPreview(updated.logoUrl)
+      }
       setLogoFile(null)
     } catch (e) {
       toast.error('Failed to save business information')
     } finally {
       setSaving(false)
+    }
+  }
+
+  const onPickLogo = () => {
+    fileInputRef.current?.click()
+  }
+
+  const onLogoSelected: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      if (logoPreview && logoPreview.startsWith('blob:')) {
+        try { URL.revokeObjectURL(logoPreview) } catch {}
+      }
+      const url = URL.createObjectURL(file)
+      setLogoPreview(url)
+      setLogoFile(file)
     }
   }
 
@@ -107,24 +133,29 @@ export default function SettingsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center gap-4">
-              <div className="h-16 w-16 rounded bg-gray-100 border flex items-center justify-center overflow-hidden">
-                {businessInfo.logoUrl ? (
+            <div className="flex items-start gap-6">
+              <button
+                type="button"
+                aria-label="Upload logo"
+                onClick={onPickLogo}
+                className="relative h-24 w-24 rounded-xl border border-gray-300 bg-gray-50 overflow-hidden shadow-sm hover:shadow transition"
+              >
+                {logoPreview ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={businessInfo.logoUrl} alt="Logo" className="h-full w-full object-cover" />
+                  <img src={logoPreview} alt="Logo" className="h-full w-full object-cover" />
                 ) : (
-                  <span className="text-xs text-gray-500">No Logo</span>
+                  <div className="h-full w-full flex items-center justify-center text-gray-400">
+                    <Camera className="h-6 w-6" />
+                  </div>
                 )}
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-700">Logo</label>
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setLogoFile(e.target.files?.[0] || null)}
-                  className="mt-1"
-                />
-              </div>
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={onLogoSelected}
+              />
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700">Business Name</label>

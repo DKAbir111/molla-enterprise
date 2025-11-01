@@ -20,8 +20,8 @@ interface StatItem {
   title: string;
   value: string;
   icon: React.ElementType;
-  change: string;
-  positive: boolean;
+  change?: string;
+  positive?: boolean;
   toggle?: () => void;
   toggleIcon?: React.ElementType;
 }
@@ -56,17 +56,19 @@ export function DashboardStatsGrid({ stats }: DashboardStatsGridProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stat.value}</div>
-            <div className="flex items-center text-xs">
-              {stat.positive ? (
-                <ArrowUpRight className="mr-1 h-3 w-3 text-green-500" />
-              ) : (
-                <ArrowDownRight className="mr-1 h-3 w-3 text-red-500" />
-              )}
-              <span className={stat.positive ? 'text-green-500' : 'text-red-500'}>
-                {stat.change}
-              </span>
-              <span className="text-gray-400 ml-1">{t('fromLastMonth')}</span>
-            </div>
+            {typeof stat.change !== 'undefined' && typeof stat.positive !== 'undefined' && (
+              <div className="flex items-center text-xs">
+                {stat.positive ? (
+                  <ArrowUpRight className="mr-1 h-3 w-3 text-green-500" />
+                ) : (
+                  <ArrowDownRight className="mr-1 h-3 w-3 text-red-500" />
+                )}
+                <span className={stat.positive ? 'text-green-500' : 'text-red-500'}>
+                  {stat.change}
+                </span>
+                <span className="text-gray-400 ml-1">{t('fromLastMonth')}</span>
+              </div>
+            )}
           </CardContent>
         </Card>
       ))}

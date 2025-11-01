@@ -9,9 +9,7 @@ interface LocaleLayoutProps {
   params: Promise<{ locale: string }>;
 }
 
-export function generateStaticParams() {
-  return routing.locales.map((locale) => ({ locale }));
-}
+// Static params disabled to avoid pre-render issues in restricted builds
 
 export default async function LocaleLayout({
   children,

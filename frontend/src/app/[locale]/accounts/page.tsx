@@ -52,34 +52,60 @@ export default function AccountsPage() {
     return () => { mounted = false }
   }, [transactions.length, addTransaction])
 
-  // Calculate financial stats
-  const totalIncome = transactions
-    .filter(t => t.type === 'income')
-    .reduce((sum, t) => sum + t.amount, 0)
-  
-  const totalExpenses = transactions
-    .filter(t => t.type === 'expense')
-    .reduce((sum, t) => sum + t.amount, 0)
-  
+  // Calculate financial stats (live from transactions)
+  const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0)
+  const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0)
   const netProfit = totalIncome - totalExpenses
 
-  // Prepare chart data
-  const monthlyData = [
-    { month: 'Jan', income: 420000, expense: 180000 },
-    { month: 'Feb', income: 480000, expense: 210000 },
-    { month: 'Mar', income: 520000, expense: 195000 },
-    { month: 'Apr', income: 610000, expense: 220000 },
-    { month: 'May', income: 580000, expense: 240000 },
-    { month: 'Jun', income: 690000, expense: 260000 },
-  ]
+  // Prepare chart data (last 6 months)
+  const now = new Date()
+  const months: { key: string; label: string }[] = []
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    months.push({ key: `${d.getFullYear()}-${d.getMonth()}`, label: d.toLocaleString(locale as any, { month: 'short' }) })
+  }
+  const sumsIncome: Record<string, number> = {}
+  const sumsExpense: Record<string, number> = {}
+  months.forEach(m => { sumsIncome[m.key] = 0; sumsExpense[m.key] = 0 })
+  transactions.forEach((tx) => {
+    const d = tx.date instanceof Date ? tx.date : new Date(tx.date)
+    const key = `${d.getFullYear()}-${d.getMonth()}`
+    if (!(key in sumsIncome)) return
+    if (tx.type === 'income') sumsIncome[key] += tx.amount
+    else if (tx.type === 'expense') sumsExpense[key] += tx.amount
+  })
+  const monthlyData = months.map(m => ({ month: m.label, income: sumsIncome[m.key] || 0, expense: sumsExpense[m.key] || 0 }))
 
-  const expenseCategories = [
-    { name: 'Fuel', value: 45000, color: '#8b5cf6' },
-    { name: 'Salary', value: 150000, color: '#3b82f6' },
-    { name: 'Rent', value: 50000, color: '#10b981' },
-    { name: 'Maintenance', value: 35000, color: '#f59e0b' },
-    { name: 'Others', value: 20000, color: '#6b7280' },
-  ]
+  // Expense categories (last 90 days)
+  const cutoff = new Date()
+  cutoff.setDate(cutoff.getDate() - 90)
+  const catTotals: Record<string, number> = {}
+  transactions.forEach((tx) => {
+    const d = tx.date instanceof Date ? tx.date : new Date(tx.date)
+    if (tx.type !== 'expense' || d < cutoff) return
+    const cat = tx.category || 'Others'
+    catTotals[cat] = (catTotals[cat] || 0) + tx.amount
+  })
+  const sortedCats = Object.entries(catTotals).sort((a, b) => b[1] - a[1])
+  const topCats = sortedCats.slice(0, 4)
+  const othersValue = sortedCats.slice(4).reduce((sum, [, v]) => sum + v, 0)
+  const pieBase = [...topCats, ...(othersValue > 0 ? [['Others', othersValue] as const] : [])]
+  const palette = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#6b7280']
+  const expenseCategories = pieBase.map(([name, value], idx) => ({ name, value, color: palette[idx % palette.length] }))
+
+  // Compute change vs previous month for KPI cards
+  const lastKey = months.at(-1)?.key
+  const prevKey = months.length > 1 ? months.at(-2)!.key : undefined
+  const lastIncome = lastKey ? sumsIncome[lastKey] : 0
+  const prevIncome = prevKey ? sumsIncome[prevKey!] : 0
+  const lastExpense = lastKey ? sumsExpense[lastKey] : 0
+  const prevExpense = prevKey ? sumsExpense[prevKey!] : 0
+  const lastProfit = lastIncome - lastExpense
+  const prevProfit = prevIncome - prevExpense
+  const pct = (cur: number, prev: number) => prev > 0 ? (((cur - prev) / prev) * 100) : 0
+  const incomePct = pct(lastIncome, prevIncome)
+  const expensePct = pct(lastExpense, prevExpense)
+  const profitPct = pct(lastProfit, prevProfit)
 
   return (
     <div className="space-y-6">
@@ -100,10 +126,12 @@ export default function AccountsPage() {
             <div className="text-2xl font-bold text-green-600">
               {formatCurrency(totalIncome, locale)}
             </div>
-            <div className="flex items-center text-xs text-green-600 mt-1">
-              <ArrowUpRight className="h-3 w-3 mr-1" />
-              <span>+15.2% from last month</span>
-            </div>
+            {prevIncome > 0 && (
+              <div className="flex items-center text-xs text-green-600 mt-1">
+                <ArrowUpRight className="h-3 w-3 mr-1" />
+                <span>{`${incomePct >= 0 ? '+' : ''}${incomePct.toFixed(1)}%`} {t('fromLastMonth')}</span>
+              </div>
+            )}
           </CardContent>
         </Card>
         
@@ -118,10 +146,12 @@ export default function AccountsPage() {
             <div className="text-2xl font-bold text-red-600">
               {formatCurrency(totalExpenses, locale)}
             </div>
-            <div className="flex items-center text-xs text-red-600 mt-1">
-              <ArrowUpRight className="h-3 w-3 mr-1" />
-              <span>+8.4% from last month</span>
-            </div>
+            {prevExpense > 0 && (
+              <div className="flex items-center text-xs text-red-600 mt-1">
+                <ArrowUpRight className="h-3 w-3 mr-1" />
+                <span>{`${expensePct >= 0 ? '+' : ''}${expensePct.toFixed(1)}%`} {t('fromLastMonth')}</span>
+              </div>
+            )}
           </CardContent>
         </Card>
         
@@ -136,10 +166,12 @@ export default function AccountsPage() {
             <div className="text-2xl font-bold text-purple-600">
               {formatCurrency(netProfit, locale)}
             </div>
-            <div className="flex items-center text-xs text-purple-600 mt-1">
-              <ArrowUpRight className="h-3 w-3 mr-1" />
-              <span>+22.5% from last month</span>
-            </div>
+            {prevProfit > 0 && (
+              <div className="flex items-center text-xs text-purple-600 mt-1">
+                <ArrowUpRight className="h-3 w-3 mr-1" />
+                <span>{`${profitPct >= 0 ? '+' : ''}${profitPct.toFixed(1)}%`} {t('fromLastMonth')}</span>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -148,7 +180,7 @@ export default function AccountsPage() {
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Income vs Expenses</CardTitle>
+            <CardTitle>{t('incomeVsExpenses')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -188,7 +220,7 @@ export default function AccountsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Expense Breakdown</CardTitle>
+            <CardTitle>{t('expenseBreakdown')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>

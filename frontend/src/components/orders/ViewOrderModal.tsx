@@ -30,19 +30,22 @@ export function ViewOrderModal({ isOpen, onClose, order }: ViewOrderModalProps) 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-2xl bg-white p-0 overflow-hidden rounded-lg shadow-2xl">
-        <DialogHeader className="p-6 flex justify-between items-center border-b border-gray-200 bg-gray-50">
-          <div>
-            <DialogTitle className="text-2xl font-bold text-gray-800">
-              {t('viewOrder.title')} #{order.id}
-            </DialogTitle>
-            <DialogDescription className="text-gray-600">
-              {t('viewOrder.description')}
-            </DialogDescription>
+        <div className="bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-4 text-white">
+          <div className="flex justify-between items-center">
+            <div>
+              <DialogTitle className="text-2xl font-bold">
+                {t('viewOrder.title')} #{order.id}
+              </DialogTitle>
+              <DialogDescription className="text-blue-100">
+                {t('viewOrder.description')}
+              </DialogDescription>
+            </div>
+            <Button variant="ghost" onClick={onClose} className="rounded-full w-8 h-8 p-0 text-white/80 hover:text-white">
+              <X className="h-5 w-5" />
+            </Button>
           </div>
-          <Button variant="ghost" onClick={onClose} className="rounded-full w-8 h-8 p-0">
-            <X className="h-5 w-5 text-gray-500" />
-          </Button>
-        </DialogHeader>
+        </div>
+        
         <div className="p-8 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-3">

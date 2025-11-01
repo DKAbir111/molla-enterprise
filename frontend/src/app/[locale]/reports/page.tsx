@@ -5,8 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useStore } from '@/store/useStore'
 import { formatCurrency } from '@/lib/utils'
+import { listTransactions, listOrders, normalizeOrder } from '@/lib/api'
 import { useLocale } from 'next-intl'
 import { Download, FileText, BarChart3, PieChart, TrendingUp } from 'lucide-react'
+import React from 'react'
 import {
   AreaChart,
   Area,
@@ -30,42 +32,91 @@ export default function ReportsPage() {
   const locale = useLocale()
   const { orders, products, customers, transactions } = useStore()
 
-  // Revenue trend data
-  const revenueTrend = [
-    { month: 'Jan', total: 420000 },
-    { month: 'Feb', total: 480000 },
-    { month: 'Mar', total: 520000 },
-    { month: 'Apr', total: 610000 },
-    { month: 'May', total: 580000 },
-    { month: 'Jun', total: 690000 },
-  ]
+  // Derived state
+  const [revenueTrend, setRevenueTrend] = React.useState<{ month: string; total: number }[]>([])
+  const [categorySales, setCategorySales] = React.useState<{ name: string; value: number; color: string }[]>([])
+  const [customerDistribution, setCustomerDistribution] = React.useState<{ range: string; count: number }[]>([])
+  const [topProducts, setTopProducts] = React.useState<{ name: string; sales: number; revenue: number }[]>([])
 
-  // Product category sales
-  const categorySales = [
-    { name: 'বালু', value: 45, color: '#8b5cf6' },
-    { name: 'পাথর', value: 20, color: '#3b82f6' },
-    { name: 'সিমেন্ট', value: 15, color: '#10b981' },
-    { name: 'রড', value: 12, color: '#f59e0b' },
-    { name: 'অন্যান্য', value: 8, color: '#6b7280' },
-  ]
+  React.useEffect(() => {
+    let mounted = true
+    // Revenue trend: last 6 months of income transactions
+    listTransactions<any[]>()
+      .then((txs) => {
+        if (!mounted) return
+        const now = new Date()
+        const months: { key: string; label: string }[] = []
+        for (let i = 5; i >= 0; i--) {
+          const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+          months.push({ key: `${d.getFullYear()}-${d.getMonth()}`, label: d.toLocaleString(locale as any, { month: 'short' }) })
+        }
+        const sums: Record<string, number> = {}
+        months.forEach(m => (sums[m.key] = 0))
+        ;(txs || []).forEach((t: any) => {
+          if (String(t.type) !== 'income') return
+          const dt = t.date ? new Date(t.date) : null
+          if (!dt) return
+          const key = `${dt.getFullYear()}-${dt.getMonth()}`
+          if (key in sums) sums[key] += Number(t.amount || 0)
+        })
+        setRevenueTrend(months.map(m => ({ month: m.label, total: sums[m.key] || 0 })))
+      })
+      .catch(() => setRevenueTrend([]))
 
-  // Customer distribution
-  const customerDistribution = [
-    { range: '0-5 orders', count: 12 },
-    { range: '6-15 orders', count: 18 },
-    { range: '16-25 orders', count: 8 },
-    { range: '26+ orders', count: 5 },
-  ]
+    // Orders-based metrics (last 90 days)
+    listOrders<any[]>()
+      .then((raw) => {
+        if (!mounted) return
+        const normalized = (raw || []).map(normalizeOrder)
+        const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 90)
 
-  // Top selling products
-  const topProducts = products
-    .map(p => ({
-      name: p.name,
-      sales: Math.floor(Math.random() * 1000) + 100,
-      revenue: Math.floor(Math.random() * 500000) + 100000,
-    }))
-    .sort((a, b) => b.revenue - a.revenue)
-    .slice(0, 5)
+        // Top products by quantity and revenue
+        const qtyByProduct: Record<string, number> = {}
+        const revByProduct: Record<string, number> = {}
+        // Customer order counts
+        const ordersByCustomer: Record<string, number> = {}
+
+        normalized.forEach(o => {
+          const created = o.createdAt || new Date()
+          if (created < cutoff) return
+          ordersByCustomer[o.customerId] = (ordersByCustomer[o.customerId] || 0) + 1
+          o.items.forEach(it => {
+            qtyByProduct[it.productName] = (qtyByProduct[it.productName] || 0) + Number(it.quantity || 0)
+            revByProduct[it.productName] = (revByProduct[it.productName] || 0) + Number(it.total || (it.quantity * it.price) || 0)
+          })
+        })
+
+        // Category sales as product share (%)
+        const totalQty = Object.values(qtyByProduct).reduce((s, v) => s + v, 0)
+        const palette = ['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#6b7280']
+        const topPairs = Object.entries(qtyByProduct).sort((a,b) => b[1]-a[1]).slice(0, 4)
+        const others = Object.entries(qtyByProduct).sort((a,b) => b[1]-a[1]).slice(4)
+        const othersQty = others.reduce((s, [,v]) => s+v, 0)
+        const cat = [...topPairs, ...(othersQty>0 ? [['Others', othersQty] as const] : [])]
+        const catSeries = cat.map(([name, q], idx) => ({ name, value: totalQty>0 ? Math.round((q/totalQty)*100) : 0, color: palette[idx%palette.length] }))
+        setCategorySales(catSeries)
+
+        // Customer distribution buckets
+        const buckets = { '0-5 orders': 0, '6-15 orders': 0, '16-25 orders': 0, '26+ orders': 0 }
+        Object.values(ordersByCustomer).forEach(c => {
+          if (c <= 5) buckets['0-5 orders']++
+          else if (c <= 15) buckets['6-15 orders']++
+          else if (c <= 25) buckets['16-25 orders']++
+          else buckets['26+ orders']++
+        })
+        setCustomerDistribution(Object.entries(buckets).map(([range, count]) => ({ range, count })))
+
+        // Top products (revenue)
+        const top = Object.entries(revByProduct).map(([name, revenue]) => ({ name, revenue: Number(revenue||0), sales: Number(qtyByProduct[name]||0) }))
+          .sort((a,b) => b.revenue - a.revenue).slice(0,5)
+        setTopProducts(top)
+      })
+      .catch(() => {
+        setCategorySales([]); setCustomerDistribution([]); setTopProducts([])
+      })
+
+    return () => { mounted = false }
+  }, [locale])
 
   return (
     <div className="space-y-6">
@@ -171,7 +222,7 @@ export default function ReportsPage() {
         {/* Product Category Sales */}
         <Card>
           <CardHeader>
-            <CardTitle>Sales by Category</CardTitle>
+            <CardTitle>{t('salesByCategory')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -199,7 +250,7 @@ export default function ReportsPage() {
         {/* Customer Distribution */}
         <Card>
           <CardHeader>
-            <CardTitle>Customer Distribution</CardTitle>
+            <CardTitle>{t('customerDistribution')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -217,9 +268,9 @@ export default function ReportsPage() {
 
       {/* Top Products Table */}
       <Card>
-        <CardHeader>
-          <CardTitle>Top Selling Products</CardTitle>
-        </CardHeader>
+          <CardHeader>
+          <CardTitle>{t('topProducts')}</CardTitle>
+          </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {topProducts.map((product, index) => (
@@ -230,12 +281,12 @@ export default function ReportsPage() {
                   </div>
                   <div>
                     <p className="font-medium">{product.name}</p>
-                    <p className="text-sm text-gray-500">{product.sales} units sold</p>
+                    <p className="text-sm text-gray-500">{product.sales} {t('unitsSold')}</p>
                   </div>
                 </div>
                 <div className="text-right">
                   <p className="font-medium">{formatCurrency(product.revenue, locale)}</p>
-                  <p className="text-sm text-gray-500">Revenue</p>
+                  <p className="text-sm text-gray-500">{t('revenue')}</p>
                 </div>
               </div>
             ))}

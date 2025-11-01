@@ -20,12 +20,14 @@ import { Plus, Search, Eye, Edit, Trash2, Phone, MapPin } from 'lucide-react'
 import Link from 'next/link'
 import { listCustomers as fetchCustomers } from '@/lib/api'
 import { normalizeCustomer } from '@/lib/api'
+import { AddCustomerModal } from '@/components/customers/AddCustomerModal'
 
 export default function CustomersPage() {
   const t = useTranslations('customers')
   const locale = useLocale()
   const { customers, addCustomer } = useStore()
   const [searchQuery, setSearchQuery] = useState('')
+  const [isAddOpen, setIsAddOpen] = useState(false)
 
   // Load from API
   useEffect(() => {
@@ -50,7 +52,7 @@ export default function CustomersPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-900">{t('title')}</h1>
-        <Button className="flex items-center gap-2">
+        <Button className="flex items-center gap-2" onClick={() => setIsAddOpen(true)}>
           <Plus className="h-4 w-4" />
           {t('addCustomer')}
         </Button>
@@ -199,6 +201,7 @@ export default function CustomersPage() {
           </Table>
         </CardContent>
       </Card>
+      <AddCustomerModal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} />
     </div>
   )
 }
