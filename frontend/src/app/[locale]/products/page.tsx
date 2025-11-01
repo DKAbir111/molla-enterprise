@@ -167,7 +167,7 @@ export default function ProductsPage() {
               <CardTitle className="text-lg">{product?.name}</CardTitle>
               {product.grade && (
                 <span className="text-sm text-gray-500 capitalize">
-                  {t(product.grade)}
+                  {product.grade}
                 </span>
               )}
             </CardHeader>
