@@ -25,7 +25,7 @@ import { formatCurrency } from '@/lib/utils'
 import { useLocale } from 'next-intl'
 import { Plus, Minus, X, Search, ShoppingCart, User, MapPin, Package, Save, Phone } from 'lucide-react'
 import { Order, OrderItem, Product, Customer } from '@/types'
-import { listCustomers as fetchCustomers, listProducts as fetchProducts, createOrder as apiCreateOrder } from '@/lib/api'
+import { listCustomers as fetchCustomers, listProducts as fetchProducts, createOrder as apiCreateOrder, updateOrder as apiUpdateOrder, updateOrderItems as apiUpdateOrderItems } from '@/lib/api'
 import { normalizeProduct, normalizeCustomer, normalizeOrder } from '@/lib/api'
 import { toast } from 'sonner'
 
@@ -33,12 +33,16 @@ interface CreateOrderFormProps {
   isOpen: boolean
   onClose: () => void
   onSuccess: () => void
+  mode?: 'create' | 'edit'
+  order?: Order
 }
 
-export default function CreateOrderForm({ isOpen, onClose, onSuccess }: CreateOrderFormProps) {
+export default function CreateOrderForm({ isOpen, onClose, onSuccess, mode = 'create', order }: CreateOrderFormProps) {
   const t = useTranslations('createOrder')
+  const tOrders = useTranslations('orders')
+  const common_t = useTranslations('common')
   const locale = useLocale()
-  const { customers, products, addOrder, addCustomer, addProduct } = useStore()
+  const { customers, products, addOrder, addCustomer, addProduct, updateOrder } = useStore()
 
   // Form state
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
@@ -50,6 +54,19 @@ export default function CreateOrderForm({ isOpen, onClose, onSuccess }: CreateOr
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showCustomerDropdown, setShowCustomerDropdown] = useState(false)
   const [showProductDropdown, setShowProductDropdown] = useState(false)
+
+  // Initialize from existing order in edit mode
+  useEffect(() => {
+    if (mode === 'edit' && order) {
+      const existing = customers.find(c => c.id === order.customerId) || null
+      setSelectedCustomer(existing)
+      setCustomerSearch(existing ? existing.name : order.customerName)
+      setCustomerPhone(existing?.phone || '')
+      setDeliveryAddress(order.deliveryAddress || '')
+      setOrderItems(order.items || [])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, order])
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -149,38 +166,54 @@ export default function CreateOrderForm({ isOpen, onClose, onSuccess }: CreateOr
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (mode === 'create') {
+      if (!selectedCustomer || orderItems.length === 0 || !deliveryAddress.trim()) {
+        toast.error('Please select a customer, add items and delivery address')
+        return
+      }
+      setIsSubmitting(true)
+      try {
+        const payload = {
+          customerId: selectedCustomer.id,
+          deliveryAddress: deliveryAddress.trim(),
+          items: orderItems.map(i => ({ productId: i.productId, quantity: i.quantity })),
+        }
+        const created = await apiCreateOrder<any>(payload)
+        const normalized = normalizeOrder(created)
+        const finalOrder: Order = { ...normalized, customerName: selectedCustomer.name }
+        addOrder(finalOrder)
+        onSuccess()
+        toast.success('Order created successfully')
+        onClose()
 
-    if (!selectedCustomer || orderItems.length === 0 || !deliveryAddress.trim()) {
-      toast.error('Please select a customer, add items and delivery address')
+        // Reset form
+        setSelectedCustomer(null)
+        setCustomerSearch('')
+        setCustomerPhone('')
+        setDeliveryAddress('')
+        setOrderItems([])
+        setProductSearch('')
+      } catch (error) {
+        console.error('Error creating order:', error)
+        toast.error('Failed to create order')
+      } finally {
+        setIsSubmitting(false)
+      }
       return
     }
 
+    // edit
+    if (!order) return
     setIsSubmitting(true)
-
     try {
-      const payload = {
-        customerId: selectedCustomer.id,
-        deliveryAddress: deliveryAddress.trim(),
-        items: orderItems.map(i => ({ productId: i.productId, quantity: i.quantity })),
-      }
-      const created = await apiCreateOrder<any>(payload)
-      const normalized = normalizeOrder(created)
-      const finalOrder: Order = { ...normalized, customerName: selectedCustomer.name }
-      addOrder(finalOrder)
-      onSuccess()
-      toast.success('Order created successfully')
+      await apiUpdateOrder(order.id, { deliveryAddress: deliveryAddress.trim() })
+      await apiUpdateOrderItems(order.id, { items: orderItems.map(i => ({ productId: i.productId, quantity: i.quantity, price: i.price })) })
+      const total = orderItems.reduce((sum, it) => sum + (it.total || it.price * it.quantity), 0)
+      updateOrder(order.id, { items: orderItems, deliveryAddress: deliveryAddress.trim(), total })
+      toast.success(tOrders('editOrderSaved'))
       onClose()
-
-      // Reset form
-      setSelectedCustomer(null)
-      setCustomerSearch('')
-      setCustomerPhone('')
-      setDeliveryAddress('')
-      setOrderItems([])
-      setProductSearch('')
-    } catch (error) {
-      console.error('Error creating order:', error)
-      toast.error('Failed to create order')
+    } catch (err) {
+      toast.error(tOrders('editOrderFailed'))
     } finally {
       setIsSubmitting(false)
     }
@@ -197,11 +230,11 @@ export default function CreateOrderForm({ isOpen, onClose, onSuccess }: CreateOr
                 <ShoppingCart className="h-5 w-5" />
               </div>
               <DialogTitle className="text-2xl font-bold tracking-tight">
-                {t('title')}
+                {mode === 'edit' ? tOrders('editOrder.title') : t('title')}
               </DialogTitle>
             </div>
             <DialogDescription className="text-purple-100 text-base">
-              {t('description')}
+              {mode === 'edit' ? tOrders('editOrder.description') : t('description')}
             </DialogDescription>
           </DialogHeader>
         </div>
@@ -235,6 +268,7 @@ export default function CreateOrderForm({ isOpen, onClose, onSuccess }: CreateOr
                       onClick={() => setShowCustomerDropdown(true)}
                       className="pl-10 h-11 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
                       required
+                      disabled={mode === 'edit'}
                     />
                     {showCustomerDropdown && filteredCustomers.length > 0 && (
                       <div className="absolute top-full left-0 right-0 bg-white backdrop-blur-md border border-purple-200 rounded-lg shadow-xl z-10 max-h-64 overflow-y-auto">
@@ -275,6 +309,7 @@ export default function CreateOrderForm({ isOpen, onClose, onSuccess }: CreateOr
                     placeholder={t('enterPhone')}
                     className="h-11 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
                     required
+                    disabled={mode === 'edit'}
                   />
                 </div>
 
@@ -409,7 +444,19 @@ export default function CreateOrderForm({ isOpen, onClose, onSuccess }: CreateOr
                             </div>
                           </TableCell>
                           <TableCell className="text-right text-gray-700">
-                            {formatCurrency(item.price, locale)}
+                            {mode === 'edit' ? (
+                              <Input
+                                type="number"
+                                value={item.price}
+                                onChange={(e) => {
+                                  const p = parseFloat(e.target.value || '0')
+                                  setOrderItems(prev => prev.map(it => it.productId === item.productId ? { ...it, price: p, total: p * it.quantity } : it))
+                                }}
+                                className="w-24 ml-auto h-9 text-right"
+                              />
+                            ) : (
+                              <>{formatCurrency(item.price, locale)}</>
+                            )}
                           </TableCell>
                           <TableCell className="text-right font-semibold text-gray-900">
                             {formatCurrency(item.total, locale)}
@@ -455,17 +502,17 @@ export default function CreateOrderForm({ isOpen, onClose, onSuccess }: CreateOr
               <Button
                 type="submit"
                 className="flex-1 h-12 font-medium bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-                disabled={isSubmitting || !selectedCustomer || orderItems.length === 0}
+                disabled={isSubmitting || (!selectedCustomer && mode==='create') || orderItems.length === 0}
               >
                 {isSubmitting ? (
                   <div className="flex items-center gap-2">
                     <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    {t('creating')}
+                    {mode === 'edit' ? 'Saving...' : t('creating')}
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
                     <Save className="h-4 w-4" />
-                    {t('createOrder')}
+                    {mode === 'edit' ? common_t('save') : t('createOrder')}
                   </div>
                 )}
               </Button>

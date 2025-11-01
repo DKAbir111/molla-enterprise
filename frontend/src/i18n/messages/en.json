@@ -178,6 +178,9 @@
       "title": "Edit Order",
       "description": "Edit the details of your order."
     },
+    "editOrderSaved": "Order updated",
+    "editOrderFailed": "Failed to update order",
+    "downloadInvoice": "Download Invoice",
     "orderItems": "Order Items",
     "product": "Product",
     "quantity": "Quantity",

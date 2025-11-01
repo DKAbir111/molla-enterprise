@@ -6,32 +6,42 @@ export declare class CustomersController {
     constructor(customers: CustomersService);
     list(req: any): import(".prisma/client").Prisma.PrismaPromise<{
         id: string;
-        organizationId: string;
-        createdAt: Date;
         name: string;
         phone: string;
         email: string | null;
         address: string;
+        organizationId: string;
+        createdAt: Date;
         updatedAt: Date;
     }[]>;
-    create(req: any, dto: CreateCustomerDto): import(".prisma/client").Prisma.Prisma__CustomerClient<{
+    getOne(req: any, id: string): Promise<{
         id: string;
-        organizationId: string;
-        createdAt: Date;
         name: string;
         phone: string;
         email: string | null;
         address: string;
+        organizationId: string;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
+    create(req: any, dto: CreateCustomerDto): import(".prisma/client").Prisma.Prisma__CustomerClient<{
+        id: string;
+        name: string;
+        phone: string;
+        email: string | null;
+        address: string;
+        organizationId: string;
+        createdAt: Date;
         updatedAt: Date;
     }, never, import("@prisma/client/runtime/library").DefaultArgs>;
     update(req: any, id: string, dto: UpdateCustomerDto): Promise<{
         id: string;
-        organizationId: string;
-        createdAt: Date;
         name: string;
         phone: string;
         email: string | null;
         address: string;
+        organizationId: string;
+        createdAt: Date;
         updatedAt: Date;
     }>;
     remove(req: any, id: string): Promise<{

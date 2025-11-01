@@ -38,3 +38,11 @@ export async function deleteOrder(id: string): Promise<{ ok: boolean } | any> {
   return res.data
 }
 
+export type UpdateOrderItemsInput = {
+  items: { productId: string; quantity: number; price?: number }[]
+}
+
+export async function updateOrderItems<T = any>(id: string, data: UpdateOrderItemsInput): Promise<T> {
+  const res = await api.put<T>(`/orders/${id}/items`, data)
+  return res.data
+}

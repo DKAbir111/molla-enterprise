@@ -19,6 +19,7 @@ const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
 const orders_service_1 = require("./orders.service");
 const create_order_dto_1 = require("./dto/create-order.dto");
 const update_order_dto_1 = require("./dto/update-order.dto");
+const update_order_items_dto_1 = require("./dto/update-order-items.dto");
 let OrdersController = class OrdersController {
     constructor(orders) {
         this.orders = orders;
@@ -31,6 +32,9 @@ let OrdersController = class OrdersController {
     }
     update(req, id, dto) {
         return this.orders.update(req.user.organizationId, id, dto);
+    }
+    updateItems(req, id, dto) {
+        return this.orders.updateItems(req.user.organizationId, id, dto);
     }
     remove(req, id) {
         return this.orders.remove(req.user.organizationId, id);
@@ -61,6 +65,15 @@ __decorate([
     __metadata("design:paramtypes", [Object, String, update_order_dto_1.UpdateOrderDto]),
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "update", null);
+__decorate([
+    (0, common_1.Put)(':id/items'),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, update_order_items_dto_1.UpdateOrderItemsDto]),
+    __metadata("design:returntype", void 0)
+], OrdersController.prototype, "updateItems", null);
 __decorate([
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Req)()),

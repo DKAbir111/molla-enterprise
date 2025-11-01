@@ -25,6 +25,13 @@ let CustomersService = class CustomersService {
         const organizationId = this.ensureOrg(orgId);
         return this.prisma.customer.findMany({ where: { organizationId }, orderBy: { createdAt: 'desc' } });
     }
+    async findOne(orgId, id) {
+        const organizationId = this.ensureOrg(orgId);
+        const found = await this.prisma.customer.findFirst({ where: { id, organizationId } });
+        if (!found)
+            throw new common_1.NotFoundException('Customer not found');
+        return found;
+    }
     create(orgId, dto) {
         const organizationId = this.ensureOrg(orgId);
         return this.prisma.customer.create({ data: { ...dto, organizationId } });

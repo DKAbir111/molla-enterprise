@@ -18,6 +18,7 @@ interface Store {
   orders: Order[]
   addOrder: (order: Order) => void
   updateOrderStatus: (id: string, status: Order['status']) => void
+  updateOrder: (id: string, patch: Partial<Order>) => void
   deleteOrder: (id: string) => void
 
   // Invoices removed
@@ -65,6 +66,9 @@ export const useStore = create<Store>((set) => ({
   }),
   updateOrderStatus: (id, status) => set((state) => ({
     orders: state.orders.map((o) => o.id === id ? { ...o, status } : o)
+  })),
+  updateOrder: (id, patch) => set((state) => ({
+    orders: state.orders.map((o) => o.id === id ? { ...o, ...patch } : o)
   })),
   deleteOrder: (id) => set((state) => ({ orders: state.orders.filter((o) => o.id !== id) })),
 

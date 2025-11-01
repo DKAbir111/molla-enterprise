@@ -17,6 +17,11 @@ export class CustomersController {
     return this.customers.findAll(req.user.organizationId);
   }
 
+  @Get(':id')
+  getOne(@Req() req: any, @Param('id') id: string) {
+    return this.customers.findOne(req.user.organizationId, id);
+  }
+
   @Post()
   create(@Req() req: any, @Body() dto: CreateCustomerDto) {
     return this.customers.create(req.user.organizationId, dto);
@@ -32,4 +37,3 @@ export class CustomersController {
     return this.customers.remove(req.user.organizationId, id);
   }
 }
-

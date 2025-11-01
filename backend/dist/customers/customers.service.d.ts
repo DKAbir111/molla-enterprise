@@ -7,32 +7,42 @@ export declare class CustomersService {
     private ensureOrg;
     findAll(orgId?: string | null): import(".prisma/client").Prisma.PrismaPromise<{
         id: string;
-        organizationId: string;
-        createdAt: Date;
         name: string;
         phone: string;
         email: string | null;
         address: string;
+        organizationId: string;
+        createdAt: Date;
         updatedAt: Date;
     }[]>;
-    create(orgId: string | null | undefined, dto: CreateCustomerDto): import(".prisma/client").Prisma.Prisma__CustomerClient<{
+    findOne(orgId: string | null | undefined, id: string): Promise<{
         id: string;
-        organizationId: string;
-        createdAt: Date;
         name: string;
         phone: string;
         email: string | null;
         address: string;
+        organizationId: string;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
+    create(orgId: string | null | undefined, dto: CreateCustomerDto): import(".prisma/client").Prisma.Prisma__CustomerClient<{
+        id: string;
+        name: string;
+        phone: string;
+        email: string | null;
+        address: string;
+        organizationId: string;
+        createdAt: Date;
         updatedAt: Date;
     }, never, import("@prisma/client/runtime/library").DefaultArgs>;
     update(orgId: string | null | undefined, id: string, dto: UpdateCustomerDto): Promise<{
         id: string;
-        organizationId: string;
-        createdAt: Date;
         name: string;
         phone: string;
         email: string | null;
         address: string;
+        organizationId: string;
+        createdAt: Date;
         updatedAt: Date;
     }>;
     remove(orgId: string | null | undefined, id: string): Promise<{

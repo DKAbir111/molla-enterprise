@@ -31,8 +31,8 @@ import {
 } from 'lucide-react'
 import { useReactToPrint } from 'react-to-print'
 import { generateCustomerPDF } from '@/lib/pdfGenerator'
-import { listOrders as fetchOrders } from '@/lib/api'
-import { normalizeOrder } from '@/lib/api'
+import { listOrders as fetchOrders, getCustomer as apiGetCustomer } from '@/lib/api'
+import { normalizeOrder, normalizeCustomer } from '@/lib/api'
 
 interface PurchaseHistoryItem {
   id: string
@@ -49,17 +49,30 @@ export default function CustomerDetailsPage() {
   const locale = useLocale()
   const params = useParams()
   const router = useRouter()
-  const { customers, updateCustomer } = useStore()
+  const { customers, updateCustomer, addCustomer } = useStore()
   const [purchaseHistory, setPurchaseHistory] = useState<PurchaseHistoryItem[]>([])
+  const [loadingCustomer, setLoadingCustomer] = useState(false)
   const printRef = useRef<HTMLDivElement>(null)
 
   const customerId = params.id as string
   const customer = customers.find(c => c.id === customerId)
 
-  // Load customer's purchase history
+  // Fetch single customer on direct access/refresh
   useEffect(() => {
     let mounted = true
-    if (!customer) return
+    if (!customer && customerId) {
+      setLoadingCustomer(true)
+      apiGetCustomer<any>(customerId)
+        .then((c) => { if (mounted && c) addCustomer(normalizeCustomer(c)) })
+        .catch(() => {})
+        .finally(() => { if (mounted) setLoadingCustomer(false) })
+    }
+    return () => { mounted = false }
+  }, [customerId, customer, addCustomer])
+
+  // Load customer's purchase history once per customer and avoid loops
+  useEffect(() => {
+    let mounted = true
     fetchOrders<any[]>()
       .then((res) => {
         if (!mounted) return
@@ -81,13 +94,18 @@ export default function CustomerDetailsPage() {
         })
         history.sort((a, b) => b.date.getTime() - a.date.getTime())
         setPurchaseHistory(history)
+
+        // Update aggregates only if they changed to prevent re-renders loops
         const totalOrders = customerOrders.length
         const totalSpent = history.reduce((sum, h) => sum + h.total, 0)
-        updateCustomer(customerId, { totalOrders, totalSpent })
+        const current = customers.find(c => c.id === customerId)
+        if (current && (current.totalOrders !== totalOrders || current.totalSpent !== totalSpent)) {
+          updateCustomer(customerId, { totalOrders, totalSpent })
+        }
       })
       .catch(() => {})
     return () => { mounted = false }
-  }, [customer, customerId, updateCustomer])
+  }, [customerId])
 
   // Group products by name and sum quantities
   const productSummary = purchaseHistory.reduce((acc, item) => {
@@ -122,16 +140,21 @@ export default function CustomerDetailsPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            Customer Not Found
-          </h2>
-          <p className="text-gray-600 mb-4">
-            The customer you&apos;re looking for doesn&apos;t exist.
-          </p>
-          <Button onClick={() => router.push('/customers')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Customers
-          </Button>
+          {loadingCustomer ? (
+            <>
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">Loading customer...</h2>
+              <p className="text-gray-600 mb-4">Please wait.</p>
+            </>
+          ) : (
+            <>
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">Customer Not Found</h2>
+              <p className="text-gray-600 mb-4">The customer you&apos;re looking for doesn&apos;t exist.</p>
+              <Button onClick={() => router.push(`/${locale}/customers`)}>
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Customers
+              </Button>
+            </>
+          )}
         </div>
       </div>
     )

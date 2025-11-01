@@ -14,6 +14,11 @@ export async function listCustomers<T = any[]>(): Promise<T> {
   return res.data
 }
 
+export async function getCustomer<T = any>(id: string): Promise<T> {
+  const res = await api.get<T>(`/customers/${id}`)
+  return res.data
+}
+
 export async function createCustomer<T = any>(data: CreateCustomerInput): Promise<T> {
   const res = await api.post<T>('/customers', data)
   return res.data
@@ -28,4 +33,3 @@ export async function deleteCustomer(id: string): Promise<{ ok: boolean } | any>
   const res = await api.delete(`/customers/${id}`)
   return res.data
 }
-

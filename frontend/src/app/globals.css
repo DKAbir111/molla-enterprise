@@ -41,6 +41,9 @@ html.theme-contrast {
   background: var(--app-bg);
 }
 
+/* Dialog: allow hiding default close for custom headers */
+.hide-default-close .dialog-close { display: none !important; }
+
 /* Card variable styles override */
 .card {
   background: var(--card-bg) !important;

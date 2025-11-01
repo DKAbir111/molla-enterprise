@@ -19,11 +19,10 @@ import { useLocale } from 'next-intl'
 import { Plus, Search, Eye, Edit, X, Package, CheckCircle, Clock, XCircle } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { OrderStatus, Order } from '@/types'
-import { EditOrderModal } from '@/components/orders/EditOrderModal'
 import { ViewOrderModal } from '@/components/orders/ViewOrderModal'
-import CreateOrderForm from '@/components/orders/CreateOrderForm'
+import OrderModal from '@/components/orders/OrderModal'
 import { DeleteConfirmationModal } from '@/components/shared/DeleteConfirmationModal'
-import { listOrders as fetchOrders, deleteOrder as apiDeleteOrder } from '@/lib/api'
+import { listOrders as fetchOrders, deleteOrder as apiDeleteOrder, updateOrder as apiUpdateOrder } from '@/lib/api'
 import { toast } from 'sonner'
 import { normalizeOrder } from '@/lib/api'
 
@@ -33,10 +32,11 @@ export default function OrdersPage() {
   const { orders, addOrder, updateOrderStatus, deleteOrder } = useStore()
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<OrderStatus | 'all'>('all')
-  const [showCreateForm, setShowCreateForm] = useState(false)
   const [orderToDelete, setOrderToDelete] = useState<Order | null>(null)
   const [orderToView, setOrderToView] = useState<Order | null>(null)
-  const [orderToEdit, setOrderToEdit] = useState<Order | null>(null)
+  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
+  const [modalOpen, setModalOpen] = useState(false)
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
 
   // Load orders from API
   useEffect(() => {
@@ -126,7 +126,7 @@ export default function OrdersPage() {
             </Select>
           </div>
         </div>
-        <Button className="flex items-center gap-2" onClick={() => setShowCreateForm(true)}>
+        <Button className="flex items-center gap-2" onClick={() => { setModalMode('create'); setSelectedOrder(null); setModalOpen(true) }}>
           <Plus className="h-4 w-4" /> {t('newOrder')}
         </Button>
       </div>
@@ -216,10 +216,39 @@ export default function OrdersPage() {
                   </TableCell>
                   <TableCell>{formatDate(order.createdAt, locale)}</TableCell>
                   <TableCell>
-                    <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(order.status)}`}>
-                      {getStatusIcon(order.status)}
-                      {t(`orderStatus.${order.status}` as any)}
-                    </span>
+                    <div className="min-w-[9rem]">
+                      <Select
+                        value={order.status}
+                        onValueChange={async (v) => {
+                          const next = v as OrderStatus
+                          const prev = order.status
+                          try {
+                            // optimistic update
+                            updateOrderStatus(order.id, next)
+                            await apiUpdateOrder(order.id, { status: next })
+                            toast.success(t('editOrderSaved'))
+                          } catch (e) {
+                            updateOrderStatus(order.id, prev)
+                            toast.error(t('editOrderFailed'))
+                          }
+                        }}
+                      >
+                        <SelectTrigger className="h-8 px-2 py-1 text-xs">
+                          <div className={`inline-flex items-center gap-1 ${getStatusColor(order.status)} rounded-full px-2 py-1 w-full justify-between`}>
+                            <span className="inline-flex items-center gap-1">
+                              {getStatusIcon(order.status)}
+                              {t(`orderStatus.${order.status}` as any)}
+                            </span>
+                          </div>
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="pending">{t('orderStatus.pending')}</SelectItem>
+                          <SelectItem value="processing">{t('orderStatus.processing')}</SelectItem>
+                          <SelectItem value="delivered">{t('orderStatus.delivered')}</SelectItem>
+                          <SelectItem value="cancelled">{t('orderStatus.cancelled')}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </TableCell>
                   <TableCell className="text-right font-medium">
                     {formatCurrency(order.total, locale)}
@@ -229,7 +258,7 @@ export default function OrdersPage() {
                       <Button variant="ghost" size="sm" onClick={() => setOrderToView(order)}>
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => setOrderToEdit(order)}>
+                      <Button variant="ghost" size="sm" onClick={() => { setModalMode('edit'); setSelectedOrder(order); setModalOpen(true) }}>
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button
@@ -252,14 +281,13 @@ export default function OrdersPage() {
       </>
       )}
 
-      {/* Create Order Form */}
-      {showCreateForm && (
-        <CreateOrderForm
-          isOpen={showCreateForm}
-          onClose={() => setShowCreateForm(false)}
-          onSuccess={() => {
-            toast.success('Order created successfully')
-          }}
+      {/* Unified Create/Edit Order Modal */}
+      {modalOpen && (
+        <OrderModal
+          mode={modalMode}
+          isOpen={modalOpen}
+          order={selectedOrder}
+          onClose={() => setModalOpen(false)}
         />
       )}
 
@@ -293,12 +321,7 @@ export default function OrdersPage() {
         order={orderToView}
       />
 
-      {/* Edit Order Modal */}
-      <EditOrderModal
-        isOpen={!!orderToEdit}
-        onClose={() => setOrderToEdit(null)}
-        order={orderToEdit}
-      />
+      {/* Removed standalone Edit modal; handled by OrderModal */}
     </div>
   )
 }

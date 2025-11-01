@@ -26,6 +26,9 @@ let CustomersController = class CustomersController {
     list(req) {
         return this.customers.findAll(req.user.organizationId);
     }
+    getOne(req, id) {
+        return this.customers.findOne(req.user.organizationId, id);
+    }
     create(req, dto) {
         return this.customers.create(req.user.organizationId, dto);
     }
@@ -44,6 +47,14 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], CustomersController.prototype, "list", null);
+__decorate([
+    (0, common_1.Get)(':id'),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], CustomersController.prototype, "getOne", null);
 __decorate([
     (0, common_1.Post)(),
     __param(0, (0, common_1.Req)()),

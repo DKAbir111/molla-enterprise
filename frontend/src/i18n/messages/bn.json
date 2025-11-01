@@ -178,6 +178,9 @@
       "title": "অর্ডার সম্পাদনা করুন",
       "description": "আপনার অর্ডারের বিবরণ সম্পাদনা করুন।"
     },
+    "editOrderSaved": "অর্ডার হালনাগাদ হয়েছে",
+    "editOrderFailed": "অর্ডার হালনাগাদ ব্যর্থ",
+    "downloadInvoice": "ইনভয়েস ডাউনলোড",
     "orderItems": "অর্ডার আইটেম",
     "product": "পণ্য",
     "quantity": "পরিমাণ",

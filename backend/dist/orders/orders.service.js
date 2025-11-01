@@ -71,12 +71,44 @@ let OrdersService = class OrdersService {
             throw new common_1.NotFoundException('Order not found');
         return this.prisma.order.update({ where: { id }, data: dto });
     }
+    async updateItems(orgId, id, dto) {
+        const organizationId = this.ensureOrg(orgId);
+        const found = await this.prisma.order.findFirst({ where: { id, organizationId } });
+        if (!found)
+            throw new common_1.NotFoundException('Order not found');
+        const productIds = dto.items.map((i) => i.productId);
+        const products = await this.prisma.product.findMany({ where: { id: { in: productIds }, organizationId } });
+        const productMap = new Map(products.map((p) => [p.id, p]));
+        const rows = dto.items.map((i) => {
+            const p = productMap.get(i.productId);
+            if (!p)
+                throw new common_1.NotFoundException(`Product not found: ${i.productId}`);
+            const price = typeof i.price === 'number' ? i.price : Number(p.price);
+            const total = price * i.quantity;
+            return {
+                orderId: id,
+                productId: i.productId,
+                productName: p.name,
+                quantity: i.quantity,
+                price,
+                total,
+            };
+        });
+        await this.prisma.$transaction([
+            this.prisma.orderItem.deleteMany({ where: { orderId: id } }),
+            this.prisma.orderItem.createMany({ data: rows }),
+        ]);
+        return this.prisma.order.findUnique({ where: { id }, include: { items: true, customer: true } });
+    }
     async remove(orgId, id) {
         const organizationId = this.ensureOrg(orgId);
         const found = await this.prisma.order.findFirst({ where: { id, organizationId } });
         if (!found)
             throw new common_1.NotFoundException('Order not found');
-        await this.prisma.order.delete({ where: { id } });
+        await this.prisma.$transaction([
+            this.prisma.orderItem.deleteMany({ where: { orderId: id } }),
+            this.prisma.order.delete({ where: { id } }),
+        ]);
         return { ok: true };
     }
 };
