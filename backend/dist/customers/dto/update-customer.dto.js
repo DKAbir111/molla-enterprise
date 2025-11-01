@@ -6,4 +6,3 @@ const create_customer_dto_1 = require("./create-customer.dto");
 class UpdateCustomerDto extends (0, swagger_1.PartialType)(create_customer_dto_1.CreateCustomerDto) {
 }
 exports.UpdateCustomerDto = UpdateCustomerDto;
-//# sourceMappingURL=update-customer.dto.js.map

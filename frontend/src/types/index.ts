@@ -17,6 +17,8 @@ export interface Product {
   type: ProductType
   grade?: ProductGrade
   price: number
+  buyPrice?: number
+  targetPrice?: number
   unit: string
   stock: number
   description?: string
@@ -54,6 +56,11 @@ export interface Order {
   deliveryAddress: string
   createdAt: Date
   deliveredAt?: Date
+  discount?: number
+  paidAmount?: number
+  transportPerTrip?: number
+  transportTrips?: number
+  transportTotal?: number
 }
 
 export type InvoiceStatus = 'paid' | 'unpaid' | 'partial'

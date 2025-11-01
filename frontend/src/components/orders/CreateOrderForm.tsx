@@ -64,6 +64,10 @@ export default function CreateOrderForm({ isOpen, onClose, onSuccess, mode = 'cr
       setCustomerPhone(existing?.phone || '')
       setDeliveryAddress(order.deliveryAddress || '')
       setOrderItems(order.items || [])
+      setDiscount(order.discount || 0)
+      setPaidAmount(order.paidAmount || 0)
+      setTransportPerTrip(order.transportPerTrip || 0)
+      setTransportTrips(order.transportTrips || 0)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, order])
@@ -111,8 +115,15 @@ export default function CreateOrderForm({ isOpen, onClose, onSuccess, mode = 'cr
     !orderItems.some(item => item.productId === product.id)
   )
 
-  // Calculate total
-  const total = orderItems.reduce((sum, item) => sum + item.total, 0)
+  // Calculate totals
+  const itemsTotal = orderItems.reduce((sum, item) => sum + item.total, 0)
+  const [discount, setDiscount] = useState<number>(0)
+  const [paidAmount, setPaidAmount] = useState<number>(0)
+  const [transportPerTrip, setTransportPerTrip] = useState<number>(0)
+  const [transportTrips, setTransportTrips] = useState<number>(0)
+  const transportTotal = transportPerTrip * transportTrips
+  const grandTotal = Math.max(0, itemsTotal + transportTotal - discount)
+  const due = Math.max(0, grandTotal - paidAmount)
 
   // Add product to order
   const addProductToOrder = (product: Product) => {
@@ -177,6 +188,10 @@ export default function CreateOrderForm({ isOpen, onClose, onSuccess, mode = 'cr
           customerId: selectedCustomer.id,
           deliveryAddress: deliveryAddress.trim(),
           items: orderItems.map(i => ({ productId: i.productId, quantity: i.quantity })),
+          discount,
+          paidAmount,
+          transportPerTrip,
+          transportTrips,
         }
         const created = await apiCreateOrder<any>(payload)
         const normalized = normalizeOrder(created)
@@ -206,10 +221,10 @@ export default function CreateOrderForm({ isOpen, onClose, onSuccess, mode = 'cr
     if (!order) return
     setIsSubmitting(true)
     try {
-      await apiUpdateOrder(order.id, { deliveryAddress: deliveryAddress.trim() })
+      await apiUpdateOrder(order.id, { deliveryAddress: deliveryAddress.trim(), discount, paidAmount, transportPerTrip, transportTrips })
       await apiUpdateOrderItems(order.id, { items: orderItems.map(i => ({ productId: i.productId, quantity: i.quantity, price: i.price })) })
       const total = orderItems.reduce((sum, it) => sum + (it.total || it.price * it.quantity), 0)
-      updateOrder(order.id, { items: orderItems, deliveryAddress: deliveryAddress.trim(), total })
+      updateOrder(order.id, { items: orderItems, deliveryAddress: deliveryAddress.trim(), total, discount, paidAmount, transportPerTrip, transportTrips, transportTotal })
       toast.success(tOrders('editOrderSaved'))
       onClose()
     } catch (err) {
@@ -421,27 +436,32 @@ export default function CreateOrderForm({ isOpen, onClose, onSuccess, mode = 'cr
                         <TableRow key={`${item.productId}-${idx}`} className="hover:bg-purple-50">
                           <TableCell className="font-medium text-gray-900">{item.productName}</TableCell>
                           <TableCell className="text-center">
-                            <div className="flex items-center justify-center gap-2">
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => updateItemQuantity(item.productId, item.quantity - 1)}
-                                className="h-8 w-8 p-0 hover:bg-red-50 hover:border-red-200"
-                              >
-                                <Minus className="h-3 w-3" />
-                              </Button>
-                              <span className="w-12 text-center font-medium">{item.quantity}</span>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => updateItemQuantity(item.productId, item.quantity + 1)}
-                                className="h-8 w-8 p-0 hover:bg-purple-50 hover:border-purple-200"
-                              >
-                                <Plus className="h-3 w-3" />
-                              </Button>
-                            </div>
+            <div className="flex items-center justify-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => updateItemQuantity(item.productId, item.quantity - 1)}
+                className="h-8 w-8 p-0 hover:bg-red-50 hover:border-red-200"
+              >
+                <Minus className="h-3 w-3" />
+              </Button>
+              <Input
+                type="number"
+                value={item.quantity}
+                onChange={(e) => updateItemQuantity(item.productId, parseInt(e.target.value || '0', 10))}
+                className="w-16 text-center h-9"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => updateItemQuantity(item.productId, item.quantity + 1)}
+                className="h-8 w-8 p-0 hover:bg-purple-50 hover:border-purple-200"
+              >
+                <Plus className="h-3 w-3" />
+              </Button>
+            </div>
                           </TableCell>
                           <TableCell className="text-right text-gray-700">
                             {mode === 'edit' ? (
@@ -479,10 +499,37 @@ export default function CreateOrderForm({ isOpen, onClose, onSuccess, mode = 'cr
                 </div>
 
                 {/* Order Total */}
-                <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-6 rounded-lg border border-purple-200">
-                  <div className="flex justify-between items-center">
-                    <span className="text-xl font-semibold text-gray-700">{t('orderTotal')}</span>
-                    <span className="text-2xl font-bold text-gray-900">{formatCurrency(total, locale)}</span>
+                <div className="p-6 rounded-lg border">
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Items Subtotal</span>
+                      <span className="font-medium">{formatCurrency(itemsTotal, locale)}</span>
+                    </div>
+                    <div className="flex justify-between items-center gap-3">
+                      <span className="text-gray-600 text-sm">Transportation</span>
+                      <div className="flex items-center gap-2">
+                        <Input type="number" value={transportPerTrip} onChange={(e) => setTransportPerTrip(parseFloat(e.target.value || '0'))} placeholder="Per trip" className="h-9 w-28 text-right" />
+                        <span className="text-gray-500">x</span>
+                        <Input type="number" value={transportTrips} onChange={(e) => setTransportTrips(parseInt(e.target.value || '0', 10))} placeholder="Trips" className="h-9 w-20 text-right" />
+                        <span className="font-medium">= {formatCurrency(transportTotal, locale)}</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center gap-3">
+                      <span className="text-gray-600 text-sm">Discount</span>
+                      <Input type="number" value={discount} onChange={(e) => setDiscount(parseFloat(e.target.value || '0'))} placeholder="0" className="h-9 w-32 text-right" />
+                    </div>
+                    <div className="border-t pt-3 flex justify-between">
+                      <span className="font-semibold">Grand Total</span>
+                      <span className="text-xl font-bold">{formatCurrency(grandTotal, locale)}</span>
+                    </div>
+                    <div className="flex justify-between items-center gap-3">
+                      <span className="text-gray-600 text-sm">Paid</span>
+                      <Input type="number" value={paidAmount} onChange={(e) => setPaidAmount(parseFloat(e.target.value || '0'))} placeholder="0" className="h-9 w-32 text-right" />
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-semibold text-green-700">Due</span>
+                      <span className="text-xl font-bold text-green-700">{formatCurrency(due, locale)}</span>
+                    </div>
                   </div>
                 </div>
               </div>

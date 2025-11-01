@@ -7,6 +7,8 @@ export type DashboardOverview = {
   activeOrders: number
   customers: number
   stockedProductValue: number
+  moneyReceived?: number
+  moneyDue?: number
 }
 
 export type DashboardData = {
@@ -15,10 +17,12 @@ export type DashboardData = {
   productSales: { name: string; sales: number }[]
 }
 
-export async function getDashboardData(params?: { months?: number; productDays?: number }): Promise<DashboardData> {
+export async function getDashboardData(params?: { months?: number; productDays?: number; startDate?: string; endDate?: string }): Promise<DashboardData> {
   const search = new URLSearchParams()
   if (params?.months) search.set('months', String(params.months))
   if (params?.productDays) search.set('productDays', String(params.productDays))
+  if (params?.startDate) search.set('startDate', params.startDate)
+  if (params?.endDate) search.set('endDate', params.endDate)
   const res = await api.get<DashboardData>(`/dashboard${search.toString() ? `?${search}` : ''}`)
   return res.data
 }

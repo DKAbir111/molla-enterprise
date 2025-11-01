@@ -32,10 +32,15 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
   const [name, setName] = React.useState('')
   const [type, setType] = React.useState('')
   const [grade, setGrade] = React.useState('')
-  const [price, setPrice] = React.useState<number>(0)
+  const [price, setPrice] = React.useState<number>(0) // sell price per unit
+  const [buyPrice, setBuyPrice] = React.useState<number>(0)
+  const [targetPrice, setTargetPrice] = React.useState<number>(0)
   const [unit, setUnit] = React.useState('')
   const [stock, setStock] = React.useState<number>(0)
   const [isLoading, setIsLoading] = React.useState(false)
+
+  const totalCost = React.useMemo(() => (stock > 0 ? buyPrice * stock : 0), [stock, buyPrice])
+  const totalSell = React.useMemo(() => (stock > 0 ? price * stock : 0), [stock, price])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -47,7 +52,7 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
         setIsLoading(false)
         return
       }
-      const created = await apiCreateProduct<any>({ name: name.trim(), type: type.trim(), grade: grade.trim() || undefined, price, unit, stock })
+      const created = await apiCreateProduct<any>({ name: name.trim(), type: type.trim(), grade: grade.trim() || undefined, price, buyPrice, targetPrice, unit, stock })
       const normalized = normalizeProduct(created)
       addProduct(normalized as Product)
       toast.success('Product added')
@@ -140,27 +145,17 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
 
             {/* Pricing & Inventory Section */}
             <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Price */}
-                <div className="space-y-2">
-                  <Label htmlFor="price" className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                    {t('pricePerUnit')} ({t('currencySymbol')})
-                  </Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    value={price}
-                    onChange={(e) => setPrice(parseFloat(e.target.value) || 0)}
-                    required
-                    className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"
-                    placeholder="0.00"
-                    min="0"
-                    step="0.01"
-                  />
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Price */}
+              <div className="space-y-2">
+                <Label htmlFor="price" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                  Sell Price / Unit ({t('currencySymbol')})
+                </Label>
+                <Input id="price" type="number" value={price} onChange={(e) => setPrice(parseFloat(e.target.value) || 0)} required className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200" placeholder="0.00" min="0" step="0.01" />
+              </div>
 
-                {/* Unit */}
-                <div className="space-y-2">
+              {/* Unit */}
+              <div className="space-y-2">
                   <Label htmlFor="unit" className="text-sm font-medium text-gray-700 flex items-center gap-2">
                     {t('unit')}
                   </Label>
@@ -178,8 +173,8 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
                   </Select>
                 </div>
 
-                {/* Stock */}
-                <div className="space-y-2">
+              {/* Stock */}
+              <div className="space-y-2">
                   <Label htmlFor="stock" className="text-sm font-medium text-gray-700 flex items-center gap-2">
                     <Warehouse className="h-4 w-4" />
                     {t('stock')}
@@ -195,7 +190,33 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
                     min="0"
                   />
                 </div>
+            </div>
+
+            {/* Cost & Target Pricing */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">Buy Price / Unit ({t('currencySymbol')})</Label>
+                <Input type="number" value={buyPrice} onChange={(e) => setBuyPrice(parseFloat(e.target.value) || 0)} className="h-11" placeholder="0.00" min="0" step="0.01" />
+                <div className="text-xs text-gray-500">Total Cost: <span className="font-semibold">{totalCost.toLocaleString()}</span></div>
               </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">Total Cost ({t('currencySymbol')})</Label>
+                <Input type="number" value={totalCost} onChange={(e) => { const v = parseFloat(e.target.value) || 0; setBuyPrice(stock > 0 ? v / stock : 0) }} className="h-11" placeholder="0.00" min="0" step="0.01" />
+                <div className="text-xs text-gray-500">Auto = unit × stock</div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">Target Sell Price / Unit</Label>
+                <Input type="number" value={targetPrice} onChange={(e) => setTargetPrice(parseFloat(e.target.value) || 0)} className="h-11" placeholder="0.00" min="0" step="0.01" />
+              </div>
+            </div>
+
+            {/* Sell totals */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">Total Sell Value ({t('currencySymbol')})</Label>
+                <Input type="number" value={totalSell} onChange={(e) => { const v = parseFloat(e.target.value) || 0; setPrice(stock > 0 ? v / stock : 0) }} className="h-11" placeholder="0.00" min="0" step="0.01" />
+              </div>
+            </div>
             </div>
 
             {/* Action Buttons */}

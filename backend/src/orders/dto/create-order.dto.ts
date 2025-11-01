@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsArray, IsNotEmpty, IsOptional, IsString, Min, ValidateNested } from 'class-validator';
+import { IsArray, IsNotEmpty, IsOptional, IsString, Min, ValidateNested, IsNumber } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class OrderItemInput {
@@ -27,5 +27,24 @@ export class CreateOrderDto {
   @ValidateNested({ each: true })
   @Type(() => OrderItemInput)
   items: OrderItemInput[];
-}
 
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
+  discount?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
+  paidAmount?: number;
+
+  @ApiPropertyOptional({ description: 'Transportation cost per trip' })
+  @IsOptional()
+  @IsNumber()
+  transportPerTrip?: number;
+
+  @ApiPropertyOptional({ description: 'Number of transportation trips' })
+  @IsOptional()
+  @IsNumber()
+  transportTrips?: number;
+}

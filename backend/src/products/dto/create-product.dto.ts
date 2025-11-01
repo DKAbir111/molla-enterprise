@@ -19,6 +19,18 @@ export class CreateProductDto {
   @Min(0)
   price: number;
 
+  @ApiPropertyOptional({ description: 'Buying price per unit' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  buyPrice?: number;
+
+  @ApiPropertyOptional({ description: 'Target sell price per unit' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  targetPrice?: number;
+
   @ApiProperty()
   @IsString()
   unit: string;
@@ -32,4 +44,3 @@ export class CreateProductDto {
   @IsOptional()
   description?: string;
 }
-

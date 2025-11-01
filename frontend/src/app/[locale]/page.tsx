@@ -25,9 +25,11 @@ export default function DashboardPage() {
     stockedProductValue: 0,
   })
 
+  const [range, setRange] = React.useState<{ start?: string; end?: string }>({})
+
   React.useEffect(() => {
     let mounted = true
-    getDashboardData({ months: 6, productDays: 90 })
+    getDashboardData({ months: 6, productDays: 90, startDate: range.start, endDate: range.end })
       .then((data) => {
         if (!mounted) return
         setOverview(data.overview)
@@ -36,7 +38,7 @@ export default function DashboardPage() {
       })
       .catch(() => { setRevenueData([]); setProductData([]) })
     return () => { mounted = false }
-  }, [locale])
+  }, [locale, range.start, range.end])
 
   // Chart data from API
   const [revenueData, setRevenueData] = React.useState<{ name: string; revenue: number }[]>([])
@@ -54,6 +56,16 @@ export default function DashboardPage() {
       icon: TrendingUp,
       change: prev > 0 ? `${revPositive ? '+' : ''}${revChangePct.toFixed(1)}%` : undefined,
       positive: prev > 0 ? revPositive : undefined,
+    },
+    {
+      title: 'Money Received',
+      value: formatCurrency((overview as any).moneyReceived || 0, locale),
+      icon: TrendingUp,
+    },
+    {
+      title: 'Money Due',
+      value: formatCurrency((overview as any).moneyDue || 0, locale),
+      icon: TrendingUp,
     },
     {
       title: t('activeOrders'),
@@ -85,7 +97,9 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* Page title and filters moved into navbar for more space */}
+      <div className="flex justify-end">
+        <DateFilter value={range} onChange={(v) => setRange({ start: v.start, end: v.end })} />
+      </div>
 
       {/* Stats Grid */}
       <DashboardStatsGrid stats={stats} />

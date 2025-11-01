@@ -19,14 +19,26 @@ export class ProductsService {
 
   create(orgId: string | null | undefined, dto: CreateProductDto) {
     const organizationId = this.ensureOrg(orgId);
-    return this.prisma.product.create({ data: { ...dto, price: dto.price, organizationId } });
+    return this.prisma.product.create({ data: ({
+      name: dto.name,
+      type: dto.type,
+      grade: dto.grade,
+      price: dto.price,
+      buyPrice: (dto as any).buyPrice ?? 0,
+      targetPrice: (dto as any).targetPrice ?? dto.price,
+      unit: dto.unit,
+      stock: dto.stock,
+      description: dto.description,
+      organizationId,
+    } as any) });
   }
 
   async update(orgId: string | null | undefined, id: string, dto: UpdateProductDto) {
     const organizationId = this.ensureOrg(orgId);
     const found = await this.prisma.product.findFirst({ where: { id, organizationId } });
     if (!found) throw new NotFoundException('Product not found');
-    return this.prisma.product.update({ where: { id }, data: dto });
+    const data: any = { ...dto };
+    return this.prisma.product.update({ where: { id }, data });
   }
 
   async remove(orgId: string | null | undefined, id: string) {
@@ -37,4 +49,3 @@ export class ProductsService {
     return { ok: true };
   }
 }
-

@@ -4,10 +4,16 @@ import * as React from 'react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 
-export function DateFilter() {
+export function DateFilter({
+  value,
+  onChange,
+}: {
+  value?: { start?: string; end?: string }
+  onChange?: (v: { start?: string; end?: string; preset?: string }) => void
+}) {
   const t = useTranslations('dateFilter')
-  const [startDate, setStartDate] = React.useState<string>('')
-  const [endDate, setEndDate] = React.useState<string>('')
+  const [startDate, setStartDate] = React.useState<string>(value?.start || '')
+  const [endDate, setEndDate] = React.useState<string>(value?.end || '')
 
   const handlePresetChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = event.target.value
@@ -43,11 +49,13 @@ export function DateFilter() {
 
     setStartDate(start)
     setEndDate(end)
+    onChange?.({ start, end, preset: selectedValue })
   }
 
   const handleClear = () => {
     setStartDate('')
     setEndDate('')
+    onChange?.({ start: undefined, end: undefined, preset: undefined as any })
   }
 
   return (
@@ -69,14 +77,14 @@ export function DateFilter() {
       <input
         type="date"
         value={startDate}
-        onChange={(e) => setStartDate(e.target.value)}
+        onChange={(e) => { setStartDate(e.target.value); onChange?.({ start: e.target.value, end: endDate }) }}
         className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
       />
       <span className="text-[color:var(--text)]/60">-</span>
       <input
         type="date"
         value={endDate}
-        onChange={(e) => setEndDate(e.target.value)}
+        onChange={(e) => { setEndDate(e.target.value); onChange?.({ start: startDate, end: e.target.value }) }}
         className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
       />
       <Button size="sm" onClick={handleClear}>{t('clear')}</Button>

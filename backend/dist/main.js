@@ -22,4 +22,3 @@ async function bootstrap() {
     console.log(`API running at http://localhost:${port}/api`);
 }
 bootstrap();
-//# sourceMappingURL=main.js.map

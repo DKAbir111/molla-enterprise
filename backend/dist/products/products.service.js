@@ -1,15 +1,7 @@
 "use strict";
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProductsService = void 0;
+const tslib_1 = require("tslib");
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 let ProductsService = class ProductsService {
@@ -27,14 +19,26 @@ let ProductsService = class ProductsService {
     }
     create(orgId, dto) {
         const organizationId = this.ensureOrg(orgId);
-        return this.prisma.product.create({ data: { ...dto, price: dto.price, organizationId } });
+        return this.prisma.product.create({ data: {
+                name: dto.name,
+                type: dto.type,
+                grade: dto.grade,
+                price: dto.price,
+                buyPrice: dto.buyPrice ?? 0,
+                targetPrice: dto.targetPrice ?? dto.price,
+                unit: dto.unit,
+                stock: dto.stock,
+                description: dto.description,
+                organizationId,
+            } });
     }
     async update(orgId, id, dto) {
         const organizationId = this.ensureOrg(orgId);
         const found = await this.prisma.product.findFirst({ where: { id, organizationId } });
         if (!found)
             throw new common_1.NotFoundException('Product not found');
-        return this.prisma.product.update({ where: { id }, data: dto });
+        const data = { ...dto };
+        return this.prisma.product.update({ where: { id }, data });
     }
     async remove(orgId, id) {
         const organizationId = this.ensureOrg(orgId);
@@ -46,8 +50,7 @@ let ProductsService = class ProductsService {
     }
 };
 exports.ProductsService = ProductsService;
-exports.ProductsService = ProductsService = __decorate([
+exports.ProductsService = ProductsService = tslib_1.__decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    tslib_1.__metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], ProductsService);
-//# sourceMappingURL=products.service.js.map

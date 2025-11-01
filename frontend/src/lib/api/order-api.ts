@@ -11,11 +11,19 @@ export type CreateOrderInput = {
   customerId: string
   items: OrderItemInput[]
   deliveryAddress?: string
+  discount?: number
+  paidAmount?: number
+  transportPerTrip?: number
+  transportTrips?: number
 }
 
 export type UpdateOrderInput = {
   status?: OrderStatus
   deliveryAddress?: string
+  discount?: number
+  paidAmount?: number
+  transportPerTrip?: number
+  transportTrips?: number
 }
 
 export async function listOrders<T = any[]>(): Promise<T> {

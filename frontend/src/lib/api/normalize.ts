@@ -23,6 +23,11 @@ export function normalizeOrder(apiOrder: any): Order {
     createdAt,
     deliveredAt,
     date: createdAt,
+    discount: Number(apiOrder.discount ?? 0),
+    paidAmount: Number(apiOrder.paidAmount ?? 0),
+    transportPerTrip: Number(apiOrder.transportPerTrip ?? 0),
+    transportTrips: Number(apiOrder.transportTrips ?? 0),
+    transportTotal: Number(apiOrder.transportTotal ?? 0),
   }
 }
 
@@ -46,6 +51,8 @@ export function normalizeProduct(apiProduct: any): Product {
     type: String(apiProduct.type),
     grade: apiProduct.grade ? String(apiProduct.grade) : undefined,
     price: toNumber(apiProduct.price),
+    buyPrice: toNumber((apiProduct as any).buyPrice ?? 0),
+    targetPrice: toNumber((apiProduct as any).targetPrice ?? apiProduct.price ?? 0),
     unit: String(apiProduct.unit ?? ''),
     stock: Number(apiProduct.stock ?? 0),
     description: apiProduct.description ? String(apiProduct.description) : undefined,
@@ -62,4 +69,3 @@ export function normalizeTransaction(apiTx: any): Transaction {
     date: apiTx.date ? new Date(apiTx.date) : new Date(),
   }
 }
-

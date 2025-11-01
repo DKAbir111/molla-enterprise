@@ -6,4 +6,3 @@ const create_product_dto_1 = require("./create-product.dto");
 class UpdateProductDto extends (0, swagger_1.PartialType)(create_product_dto_1.CreateProductDto) {
 }
 exports.UpdateProductDto = UpdateProductDto;
-//# sourceMappingURL=update-product.dto.js.map

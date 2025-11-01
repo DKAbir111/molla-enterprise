@@ -5,6 +5,8 @@ export type CreateProductInput = {
   type: string
   grade?: string
   price: number
+  buyPrice?: number
+  targetPrice?: number
   unit: string
   stock: number
   description?: string
@@ -31,4 +33,3 @@ export async function deleteProduct(id: string): Promise<{ ok: boolean } | any> 
   const res = await api.delete(`/products/${id}`)
   return res.data
 }
-

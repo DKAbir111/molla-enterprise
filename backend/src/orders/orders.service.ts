@@ -49,6 +49,11 @@ export class OrdersService {
     });
 
     const total = itemsData.reduce((sum, i) => sum + i.total, 0);
+    const discount = num((dto as any).discount)
+    const paidAmount = num((dto as any).paidAmount)
+    const tPerTrip = num((dto as any).transportPerTrip)
+    const tTrips = Math.max(0, Number((dto as any).transportTrips ?? 0))
+    const transportTotal = tPerTrip * tTrips
 
     const created = await this.prisma.order.create({
       data: {
@@ -64,7 +69,14 @@ export class OrdersService {
 
     // Best-effort persist of total (works after migration adds the column)
     try {
-      await this.prisma.order.update({ where: { id: created.id }, data: { total: total } as any });
+      await this.prisma.order.update({ where: { id: created.id }, data: {
+        total: total as any,
+        discount: discount as any,
+        paidAmount: paidAmount as any,
+        transportPerTrip: tPerTrip as any,
+        transportTrips: tTrips as any,
+        transportTotal: transportTotal as any,
+      } as any });
     } catch {}
 
     return created;
@@ -74,7 +86,18 @@ export class OrdersService {
     const organizationId = this.ensureOrg(orgId);
     const found = await this.prisma.order.findFirst({ where: { id, organizationId } });
     if (!found) throw new NotFoundException('Order not found');
-    return this.prisma.order.update({ where: { id }, data: dto });
+    const data: any = { ...dto };
+    // Recalculate transportTotal if inputs are provided
+    const tPerTrip = (dto as any).transportPerTrip ?? (found as any).transportPerTrip ?? 0;
+    const tTrips = (dto as any).transportTrips ?? (found as any).transportTrips ?? 0;
+    if (tPerTrip != null || tTrips != null) {
+      const per = Number(tPerTrip ?? 0)
+      const trips = Number(tTrips ?? 0)
+      data.transportPerTrip = per
+      data.transportTrips = trips
+      data.transportTotal = per * trips
+    }
+    return this.prisma.order.update({ where: { id }, data });
   }
 
   async updateItems(orgId: string | null | undefined, id: string, dto: UpdateOrderItemsDto) {
@@ -125,4 +148,9 @@ export class OrdersService {
     ])
     return { ok: true };
   }
+}
+
+// local numeric coercion helper
+function num(v: any): number {
+  return typeof v === 'number' ? v : Number(v ?? 0)
 }

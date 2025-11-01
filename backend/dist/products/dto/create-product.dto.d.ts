@@ -3,6 +3,8 @@ export declare class CreateProductDto {
     type: string;
     grade?: string;
     price: number;
+    buyPrice?: number;
+    targetPrice?: number;
     unit: string;
     stock: number;
     description?: string;
