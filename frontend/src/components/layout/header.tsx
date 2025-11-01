@@ -1,10 +1,12 @@
+
 'use client'
 
 import { useLocale, useTranslations } from 'next-intl'
 import { usePathname, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Languages, Bell, User, LogOut } from 'lucide-react'
-import { logout } from '@/lib/api'
+import { logout, getMyOrganization } from '@/lib/api'
+import React from 'react'
 
 export function Header() {
   const locale = useLocale()
@@ -18,11 +20,31 @@ export function Header() {
     router.push(path)
   }
 
+  const [orgName, setOrgName] = React.useState<string>('Sand Business Management')
+  const [logoUrl, setLogoUrl] = React.useState<string | null>(null)
+
+  React.useEffect(() => {
+    let mounted = true
+    getMyOrganization<any>()
+      .then((org) => {
+        if (!mounted || !org) return
+        if (org?.name) setOrgName(org.name)
+        if (org?.logoUrl) setLogoUrl(org.logoUrl)
+      })
+      .catch(() => {})
+    return () => { mounted = false }
+  }, [])
+
   return (
     <header className="h-16 px-6 flex items-center justify-between border-b border-[color:var(--card-border)] bg-[var(--card-bg)]/90 backdrop-blur-md">
       <div className="flex items-center gap-3">
-        <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-purple-600 to-blue-600"></div>
-        <h1 className="text-lg font-semibold text-[color:var(--text)]">Sand Business Management</h1>
+        {logoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={logoUrl} alt="Logo" className="h-8 w-8 rounded-lg object-cover" />
+        ) : (
+          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-purple-600 to-blue-600" />
+        )}
+        <h1 className="text-lg font-semibold text-[color:var(--text)]">{orgName}</h1>
       </div>
       
       <div className="flex items-center gap-3">
