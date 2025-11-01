@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-inter: 'Inter', sans-serif;
+    --font-noto-bengali: 'Noto Sans Bengali', sans-serif;
+  }
+
+  body {
+    font-family: var(--font-inter);
+  }
+
+  [lang="bn"] body {
+    font-family: var(--font-noto-bengali), var(--font-inter);
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/70 backdrop-blur-md border border-white/20;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent;
+  }
+
+  .gradient-border {
+    @apply relative before:absolute before:inset-0 before:rounded-lg before:p-[1px] before:bg-gradient-to-r before:from-purple-600 before:to-blue-600 before:-z-10;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+}
+
+/* Print Styles */
+@media print {
+  .print\:hidden {
+    display: none !important;
+  }
+  
+  .print\:block {
+    display: block !important;
+  }
+  
+  .print\:p-8 {
+    padding: 2rem !important;
+  }
+  
+  /* Hide navigation and other UI elements when printing */
+  nav, .sidebar, .header, button:not(.print-button) {
+    display: none !important;
+  }
+  
+  /* Ensure proper page breaks */
+  .print-page-break {
+    page-break-before: always;
+  }
+  
+  /* Optimize table printing */
+  table {
+    page-break-inside: avoid;
+  }
+  
+  th, td {
+    page-break-inside: avoid;
+  }
+  
+  /* Ensure proper colors for print */
+  .print\:text-black {
+    color: black !important;
+  }
+  
+  .print\:bg-white {
+    background-color: white !important;
+  }
+}
