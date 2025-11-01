@@ -69,6 +69,18 @@ export default function CustomersPage() {
         />
       </div>
 
+      {/* Empty State */}
+      {filteredCustomers.length === 0 ? (
+        <Card className="border-dashed">
+          <CardContent className="py-16 text-center">
+            <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white flex items-center justify-center text-2xl">+</div>
+            <h3 className="text-lg font-semibold mb-1">{t('emptyTitle')}</h3>
+            <p className="text-gray-600 mb-4">{t('emptyDescription')}</p>
+            <Button onClick={() => setIsAddOpen(true)}>{t('addCustomer')}</Button>
+          </CardContent>
+        </Card>
+      ) : (
+      <>
       {/* Customer Stats */}
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
@@ -201,6 +213,8 @@ export default function CustomersPage() {
           </Table>
         </CardContent>
       </Card>
+      </>
+      )}
       <AddCustomerModal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} />
     </div>
   )

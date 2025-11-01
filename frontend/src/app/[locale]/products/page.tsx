@@ -143,7 +143,18 @@ export default function ProductsPage() {
         </select>
       </div>
 
-      {/* Products Grid */}
+      {/* Empty State */}
+      {filteredProducts.length === 0 ? (
+        <Card className="border-dashed">
+          <CardContent className="py-16 text-center">
+            <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white flex items-center justify-center text-2xl">+</div>
+            <h3 className="text-lg font-semibold mb-1">{t('emptyTitle')}</h3>
+            <p className="text-gray-600 mb-4">{t('emptyDescription')}</p>
+            <Button onClick={() => setIsAddModalOpen(true)}>{t('addProduct')}</Button>
+          </CardContent>
+        </Card>
+      ) : (
+      /* Products Grid */
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {filteredProducts.map((product, idx) => (
           <Card key={`${product.id}-${idx}`} className="hover:shadow-lg transition-all group">
@@ -189,6 +200,7 @@ export default function ProductsPage() {
           </Card>
         ))}
       </div>
+      )}
     </div>
   )
 }

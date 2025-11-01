@@ -107,6 +107,24 @@ export default function AccountsPage() {
   const expensePct = pct(lastExpense, prevExpense)
   const profitPct = pct(lastProfit, prevProfit)
 
+  // Empty state when no transactions
+  if (transactions.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">{t('title')}</h1>
+        </div>
+        <Card className="border-dashed">
+          <CardContent className="py-16 text-center">
+            <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white flex items-center justify-center text-2xl">ℹ️</div>
+            <h3 className="text-lg font-semibold mb-1">{t('emptyTitle') || 'No transactions yet'}</h3>
+            <p className="text-gray-600">{t('emptyDescription') || 'As you add orders and record payments/expenses, analytics will appear here.'}</p>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       <div>

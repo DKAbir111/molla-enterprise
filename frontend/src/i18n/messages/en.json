@@ -88,7 +88,9 @@
     "productId": "Product ID:",
     "selectType": "Select Type",
     "selectGrade": "Select Grade",
-    "currencySymbol": "BDT"
+    "currencySymbol": "BDT",
+    "emptyTitle": "No products yet",
+    "emptyDescription": "Add your first product to start selling and tracking stock."
   },
   "customers": {
     "title": "Customers",
@@ -115,7 +117,9 @@
     "saving": "Saving...",
     "added": "Customer added",
     "addFailed": "Failed to add customer",
-    "validationRequired": "Please fill in name, phone and address"
+    "validationRequired": "Please fill in name, phone and address",
+    "emptyTitle": "No customers yet",
+    "emptyDescription": "Add your first customer to start taking orders."
   },
   "customerDetails": {
     "back": "Back",
@@ -176,7 +180,9 @@
     "orderItems": "Order Items",
     "product": "Product",
     "quantity": "Quantity",
-    "price": "Price"
+    "price": "Price",
+    "emptyTitle": "No orders yet",
+    "emptyDescription": "Create your first order to see it listed here."
   },
   "createOrder": {
     "title": "Create New Order",
@@ -257,7 +263,9 @@
     "type": "Type",
     "amount": "Amount",
     "income": "Income",
-    "expense": "Expense"
+    "expense": "Expense",
+    "emptyTitle": "No transactions yet",
+    "emptyDescription": "As you add income and expenses, trends and insights will appear here."
   },
   "oil": {
     "title": "Oil Business",

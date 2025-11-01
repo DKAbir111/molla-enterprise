@@ -88,7 +88,9 @@
     "adding": "যোগ করা হচ্ছে...",
     "saving": "সংরক্ষণ করা হচ্ছে...",
     "productId": "পণ্য আইডি:",
-    "currencySymbol": "৳"
+    "currencySymbol": "৳",
+    "emptyTitle": "এখনও কোনো পণ্য নেই",
+    "emptyDescription": "স্টকে ট্র্যাক ও বিক্রি শুরু করতে প্রথম পণ্যটি যোগ করুন।"
   },
   "customers": {
     "title": "গ্রাহক",
@@ -115,7 +117,9 @@
     "saving": "সংরক্ষণ হচ্ছে...",
     "added": "গ্রাহক যোগ হয়েছে",
     "addFailed": "গ্রাহক যোগ করতে ব্যর্থ",
-    "validationRequired": "অনুগ্রহ করে নাম, ফোন এবং ঠিকানা পূরণ করুন"
+    "validationRequired": "অনুগ্রহ করে নাম, ফোন এবং ঠিকানা পূরণ করুন",
+    "emptyTitle": "এখনও কোনো গ্রাহক নেই",
+    "emptyDescription": "অর্ডার নেওয়া শুরু করতে প্রথম গ্রাহকটি যোগ করুন।"
   },
   "customerDetails": {
     "back": "ফিরে যান",
@@ -176,7 +180,9 @@
     "orderItems": "অর্ডার আইটেম",
     "product": "পণ্য",
     "quantity": "পরিমাণ",
-    "price": "মূল্য"
+    "price": "মূল্য",
+    "emptyTitle": "এখনও কোনো অর্ডার নেই",
+    "emptyDescription": "এখানে দেখতে আপনার প্রথম অর্ডারটি তৈরি করুন।"
   },
   "createOrder": {
     "title": "নতুন অর্ডার তৈরি করুন",
@@ -255,7 +261,9 @@
     "type": "ধরন",
     "amount": "পরিমাণ",
     "income": "আয়",
-    "expense": "খরচ"
+    "expense": "খরচ",
+    "emptyTitle": "এখনও কোনো লেনদেন নেই",
+    "emptyDescription": "আপনি আয় ও খরচ যোগ করলে এখানে বিশ্লেষণ দেখা যাবে।"
   },
   "oil": {
     "title": "তেলের ব্যবসা",

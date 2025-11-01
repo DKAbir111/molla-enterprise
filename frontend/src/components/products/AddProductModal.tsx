@@ -17,6 +17,8 @@ import { useStore } from '@/store/useStore'
 import { Product } from '@/types'
 import { Plus, Warehouse, Tag, Layers, Save } from 'lucide-react'
 import { toast } from 'sonner'
+import { createProduct as apiCreateProduct } from '@/lib/api'
+import { normalizeProduct } from '@/lib/api'
 
 interface AddProductModalProps {
   isOpen: boolean
@@ -39,29 +41,28 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
     e.preventDefault()
     setIsLoading(true)
 
-    await new Promise(resolve => setTimeout(resolve, 500))
-
-    const newProduct: Product = {
-      id: String(Date.now()),
-      name,
-      type,
-      grade,
-      price,
-      unit,
-      stock,
+    try {
+      if (!name.trim() || !type.trim() || !unit.trim()) {
+        toast.error('Please fill in required fields')
+        setIsLoading(false)
+        return
+      }
+      const created = await apiCreateProduct<any>({ name: name.trim(), type: type.trim(), grade: grade.trim() || undefined, price, unit, stock })
+      const normalized = normalizeProduct(created)
+      addProduct(normalized as Product)
+      toast.success('Product added')
+      onClose()
+      setName('')
+      setType('')
+      setGrade('')
+      setPrice(0)
+      setUnit('')
+      setStock(0)
+    } catch (err) {
+      toast.error('Failed to add product')
+    } finally {
+      setIsLoading(false)
     }
-
-    addProduct(newProduct)
-    toast.success('Product added')
-    onClose()
-
-    setName('')
-    setType('')
-    setGrade('')
-    setPrice(0)
-    setUnit('')
-    setStock(0)
-    setIsLoading(false)
   }
 
   const units = ['liter', 'feet', 'piece', 'ton', 'bag', 'cft', 'kg', 'meter', 'yard', 'gallon', 'cubicMeter']
