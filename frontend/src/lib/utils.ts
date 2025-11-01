@@ -26,3 +26,15 @@ export function formatDate(date: Date | string, locale: string = 'en-US'): strin
 export function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).substr(2)
 }
+
+// Friendly order code from UUID/date, e.g., ORD-2511-7C3A9F
+export function formatOrderCode(id: string, date?: Date | string): string {
+  const short = (id || '').replace(/-/g, '').slice(0, 6).toUpperCase()
+  if (date) {
+    const d = typeof date === 'string' ? new Date(date) : date
+    const yy = String(d.getFullYear()).slice(-2)
+    const mm = String(d.getMonth() + 1).padStart(2, '0')
+    return `ORD-${yy}${mm}-${short}`
+  }
+  return `ORD-${short}`
+}

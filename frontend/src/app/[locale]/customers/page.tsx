@@ -50,23 +50,21 @@ export default function CustomersPage() {
 
   return (
     <div className="space-y-6">
+      {/* Controls */}
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">{t('title')}</h1>
+        <div className="relative w-full max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Input
+            placeholder={t('search')}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
         <Button className="flex items-center gap-2" onClick={() => setIsAddOpen(true)}>
           <Plus className="h-4 w-4" />
           {t('addCustomer')}
         </Button>
-      </div>
-
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-        <Input
-          placeholder={t('search')}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10"
-        />
       </div>
 
       {/* Empty State */}

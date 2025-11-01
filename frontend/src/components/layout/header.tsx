@@ -5,8 +5,10 @@ import { useLocale, useTranslations } from 'next-intl'
 import { usePathname, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Languages, Bell, User, LogOut } from 'lucide-react'
-import { logout, getMyOrganization } from '@/lib/api'
+import { logout } from '@/lib/api'
 import React from 'react'
+// Page-level controls (search, filters, add buttons) are rendered in pages,
+// not in the header, to maximize page space flexibility.
 
 export function Header() {
   const locale = useLocale()
@@ -20,31 +22,19 @@ export function Header() {
     router.push(path)
   }
 
-  const [orgName, setOrgName] = React.useState<string>('Sand Business Management')
-  const [logoUrl, setLogoUrl] = React.useState<string | null>(null)
+  const tNav = useTranslations('nav')
 
-  React.useEffect(() => {
-    let mounted = true
-    getMyOrganization<any>()
-      .then((org) => {
-        if (!mounted || !org) return
-        if (org?.name) setOrgName(org.name)
-        if (org?.logoUrl) setLogoUrl(org.logoUrl)
-      })
-      .catch(() => {})
-    return () => { mounted = false }
-  }, [])
+  // page title from route
+  const segments = pathname.split('/')
+  const routeKey = segments[2] ? segments[2] as any : 'dashboard'
+  const pageTitle = tNav(routeKey as any)
+
+  // No logo in navbar as requested
 
   return (
     <header className="h-16 px-6 flex items-center justify-between border-b border-[color:var(--card-border)] bg-[var(--card-bg)]/90 backdrop-blur-md">
       <div className="flex items-center gap-3">
-        {logoUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={logoUrl} alt="Logo" className="h-8 w-8 rounded-lg object-cover" />
-        ) : (
-          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-purple-600 to-blue-600" />
-        )}
-        <h1 className="text-lg font-semibold text-[color:var(--text)]">{orgName}</h1>
+        <h1 className="text-lg font-semibold text-[color:var(--text)]">{pageTitle}</h1>
       </div>
       
       <div className="flex items-center gap-3">

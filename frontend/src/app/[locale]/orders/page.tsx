@@ -14,9 +14,10 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { useStore } from '@/store/useStore'
-import { formatCurrency, formatDate } from '@/lib/utils'
+import { formatCurrency, formatDate, formatOrderCode } from '@/lib/utils'
 import { useLocale } from 'next-intl'
 import { Plus, Search, Eye, Edit, X, Package, CheckCircle, Clock, XCircle } from 'lucide-react'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { OrderStatus, Order } from '@/types'
 import { EditOrderModal } from '@/components/orders/EditOrderModal'
 import { ViewOrderModal } from '@/components/orders/ViewOrderModal'
@@ -52,9 +53,12 @@ export default function OrdersPage() {
   }, [orders.length, addOrder])
 
   const filteredOrders = orders.filter(order => {
+    const q = searchQuery.toLowerCase()
+    const code = formatOrderCode(order.id, order.createdAt).toLowerCase()
     const matchesSearch =
-      order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.customerName.toLowerCase().includes(searchQuery.toLowerCase())
+      order.id.toLowerCase().includes(q) ||
+      code.includes(q) ||
+      order.customerName.toLowerCase().includes(q)
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter
     return matchesSearch && matchesStatus
   })
@@ -95,14 +99,35 @@ export default function OrdersPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">{t('title')}</h1>
-        <Button
-          className="flex items-center gap-2"
-          onClick={() => setShowCreateForm(true)}
-        >
-          <Plus className="h-4 w-4" />
-          {t('newOrder')}
+      {/* Controls */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3 flex-1">
+          <div className="relative w-full max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder={t('search')}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <div className="w-44">
+            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as OrderStatus | 'all')}>
+              <SelectTrigger className="h-10">
+                <SelectValue placeholder={t('allStatus')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t('allStatus')}</SelectItem>
+                <SelectItem value="pending">{t('orderStatus.pending')}</SelectItem>
+                <SelectItem value="processing">{t('orderStatus.processing')}</SelectItem>
+                <SelectItem value="delivered">{t('orderStatus.delivered')}</SelectItem>
+                <SelectItem value="cancelled">{t('orderStatus.cancelled')}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <Button className="flex items-center gap-2" onClick={() => setShowCreateForm(true)}>
+          <Plus className="h-4 w-4" /> {t('newOrder')}
         </Button>
       </div>
 
@@ -163,28 +188,7 @@ export default function OrdersPage() {
       </div>
 
       {/* Search and Filters */}
-      <div className="flex gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <Input
-            placeholder={t('search')}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as OrderStatus | 'all')}
-          className="px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-        >
-          <option value="all">All Status</option>
-          <option value="pending">{t('orderStatus.pending')}</option>
-          <option value="processing">{t('orderStatus.processing')}</option>
-          <option value="delivered">{t('orderStatus.delivered')}</option>
-          <option value="cancelled">{t('orderStatus.cancelled')}</option>
-        </select>
-      </div>
+      {/* Rest of page content */}
 
       {/* Orders Table */}
       <Card>
@@ -203,7 +207,7 @@ export default function OrdersPage() {
             <TableBody>
               {filteredOrders.map((order, idx) => (
                 <TableRow key={`${order.id}-${idx}`}>
-                  <TableCell className="font-medium">#{order.id}</TableCell>
+                  <TableCell className="font-medium">{formatOrderCode(order.id, order.createdAt)}</TableCell>
                   <TableCell>
                     <div>
                       <p className="font-medium">{order.customerName}</p>
@@ -214,7 +218,7 @@ export default function OrdersPage() {
                   <TableCell>
                     <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(order.status)}`}>
                       {getStatusIcon(order.status)}
-                      {order.status}
+                      {t(`orderStatus.${order.status}` as any)}
                     </span>
                   </TableCell>
                   <TableCell className="text-right font-medium">

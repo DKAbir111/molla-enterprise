@@ -16,6 +16,7 @@ import { Product } from '@/types'
 import { listProducts as fetchProducts, deleteProduct as apiDeleteProduct } from '@/lib/api'
 import { toast } from 'sonner'
 import { normalizeProduct } from '@/lib/api'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 export default function ProductsPage() {
   const t = useTranslations('products')
@@ -89,11 +90,33 @@ export default function ProductsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">{t('title')}</h1>
+      {/* Controls */}
+      <div className="flex items-center gap-4 justify-between">
+        <div className="flex items-center gap-4 flex-1">
+          <div className="relative w-full max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder={t('search')}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <div className="w-44">
+            <Select value={filterGrade} onValueChange={setFilterGrade}>
+              <SelectTrigger className="h-10">
+                <SelectValue placeholder={t('filter')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t('all')}</SelectItem>
+                <SelectItem value="type1">{t('type1')}</SelectItem>
+                <SelectItem value="medium">{t('medium')}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
         <Button className="flex items-center gap-2" onClick={() => setIsAddModalOpen(true)}>
-          <Plus className="h-4 w-4" />
-          {t('addProduct')}
+          <Plus className="h-4 w-4" /> {t('addProduct')}
         </Button>
       </div>
 
@@ -121,27 +144,7 @@ export default function ProductsPage() {
         description={t('deleteConfirmationDescription')}
       />
 
-      {/* Search and Filters */}
-      <div className="flex gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <Input
-            placeholder={t('search')}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <select
-          value={filterGrade}
-          onChange={(e) => setFilterGrade(e.target.value)}
-          className="px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-        >
-          <option value="all">{t('all')}</option>
-          <option value="type1">{t('type1')}</option>
-          <option value="medium">{t('medium')}</option>
-        </select>
-      </div>
+      {/* Search and Filters moved above */}
 
       {/* Empty State */}
       {filteredProducts.length === 0 ? (

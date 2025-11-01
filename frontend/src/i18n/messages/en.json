@@ -150,6 +150,7 @@
     "title": "Orders",
     "newOrder": "New Order",
     "search": "Search orders...",
+    "allStatus": "All Status",
     "orderId": "Order ID",
     "customer": "Customer",
     "date": "Date",
