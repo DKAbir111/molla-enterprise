@@ -26,7 +26,7 @@ const update_organization_dto_1 = require("./dto/update-organization.dto");
 const common_2 = require("@nestjs/common");
 const storage = (0, multer_1.diskStorage)({
     destination: (_req, _file, cb) => {
-        const dir = path.join(process.cwd(), 'backend', 'uploads');
+        const dir = path.resolve(__dirname, '../../uploads');
         try {
             fs.mkdirSync(dir, { recursive: true });
         }

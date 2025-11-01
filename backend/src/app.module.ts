@@ -15,7 +15,8 @@ import { TransactionsModule } from './transactions/transactions.module';
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     ServeStaticModule.forRoot({
-      rootPath: path.join(process.cwd(), 'backend', 'uploads'),
+      // Resolve relative to compiled dist folder to avoid double "backend" in path
+      rootPath: path.resolve(__dirname, '../..', 'uploads'),
       serveRoot: '/uploads',
     }),
     PrismaModule,

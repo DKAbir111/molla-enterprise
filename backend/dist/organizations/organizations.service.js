@@ -70,7 +70,7 @@ let OrganizationsService = class OrganizationsService {
         const match = b64.match(/^data:(.+);base64,(.*)$/);
         const data = match ? match[2] : b64;
         const buffer = Buffer.from(data, 'base64');
-        const dir = path.join(process.cwd(), 'backend', 'uploads');
+        const dir = path.resolve(__dirname, '../../uploads');
         await fs.promises.mkdir(dir, { recursive: true });
         const file = path.join(dir, `${basename}-${Date.now()}.png`);
         await fs.promises.writeFile(file, buffer);

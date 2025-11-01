@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -18,17 +18,64 @@ import {
   Shield,
   Palette
 } from 'lucide-react'
+import { getMyOrganization, updateOrganization } from '@/lib/api'
+import { toast } from 'sonner'
 
 export default function SettingsPage() {
   const t = useTranslations('settings')
+  const [orgId, setOrgId] = useState<string | null>(null)
   const [businessInfo, setBusinessInfo] = useState({
-    name: 'Sand Business Company Ltd.',
-    email: 'info@sandbusiness.com',
-    phone: '+880 1234567890',
-    address: '123 Business Street, Dhaka, Bangladesh',
-    taxId: 'TAX123456789',
-    license: 'LIC987654321',
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    logoUrl: '' as string | null,
   })
+  const [logoFile, setLogoFile] = useState<File | null>(null)
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    let mounted = true
+    getMyOrganization<any>()
+      .then((org) => {
+        if (!mounted || !org) return
+        setOrgId(org.id)
+        setBusinessInfo({
+          name: org.name || '',
+          email: org.email || '',
+          phone: org.phone || '',
+          address: org.address || '',
+          logoUrl: org.logoUrl || '',
+        })
+      })
+      .catch(() => {})
+    return () => { mounted = false }
+  }, [])
+
+  const onSaveBusinessInfo = async () => {
+    if (!orgId) return
+    setSaving(true)
+    try {
+      await updateOrganization(orgId, {
+        name: businessInfo.name,
+        email: businessInfo.email,
+        phone: businessInfo.phone,
+        address: businessInfo.address,
+        logoFile: logoFile || undefined,
+      })
+      toast.success('Business information saved')
+      if (logoFile) {
+        // refresh preview
+        const url = URL.createObjectURL(logoFile)
+        setBusinessInfo((prev) => ({ ...prev, logoUrl: url }))
+        setLogoFile(null)
+      }
+    } catch (e) {
+      toast.error('Failed to save business information')
+    } finally {
+      setSaving(false)
+    }
+  }
 
   const [notifications, setNotifications] = useState({
     emailAlerts: true,
@@ -57,6 +104,25 @@ export default function SettingsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="flex items-center gap-4">
+              <div className="h-16 w-16 rounded bg-gray-100 border flex items-center justify-center overflow-hidden">
+                {businessInfo.logoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={businessInfo.logoUrl} alt="Logo" className="h-full w-full object-cover" />
+                ) : (
+                  <span className="text-xs text-gray-500">No Logo</span>
+                )}
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">Logo</label>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setLogoFile(e.target.files?.[0] || null)}
+                  className="mt-1"
+                />
+              </div>
+            </div>
             <div>
               <label className="text-sm font-medium text-gray-700">Business Name</label>
               <Input
@@ -99,9 +165,9 @@ export default function SettingsPage() {
                 />
               </div>
             </div>
-            <Button className="w-full">
+            <Button className="w-full" onClick={onSaveBusinessInfo} disabled={saving || !orgId}>
               <Save className="h-4 w-4 mr-2" />
-              Save Business Info
+              {saving ? 'Saving...' : 'Save Business Info'}
             </Button>
           </CardContent>
         </Card>

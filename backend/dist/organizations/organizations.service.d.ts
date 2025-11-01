@@ -6,35 +6,35 @@ export declare class OrganizationsService {
     constructor(prisma: PrismaService);
     create(userId: string, dto: CreateOrganizationDto, logoPath?: string): Promise<{
         id: string;
-        createdAt: Date;
         name: string;
-        phone: string;
         email: string;
+        phone: string;
         address: string;
-        updatedAt: Date;
         logoUrl: string | null;
+        createdAt: Date;
+        updatedAt: Date;
         ownerId: string;
     }>;
     findMine(userId: string): Promise<{
         id: string;
-        createdAt: Date;
         name: string;
-        phone: string;
         email: string;
+        phone: string;
         address: string;
-        updatedAt: Date;
         logoUrl: string | null;
+        createdAt: Date;
+        updatedAt: Date;
         ownerId: string;
     } | null>;
     update(userId: string, id: string, dto: UpdateOrganizationDto, logoPath?: string): Promise<{
         id: string;
-        createdAt: Date;
         name: string;
-        phone: string;
         email: string;
+        phone: string;
         address: string;
-        updatedAt: Date;
         logoUrl: string | null;
+        createdAt: Date;
+        updatedAt: Date;
         ownerId: string;
     }>;
     private saveBase64;

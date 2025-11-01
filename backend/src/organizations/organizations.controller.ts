@@ -12,8 +12,11 @@ import { Req } from '@nestjs/common';
 
 const storage = diskStorage({
   destination: (_req, _file, cb) => {
-    const dir = path.join(process.cwd(), 'backend', 'uploads');
-    try { fs.mkdirSync(dir, { recursive: true }); } catch {}
+    // Resolve relative to dist to ensure uploads land in backend/uploads
+    const dir = path.resolve(__dirname, '../../uploads');
+    try {
+      fs.mkdirSync(dir, { recursive: true });
+    } catch {}
     cb(null, dir);
   },
   filename: (_req, file, cb) => {

@@ -27,7 +27,6 @@ const navigation = [
   { name: 'accounts', href: '/accounts', icon: Calculator },
   // Removed: oil
   { name: 'reports', href: '/reports', icon: BarChart3 },
-  { name: 'organization', href: '/organization', icon: Building2 },
   { name: 'settings', href: '/settings', icon: Settings },
 ]
 
