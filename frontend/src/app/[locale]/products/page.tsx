@@ -14,6 +14,7 @@ import { EditProductModal } from '@/components/products/EditProductModal'
 import { DeleteConfirmationModal } from '@/components/shared/DeleteConfirmationModal'
 import { Product } from '@/types'
 import { listProducts as fetchProducts, deleteProduct as apiDeleteProduct } from '@/lib/api'
+import { toast } from 'sonner'
 import { normalizeProduct } from '@/lib/api'
 
 export default function ProductsPage() {
@@ -74,7 +75,12 @@ export default function ProductsPage() {
 
   const confirmDelete = async () => {
     if (productToDeleteId) {
-      try { await apiDeleteProduct(productToDeleteId) } catch {}
+      try {
+        await apiDeleteProduct(productToDeleteId)
+        toast.success('Product deleted')
+      } catch {
+        toast.error('Failed to delete product (showing locally)')
+      }
       deleteProduct(productToDeleteId)
       setProductToDeleteId(null)
       setIsDeleteModalOpen(false)

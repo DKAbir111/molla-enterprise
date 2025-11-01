@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useStore } from '@/store/useStore'
 import { Product } from '@/types'
 import { Edit3, Warehouse, Tag, Layers, Save } from 'lucide-react'
+import { toast } from 'sonner'
 
 interface EditProductModalProps {
   isOpen: boolean;
@@ -53,6 +54,7 @@ export function EditProductModal({ isOpen, onClose, product }: EditProductModalP
     // Validate that product exists
     if (!product) {
       console.error('No product to update')
+      toast.error('No product to update')
       return
     }
 
@@ -72,6 +74,7 @@ export function EditProductModal({ isOpen, onClose, product }: EditProductModalP
 
     // Fix: Pass both id and product data
     updateProduct(product.id, updatedProduct)
+    toast.success('Product updated')
     onClose()
     setIsLoading(false)
   }

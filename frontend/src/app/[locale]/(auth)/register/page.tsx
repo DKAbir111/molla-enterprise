@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { register as apiRegister } from '@/lib/api'
+import { toast } from 'sonner'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -28,9 +29,12 @@ export default function RegisterPage() {
       if (!password || password.length < 6) throw new Error('Password must be at least 6 characters')
       if (password !== confirmPassword) throw new Error('Passwords do not match')
       await apiRegister({ name, email, password })
+      toast.success('Account created successfully')
       router.replace(`/${locale}/organization`)
     } catch (err: any) {
-      setError(err?.message || err?.response?.data?.message || 'Registration failed')
+      const msg = err?.message || err?.response?.data?.message || 'Registration failed'
+      setError(msg)
+      toast.error(msg)
     } finally {
       setLoading(false)
     }
@@ -61,7 +65,6 @@ export default function RegisterPage() {
             <Label htmlFor="confirmPassword">Confirm Password</Label>
             <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
           </div>
-          {error && <p className="text-red-600 text-sm">{error}</p>}
           <div className="flex justify-between items-center">
             <Button type="submit" disabled={loading}>
               {loading ? 'Creating...' : 'Register'}

@@ -23,6 +23,7 @@ import { ViewOrderModal } from '@/components/orders/ViewOrderModal'
 import CreateOrderForm from '@/components/orders/CreateOrderForm'
 import { DeleteConfirmationModal } from '@/components/shared/DeleteConfirmationModal'
 import { listOrders as fetchOrders, deleteOrder as apiDeleteOrder } from '@/lib/api'
+import { toast } from 'sonner'
 import { normalizeOrder } from '@/lib/api'
 
 export default function OrdersPage() {
@@ -239,8 +240,7 @@ export default function OrdersPage() {
           isOpen={showCreateForm}
           onClose={() => setShowCreateForm(false)}
           onSuccess={() => {
-            // Refresh data or show success message
-            console.log('Order created successfully')
+            toast.success('Order created successfully')
           }}
         />
       )}
@@ -255,7 +255,11 @@ export default function OrdersPage() {
               try {
                 await apiDeleteOrder(orderToDelete.id)
                 deleteOrder(orderToDelete.id)
-              } catch {}
+                toast.success('Order deleted')
+              } catch {
+                toast.error('Failed to delete order (showing locally)')
+                deleteOrder(orderToDelete.id)
+              }
               setOrderToDelete(null)
             }
           }}

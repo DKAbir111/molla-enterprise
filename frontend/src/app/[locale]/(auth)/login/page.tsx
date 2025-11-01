@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { login as apiLogin } from '@/lib/api'
+import { toast } from 'sonner'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -25,9 +26,12 @@ export default function LoginPage() {
       if (!password || password.length < 6) throw new Error('Password must be at least 6 characters')
       const res = await apiLogin({ email, password })
       const hasOrg = !!res.user.organizationId
+      toast.success('Signed in successfully')
       router.replace(`/${locale}${hasOrg ? '' : '/organization'}`)
     } catch (err: any) {
-      setError(err?.message || err?.response?.data?.message || 'Login failed')
+      const msg = err?.message || err?.response?.data?.message || 'Login failed'
+      setError(msg)
+      toast.error(msg)
     } finally {
       setLoading(false)
     }
@@ -50,7 +54,6 @@ export default function LoginPage() {
             <Label htmlFor="password">Password</Label>
             <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
           </div>
-          {error && <p className="text-red-600 text-sm">{error}</p>}
           <div className="flex justify-between items-center">
             <Button type="submit" disabled={loading}>
               {loading ? 'Signing in...' : 'Login'}

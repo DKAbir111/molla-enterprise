@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { resetPassword } from '@/lib/api'
+import { toast } from 'sonner'
 
 export default function ResetPasswordPage() {
   const router = useRouter()
@@ -24,9 +25,12 @@ export default function ResetPasswordPage() {
     try {
       await resetPassword({ token, newPassword })
       setMessage('Password updated. You can now log in.')
+      toast.success('Password updated. You can now log in.')
       setTimeout(() => router.replace(`/${locale}/login`), 800)
     } catch (err: any) {
-      setMessage(err?.response?.data?.message || 'Reset failed')
+      const msg = err?.response?.data?.message || 'Reset failed'
+      setMessage(msg)
+      toast.error(msg)
     } finally {
       setLoading(false)
     }

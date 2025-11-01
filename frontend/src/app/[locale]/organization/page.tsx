@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { createOrganization, getMyOrganization } from '@/lib/api'
+import { toast } from 'sonner'
 
 export default function OrganizationPage() {
   const router = useRouter()
@@ -47,9 +48,12 @@ export default function OrganizationPage() {
       if (!phone.trim()) throw new Error('Phone is required')
       if (!address.trim()) throw new Error('Address is required')
       await createOrganization({ name, email, phone, address, logoFile })
+      toast.success('Organization created successfully')
       router.replace(`/${locale}`)
     } catch (err: any) {
-      setError(err?.message || err?.response?.data?.message || 'Failed to create organization')
+      const msg = err?.message || err?.response?.data?.message || 'Failed to create organization'
+      setError(msg)
+      toast.error(msg)
     } finally {
       setSubmitting(false)
     }

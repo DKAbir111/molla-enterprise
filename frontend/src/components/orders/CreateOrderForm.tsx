@@ -27,6 +27,7 @@ import { Plus, Minus, X, Search, ShoppingCart, User, MapPin, Package, Save, Phon
 import { Order, OrderItem, Product, Customer } from '@/types'
 import { listCustomers as fetchCustomers, listProducts as fetchProducts, createOrder as apiCreateOrder } from '@/lib/api'
 import { normalizeProduct, normalizeCustomer, normalizeOrder } from '@/lib/api'
+import { toast } from 'sonner'
 
 interface CreateOrderFormProps {
   isOpen: boolean
@@ -150,7 +151,7 @@ export default function CreateOrderForm({ isOpen, onClose, onSuccess }: CreateOr
     e.preventDefault()
 
     if (!selectedCustomer || orderItems.length === 0 || !deliveryAddress.trim()) {
-      alert(t('validation.required'))
+      toast.error('Please select a customer, add items and delivery address')
       return
     }
 
@@ -167,6 +168,7 @@ export default function CreateOrderForm({ isOpen, onClose, onSuccess }: CreateOr
       const finalOrder: Order = { ...normalized, customerName: selectedCustomer.name }
       addOrder(finalOrder)
       onSuccess()
+      toast.success('Order created successfully')
       onClose()
 
       // Reset form
@@ -178,7 +180,7 @@ export default function CreateOrderForm({ isOpen, onClose, onSuccess }: CreateOr
       setProductSearch('')
     } catch (error) {
       console.error('Error creating order:', error)
-      alert(t('error.createFailed'))
+      toast.error('Failed to create order')
     } finally {
       setIsSubmitting(false)
     }

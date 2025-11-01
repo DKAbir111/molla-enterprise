@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { forgotPassword } from '@/lib/api'
+import { toast } from 'sonner'
 
 export default function ForgotPasswordPage() {
   const locale = useLocale()
@@ -22,9 +23,11 @@ export default function ForgotPasswordPage() {
     try {
       const res = await forgotPassword({ email })
       setMessage('If an account exists, a reset link has been sent.')
+      toast.success('If an account exists, a reset link has been sent.')
       if (res.token) setDevToken(res.token)
     } catch {
       setMessage('If an account exists, a reset link has been sent.')
+      toast.success('If an account exists, a reset link has been sent.')
     } finally {
       setLoading(false)
     }

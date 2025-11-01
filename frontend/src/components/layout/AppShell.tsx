@@ -6,6 +6,7 @@ import { useLocale } from 'next-intl'
 import { Header } from './header'
 import { Sidebar } from './sidebar'
 import { getAuthToken, getMyOrganization } from '@/lib/api'
+import { Toaster } from 'sonner'
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -40,6 +41,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   if (shouldHide) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-white to-blue-50 p-6">
+        <Toaster position="bottom-right" richColors closeButton />
         {children}
       </div>
     )
@@ -50,7 +52,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-y-auto p-6">{children}</main>
+        <main className="flex-1 overflow-y-auto p-6">
+          <Toaster position="bottom-right" richColors closeButton />
+          {children}
+        </main>
       </div>
     </div>
   )

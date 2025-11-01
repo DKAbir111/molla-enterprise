@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useStore } from '@/store/useStore'
 import { Product } from '@/types'
 import { Plus, Warehouse, Tag, Layers, Save } from 'lucide-react'
+import { toast } from 'sonner'
 
 interface AddProductModalProps {
   isOpen: boolean
@@ -51,6 +52,7 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
     }
 
     addProduct(newProduct)
+    toast.success('Product added')
     onClose()
 
     setName('')
