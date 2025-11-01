@@ -56,7 +56,7 @@ export default function SettingsPage() {
     if (!orgId) return
     setSaving(true)
     try {
-      await updateOrganization(orgId, {
+      const updated = await updateOrganization<any>(orgId, {
         name: businessInfo.name,
         email: businessInfo.email,
         phone: businessInfo.phone,
@@ -64,12 +64,15 @@ export default function SettingsPage() {
         logoFile: logoFile || undefined,
       })
       toast.success('Business information saved')
-      if (logoFile) {
-        // refresh preview
-        const url = URL.createObjectURL(logoFile)
-        setBusinessInfo((prev) => ({ ...prev, logoUrl: url }))
-        setLogoFile(null)
-      }
+      setBusinessInfo((prev) => ({
+        ...prev,
+        name: updated?.name ?? prev.name,
+        email: updated?.email ?? prev.email,
+        phone: updated?.phone ?? prev.phone,
+        address: updated?.address ?? prev.address,
+        logoUrl: updated?.logoUrl ?? prev.logoUrl,
+      }))
+      setLogoFile(null)
     } catch (e) {
       toast.error('Failed to save business information')
     } finally {

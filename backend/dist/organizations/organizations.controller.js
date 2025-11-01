@@ -26,7 +26,10 @@ const update_organization_dto_1 = require("./dto/update-organization.dto");
 const common_2 = require("@nestjs/common");
 const storage = (0, multer_1.diskStorage)({
     destination: (_req, _file, cb) => {
-        const dir = path.resolve(__dirname, '../../uploads');
+        const parent = path.resolve(__dirname, '..');
+        const isDist = path.basename(parent) === 'dist';
+        const backendRoot = isDist ? path.resolve(parent, '..') : parent;
+        const dir = path.resolve(backendRoot, 'uploads');
         try {
             fs.mkdirSync(dir, { recursive: true });
         }
@@ -38,20 +41,34 @@ const storage = (0, multer_1.diskStorage)({
         cb(null, `org-${Date.now()}${ext}`);
     },
 });
+function toPublicUrl(p) {
+    if (!p)
+        return p;
+    if (/^https?:\/\//i.test(p))
+        return p;
+    const base = (process.env.PUBLIC_BASE_URL || process.env.API_PUBLIC_BASE || 'http://localhost:4000').replace(/\/$/, '');
+    const pathPart = p.startsWith('/') ? p : `/${p}`;
+    return `${base}${pathPart}`;
+}
+function withPublicLogo(obj) {
+    if (!obj)
+        return obj;
+    return { ...obj, logoUrl: obj.logoUrl ? toPublicUrl(obj.logoUrl) : obj.logoUrl };
+}
 let OrganizationsController = class OrganizationsController {
     constructor(orgs) {
         this.orgs = orgs;
     }
     create(req, dto, file) {
         const logoPath = file ? '/uploads/' + path.basename(file.path) : undefined;
-        return this.orgs.create(req.user.userId, dto, logoPath);
+        return this.orgs.create(req.user.userId, dto, logoPath).then(withPublicLogo);
     }
     me(req) {
-        return this.orgs.findMine(req.user.userId);
+        return this.orgs.findMine(req.user.userId).then((org) => (org ? withPublicLogo(org) : org));
     }
     update(req, id, dto, file) {
         const logoPath = file ? '/uploads/' + path.basename(file.path) : undefined;
-        return this.orgs.update(req.user.userId, id, dto, logoPath);
+        return this.orgs.update(req.user.userId, id, dto, logoPath).then(withPublicLogo);
     }
 };
 exports.OrganizationsController = OrganizationsController;

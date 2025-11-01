@@ -28,7 +28,7 @@ const nextConfig: NextConfig = {
       {
         source: "/:locale/fonts/:path*", 
         destination: "/fonts/:path*",
-      }
+      },
     ];
   },
 };

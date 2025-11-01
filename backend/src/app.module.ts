@@ -14,10 +14,16 @@ import { TransactionsModule } from './transactions/transactions.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    // Serve uploads from backend/uploads in both dev (src) and prod (dist/src)
     ServeStaticModule.forRoot({
-      // Resolve relative to compiled dist folder to avoid double "backend" in path
-      rootPath: path.resolve(__dirname, '../..', 'uploads'),
+      rootPath: (() => {
+        const parent = path.resolve(__dirname, '..'); // dev: backend, prod: backend/dist
+        const isDist = path.basename(parent) === 'dist';
+        const backendRoot = isDist ? path.resolve(parent, '..') : parent; // -> backend
+        return path.resolve(backendRoot, 'uploads');
+      })(),
       serveRoot: '/uploads',
+      serveStaticOptions: { index: false, redirect: false },
     }),
     PrismaModule,
     AuthModule,

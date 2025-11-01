@@ -12,11 +12,12 @@ import { Req } from '@nestjs/common';
 
 const storage = diskStorage({
   destination: (_req, _file, cb) => {
-    // Resolve relative to dist to ensure uploads land in backend/uploads
-    const dir = path.resolve(__dirname, '../../uploads');
-    try {
-      fs.mkdirSync(dir, { recursive: true });
-    } catch {}
+    // Save under backend/uploads for both dev (src) and prod (dist/src)
+    const parent = path.resolve(__dirname, '..'); // dev: backend, prod: backend/dist
+    const isDist = path.basename(parent) === 'dist';
+    const backendRoot = isDist ? path.resolve(parent, '..') : parent; // -> backend
+    const dir = path.resolve(backendRoot, 'uploads');
+    try { fs.mkdirSync(dir, { recursive: true }); } catch {}
     cb(null, dir);
   },
   filename: (_req, file, cb) => {
@@ -24,6 +25,19 @@ const storage = diskStorage({
     cb(null, `org-${Date.now()}${ext}`);
   },
 });
+
+function toPublicUrl(p?: string) {
+  if (!p) return p as any;
+  if (/^https?:\/\//i.test(p)) return p;
+  const base = (process.env.PUBLIC_BASE_URL || process.env.API_PUBLIC_BASE || 'http://localhost:4000').replace(/\/$/, '');
+  const pathPart = p.startsWith('/') ? p : `/${p}`;
+  return `${base}${pathPart}`;
+}
+
+function withPublicLogo<T extends { logoUrl?: string | null }>(obj: T): T {
+  if (!obj) return obj;
+  return { ...obj, logoUrl: obj.logoUrl ? toPublicUrl(obj.logoUrl) : obj.logoUrl };
+}
 
 @ApiTags('organizations')
 @ApiBearerAuth()
@@ -38,12 +52,12 @@ export class OrganizationsController {
   @UseInterceptors(FileInterceptor('logo', { storage }))
   create(@Req() req: any, @Body() dto: CreateOrganizationDto, @UploadedFile() file?: Express.Multer.File) {
     const logoPath = file ? '/uploads/' + path.basename(file.path) : undefined;
-    return this.orgs.create(req.user.userId, dto, logoPath);
+    return this.orgs.create(req.user.userId, dto, logoPath).then(withPublicLogo);
   }
 
   @Get('me')
   me(@Req() req: any) {
-    return this.orgs.findMine(req.user.userId);
+    return this.orgs.findMine(req.user.userId).then((org) => (org ? withPublicLogo(org) : org));
   }
 
   @Patch(':id')
@@ -57,6 +71,6 @@ export class OrganizationsController {
     @UploadedFile() file?: Express.Multer.File,
   ) {
     const logoPath = file ? '/uploads/' + path.basename(file.path) : undefined;
-    return this.orgs.update(req.user.userId, id, dto, logoPath);
+    return this.orgs.update(req.user.userId, id, dto, logoPath).then(withPublicLogo);
   }
 }

@@ -27,8 +27,14 @@ exports.AppModule = AppModule = __decorate([
         imports: [
             config_1.ConfigModule.forRoot({ isGlobal: true }),
             serve_static_1.ServeStaticModule.forRoot({
-                rootPath: path.resolve(__dirname, '../..', 'uploads'),
+                rootPath: (() => {
+                    const parent = path.resolve(__dirname, '..');
+                    const isDist = path.basename(parent) === 'dist';
+                    const backendRoot = isDist ? path.resolve(parent, '..') : parent;
+                    return path.resolve(backendRoot, 'uploads');
+                })(),
                 serveRoot: '/uploads',
+                serveStaticOptions: { index: false, redirect: false },
             }),
             prisma_module_1.PrismaModule,
             auth_module_1.AuthModule,
