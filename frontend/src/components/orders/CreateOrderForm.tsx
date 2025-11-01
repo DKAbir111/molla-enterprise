@@ -355,7 +355,7 @@ export default function CreateOrderForm({ isOpen, onClose, onSuccess, mode = 'cr
                     className="pl-10 h-11 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
                   />
                   {showProductDropdown && filteredProducts.length > 0 && (
-                    <div className="absolute top-full left-0 right-0 bg-white backdrop-blur-md border border-purple-200 rounded-lg shadow-xl z-10 max-h-64 overflow-y-auto">
+                    <div className="absolute top-full left-0 right-0 bg-white backdrop-blur-md border border-purple-200 rounded-lg shadow-xl z-50 max-h-64 overflow-y-auto">
                       <div className="p-3 space-y-2">
                         {filteredProducts.map(product => (
                           <div

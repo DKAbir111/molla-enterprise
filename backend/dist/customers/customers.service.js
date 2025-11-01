@@ -21,9 +21,30 @@ let CustomersService = class CustomersService {
             throw new common_1.ForbiddenException('Organization required');
         return orgId;
     }
-    findAll(orgId) {
+    async findAll(orgId) {
         const organizationId = this.ensureOrg(orgId);
-        return this.prisma.customer.findMany({ where: { organizationId }, orderBy: { createdAt: 'desc' } });
+        const [customers, aggregates] = await Promise.all([
+            this.prisma.customer.findMany({ where: { organizationId }, orderBy: { createdAt: 'desc' } }),
+            this.prisma.$queryRaw `
+        SELECT o."customerId"    AS "customerId",
+               COUNT(DISTINCT o."id")::int AS orders,
+               COALESCE(SUM(oi.total), 0)   AS total_spent
+        FROM "Order" o
+        LEFT JOIN "OrderItem" oi ON oi."orderId" = o."id"
+        WHERE o."organizationId" = ${organizationId}
+        GROUP BY o."customerId"
+      `,
+        ]);
+        const map = new Map();
+        aggregates.forEach((r) => { var _a; return map.set(String(r.customerId), { orders: Number(r.orders || 0), total_spent: (_a = r.total_spent) !== null && _a !== void 0 ? _a : 0 }); });
+        return customers.map((c) => {
+            const agg = map.get(c.id) || { orders: 0, total_spent: 0 };
+            return {
+                ...c,
+                totalOrders: agg.orders,
+                totalSpent: agg.total_spent,
+            };
+        });
     }
     async findOne(orgId, id) {
         const organizationId = this.ensureOrg(orgId);

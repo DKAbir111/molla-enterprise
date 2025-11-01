@@ -50,7 +50,7 @@ export class OrdersService {
 
     const total = itemsData.reduce((sum, i) => sum + i.total, 0);
 
-    return this.prisma.order.create({
+    const created = await this.prisma.order.create({
       data: {
         organizationId,
         customerId: dto.customerId,
@@ -61,6 +61,13 @@ export class OrdersService {
       },
       include: { items: true },
     });
+
+    // Best-effort persist of total (works after migration adds the column)
+    try {
+      await this.prisma.order.update({ where: { id: created.id }, data: { total: total } as any });
+    } catch {}
+
+    return created;
   }
 
   async update(orgId: string | null | undefined, id: string, dto: UpdateOrderDto) {
@@ -95,10 +102,15 @@ export class OrdersService {
       };
     });
 
+    const grand = rows.reduce((s, r) => s + r.total, 0);
     await this.prisma.$transaction([
       this.prisma.orderItem.deleteMany({ where: { orderId: id } }),
       this.prisma.orderItem.createMany({ data: rows }),
     ]);
+    // Best-effort persist of total
+    try {
+      await this.prisma.order.update({ where: { id }, data: { total: grand } as any });
+    } catch {}
 
     return this.prisma.order.findUnique({ where: { id }, include: { items: true, customer: true } });
   }

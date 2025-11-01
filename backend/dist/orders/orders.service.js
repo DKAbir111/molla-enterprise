@@ -52,7 +52,7 @@ let OrdersService = class OrdersService {
             };
         });
         const total = itemsData.reduce((sum, i) => sum + i.total, 0);
-        return this.prisma.order.create({
+        const created = await this.prisma.order.create({
             data: {
                 organizationId,
                 customerId: dto.customerId,
@@ -63,6 +63,11 @@ let OrdersService = class OrdersService {
             },
             include: { items: true },
         });
+        try {
+            await this.prisma.order.update({ where: { id: created.id }, data: { total: total } });
+        }
+        catch (_a) { }
+        return created;
     }
     async update(orgId, id, dto) {
         const organizationId = this.ensureOrg(orgId);
@@ -94,10 +99,15 @@ let OrdersService = class OrdersService {
                 total,
             };
         });
+        const grand = rows.reduce((s, r) => s + r.total, 0);
         await this.prisma.$transaction([
             this.prisma.orderItem.deleteMany({ where: { orderId: id } }),
             this.prisma.orderItem.createMany({ data: rows }),
         ]);
+        try {
+            await this.prisma.order.update({ where: { id }, data: { total: grand } });
+        }
+        catch (_a) { }
         return this.prisma.order.findUnique({ where: { id }, include: { items: true, customer: true } });
     }
     async remove(orgId, id) {

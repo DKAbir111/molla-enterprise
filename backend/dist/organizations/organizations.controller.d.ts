@@ -6,35 +6,35 @@ export declare class OrganizationsController {
     constructor(orgs: OrganizationsService);
     create(req: any, dto: CreateOrganizationDto, file?: Express.Multer.File): Promise<{
         id: string;
-        name: string;
         email: string;
+        name: string;
+        createdAt: Date;
+        updatedAt: Date;
         phone: string;
         address: string;
         logoUrl: string | null;
-        createdAt: Date;
-        updatedAt: Date;
         ownerId: string;
     }>;
     me(req: any): Promise<{
         id: string;
-        name: string;
         email: string;
+        name: string;
+        createdAt: Date;
+        updatedAt: Date;
         phone: string;
         address: string;
         logoUrl: string | null;
-        createdAt: Date;
-        updatedAt: Date;
         ownerId: string;
     } | null>;
     update(req: any, id: string, dto: UpdateOrganizationDto, file?: Express.Multer.File): Promise<{
         id: string;
-        name: string;
         email: string;
+        name: string;
+        createdAt: Date;
+        updatedAt: Date;
         phone: string;
         address: string;
         logoUrl: string | null;
-        createdAt: Date;
-        updatedAt: Date;
         ownerId: string;
     }>;
 }

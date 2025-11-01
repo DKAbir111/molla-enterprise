@@ -54,6 +54,8 @@ model Product {
   updatedAt      DateTime      @updatedAt
 
   orderItems     OrderItem[]
+
+  @@index([organizationId])
 }
 
 model Customer {
@@ -68,6 +70,8 @@ model Customer {
   updatedAt      DateTime      @updatedAt
 
   orders         Order[]
+
+  @@index([organizationId])
 }
 
 model Order {
@@ -81,20 +85,27 @@ model Order {
   date           DateTime      @default(now())
   createdAt      DateTime      @default(now())
   deliveredAt    DateTime?
+  total          Decimal       @db.Decimal(12,2) @default(0)
 
   items          OrderItem[]
+
+  @@index([organizationId])
+  @@index([customerId])
 }
 
 model OrderItem {
   id        String   @id @default(uuid())
   orderId   String
-  order     Order    @relation(fields: [orderId], references: [id])
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   productId String
   product   Product  @relation(fields: [productId], references: [id])
   productName String
   quantity  Int
   price     Decimal  @db.Decimal(12,2)
   total     Decimal  @db.Decimal(12,2)
+
+  @@index([orderId])
+  @@index([productId])
 }
 
 model Transaction {

@@ -5,16 +5,7 @@ export declare class CustomersService {
     private prisma;
     constructor(prisma: PrismaService);
     private ensureOrg;
-    findAll(orgId?: string | null): import(".prisma/client").Prisma.PrismaPromise<{
-        id: string;
-        name: string;
-        phone: string;
-        email: string | null;
-        address: string;
-        organizationId: string;
-        createdAt: Date;
-        updatedAt: Date;
-    }[]>;
+    findAll(orgId?: string | null): Promise<any[]>;
     findOne(orgId: string | null | undefined, id: string): Promise<{
         id: string;
         name: string;

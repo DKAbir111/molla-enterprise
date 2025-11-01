@@ -4,16 +4,7 @@ import { UpdateCustomerDto } from './dto/update-customer.dto';
 export declare class CustomersController {
     private customers;
     constructor(customers: CustomersService);
-    list(req: any): import(".prisma/client").Prisma.PrismaPromise<{
-        id: string;
-        name: string;
-        phone: string;
-        email: string | null;
-        address: string;
-        organizationId: string;
-        createdAt: Date;
-        updatedAt: Date;
-    }[]>;
+    list(req: any): Promise<any[]>;
     getOne(req: any, id: string): Promise<{
         id: string;
         name: string;

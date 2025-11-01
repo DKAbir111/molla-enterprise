@@ -12,9 +12,33 @@ export class CustomersService {
     return orgId;
   }
 
-  findAll(orgId?: string | null) {
+  async findAll(orgId?: string | null) {
     const organizationId = this.ensureOrg(orgId);
-    return this.prisma.customer.findMany({ where: { organizationId }, orderBy: { createdAt: 'desc' } });
+    const [customers, aggregates] = await Promise.all([
+      this.prisma.customer.findMany({ where: { organizationId }, orderBy: { createdAt: 'desc' } }),
+      // Aggregate by joining order items to avoid relying on Order.total
+      this.prisma.$queryRaw<Array<{ customerId: string; orders: number; total_spent: any }>>`
+        SELECT o."customerId"    AS "customerId",
+               COUNT(DISTINCT o."id")::int AS orders,
+               COALESCE(SUM(oi.total), 0)   AS total_spent
+        FROM "Order" o
+        LEFT JOIN "OrderItem" oi ON oi."orderId" = o."id"
+        WHERE o."organizationId" = ${organizationId}
+        GROUP BY o."customerId"
+      `,
+    ]);
+
+    const map = new Map<string, { orders: number; total_spent: any }>();
+    aggregates.forEach((r) => map.set(String(r.customerId), { orders: Number((r as any).orders || 0), total_spent: (r as any).total_spent ?? 0 }));
+
+    return customers.map((c) => {
+      const agg = map.get(c.id) || { orders: 0, total_spent: 0 };
+      return {
+        ...c,
+        totalOrders: agg.orders,
+        totalSpent: agg.total_spent,
+      } as any;
+    });
   }
 
   async findOne(orgId: string | null | undefined, id: string) {

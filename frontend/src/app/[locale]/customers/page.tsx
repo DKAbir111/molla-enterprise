@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -26,22 +26,32 @@ export default function CustomersPage() {
   const t = useTranslations('customers')
   const locale = useLocale()
   const { customers, addCustomer } = useStore()
+  const updateCustomer = useStore((s) => s.updateCustomer)
   const [searchQuery, setSearchQuery] = useState('')
   const [isAddOpen, setIsAddOpen] = useState(false)
 
   // Load from API
   useEffect(() => {
     let mounted = true
-    if (customers.length === 0) {
-      fetchCustomers<any[]>()
-        .then((res) => {
-          if (!mounted) return
-          (res || []).map(normalizeCustomer).forEach(addCustomer)
+    fetchCustomers<any[]>()
+      .then((res) => {
+        if (!mounted) return
+        const incoming = (res || []).map(normalizeCustomer)
+        incoming.forEach((c) => {
+          const exists = customers.find((x) => x.id === c.id)
+          if (exists) {
+            // Update totals and any changed fields
+            updateCustomer(c.id, c)
+          } else {
+            addCustomer(c)
+          }
         })
-        .catch(() => {})
-    }
+      })
+      .catch(() => {})
     return () => { mounted = false }
-  }, [customers.length, addCustomer])
+  }, [addCustomer, updateCustomer])
+
+  // Backend now includes aggregates in /customers; no client aggregation needed
 
   const filteredCustomers = customers.filter(customer =>
     customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

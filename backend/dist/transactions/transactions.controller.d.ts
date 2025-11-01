@@ -5,23 +5,23 @@ export declare class TransactionsController {
     constructor(txs: TransactionsService);
     list(req: any): import(".prisma/client").Prisma.PrismaPromise<{
         id: string;
-        description: string;
-        type: string;
-        amount: import("@prisma/client/runtime/library").Decimal;
-        category: string;
-        date: Date;
         organizationId: string;
         createdAt: Date;
+        description: string;
+        type: string;
+        date: Date;
+        amount: import("@prisma/client/runtime/library").Decimal;
+        category: string;
     }[]>;
     create(req: any, dto: CreateTransactionDto): import(".prisma/client").Prisma.Prisma__TransactionClient<{
         id: string;
-        description: string;
-        type: string;
-        amount: import("@prisma/client/runtime/library").Decimal;
-        category: string;
-        date: Date;
         organizationId: string;
         createdAt: Date;
+        description: string;
+        type: string;
+        date: Date;
+        amount: import("@prisma/client/runtime/library").Decimal;
+        category: string;
     }, never, import("@prisma/client/runtime/library").DefaultArgs>;
     remove(req: any, id: string): Promise<{
         ok: boolean;
