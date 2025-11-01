@@ -17,9 +17,9 @@ let ProductsService = class ProductsService {
         const organizationId = this.ensureOrg(orgId);
         return this.prisma.product.findMany({ where: { organizationId }, orderBy: { createdAt: 'desc' } });
     }
-    create(orgId, dto) {
+    async create(orgId, dto) {
         const organizationId = this.ensureOrg(orgId);
-        return this.prisma.product.create({ data: {
+        const created = await this.prisma.product.create({ data: {
                 name: dto.name,
                 type: dto.type,
                 grade: dto.grade,
@@ -31,6 +31,25 @@ let ProductsService = class ProductsService {
                 description: dto.description,
                 organizationId,
             } });
+        try {
+            const qty = Number(dto.stock ?? 0);
+            const unitBuy = Number(dto.buyPrice ?? 0);
+            const amount = unitBuy * qty;
+            if (amount > 0) {
+                await this.prisma.transaction.create({
+                    data: {
+                        organizationId,
+                        description: `Inventory purchase - ${dto.name}`,
+                        type: 'expense',
+                        amount: amount,
+                        category: 'inventory',
+                        date: new Date(),
+                    },
+                });
+            }
+        }
+        catch { }
+        return created;
     }
     async update(orgId, id, dto) {
         const organizationId = this.ensureOrg(orgId);
@@ -38,7 +57,30 @@ let ProductsService = class ProductsService {
         if (!found)
             throw new common_1.NotFoundException('Product not found');
         const data = { ...dto };
-        return this.prisma.product.update({ where: { id }, data });
+        const updated = await this.prisma.product.update({ where: { id }, data });
+        try {
+            const prevStock = Number(found.stock ?? 0);
+            const nextStock = Number(dto.stock ?? prevStock);
+            const delta = nextStock - prevStock;
+            if (delta > 0) {
+                const buy = Number(dto.buyPrice ?? found.buyPrice ?? 0);
+                const amount = buy * delta;
+                if (amount > 0) {
+                    await this.prisma.transaction.create({
+                        data: {
+                            organizationId,
+                            description: `Inventory purchase (+${delta} ${updated.unit}) - ${updated.name}`,
+                            type: 'expense',
+                            amount: amount,
+                            category: 'inventory',
+                            date: new Date(),
+                        },
+                    });
+                }
+            }
+        }
+        catch { }
+        return updated;
     }
     async remove(orgId, id) {
         const organizationId = this.ensureOrg(orgId);

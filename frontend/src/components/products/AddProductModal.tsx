@@ -34,7 +34,6 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
   const [grade, setGrade] = React.useState('')
   const [price, setPrice] = React.useState<number>(0) // sell price per unit
   const [buyPrice, setBuyPrice] = React.useState<number>(0)
-  const [targetPrice, setTargetPrice] = React.useState<number>(0)
   const [unit, setUnit] = React.useState('')
   const [stock, setStock] = React.useState<number>(0)
   const [isLoading, setIsLoading] = React.useState(false)
@@ -52,7 +51,7 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
         setIsLoading(false)
         return
       }
-      const created = await apiCreateProduct<any>({ name: name.trim(), type: type.trim(), grade: grade.trim() || undefined, price, buyPrice, targetPrice, unit, stock })
+      const created = await apiCreateProduct<any>({ name: name.trim(), type: type.trim(), grade: grade.trim() || undefined, price, buyPrice, unit, stock })
       const normalized = normalizeProduct(created)
       addProduct(normalized as Product)
       toast.success('Product added')
@@ -143,17 +142,9 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
               </div>
             </div>
 
-            {/* Pricing & Inventory Section */}
+            {/* Unit & Stock */}
             <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Price */}
-              <div className="space-y-2">
-                <Label htmlFor="price" className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                  Sell Price / Unit ({t('currencySymbol')})
-                </Label>
-                <Input id="price" type="number" value={price} onChange={(e) => setPrice(parseFloat(e.target.value) || 0)} required className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200" placeholder="0.00" min="0" step="0.01" />
-              </div>
-
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Unit */}
               <div className="space-y-2">
                   <Label htmlFor="unit" className="text-sm font-medium text-gray-700 flex items-center gap-2">
@@ -173,11 +164,11 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
                   </Select>
                 </div>
 
-              {/* Stock */}
+              {/* Total Stock */}
               <div className="space-y-2">
                   <Label htmlFor="stock" className="text-sm font-medium text-gray-700 flex items-center gap-2">
                     <Warehouse className="h-4 w-4" />
-                    {t('stock')}
+                    Total Stock
                   </Label>
                   <Input
                     id="stock"
@@ -191,29 +182,27 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
                   />
                 </div>
             </div>
-
-            {/* Cost & Target Pricing */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Pricing */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700">Buy Price / Unit ({t('currencySymbol')})</Label>
                 <Input type="number" value={buyPrice} onChange={(e) => setBuyPrice(parseFloat(e.target.value) || 0)} className="h-11" placeholder="0.00" min="0" step="0.01" />
-                <div className="text-xs text-gray-500">Total Cost: <span className="font-semibold">{totalCost.toLocaleString()}</span></div>
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">Total Cost ({t('currencySymbol')})</Label>
+                <Label htmlFor="price" className="text-sm font-medium text-gray-700 flex items-center gap-2">Sell Price / Unit ({t('currencySymbol')})</Label>
+                <Input id="price" type="number" value={price} onChange={(e) => setPrice(parseFloat(e.target.value) || 0)} required className="h-11" placeholder="0.00" min="0" step="0.01" />
+              </div>
+            </div>
+
+            {/* Totals */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">Total Cost (BDT)</Label>
                 <Input type="number" value={totalCost} onChange={(e) => { const v = parseFloat(e.target.value) || 0; setBuyPrice(stock > 0 ? v / stock : 0) }} className="h-11" placeholder="0.00" min="0" step="0.01" />
                 <div className="text-xs text-gray-500">Auto = unit × stock</div>
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">Target Sell Price / Unit</Label>
-                <Input type="number" value={targetPrice} onChange={(e) => setTargetPrice(parseFloat(e.target.value) || 0)} className="h-11" placeholder="0.00" min="0" step="0.01" />
-              </div>
-            </div>
-
-            {/* Sell totals */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">Total Sell Value ({t('currencySymbol')})</Label>
+                <Label className="text-sm font-medium text-gray-700">Total Sell Value (BDT)</Label>
                 <Input type="number" value={totalSell} onChange={(e) => { const v = parseFloat(e.target.value) || 0; setPrice(stock > 0 ? v / stock : 0) }} className="h-11" placeholder="0.00" min="0" step="0.01" />
               </div>
             </div>
