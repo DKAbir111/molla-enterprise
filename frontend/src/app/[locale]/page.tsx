@@ -10,8 +10,7 @@ import { useLocale } from 'next-intl'
 import { TrendingUp, ShoppingCart, Users, Eye, EyeOff } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import React from 'react'
-import { getDashboardOverview, listTransactions, listOrders } from '@/lib/api'
-import { normalizeOrder } from '@/lib/api'
+import { getDashboardData } from '@/lib/api'
 
 export default function DashboardPage() {
   const t = useTranslations('dashboard')
@@ -28,52 +27,14 @@ export default function DashboardPage() {
 
   React.useEffect(() => {
     let mounted = true
-    getDashboardOverview().then((data) => {
-      if (mounted) setOverview(data)
-    }).catch(() => {})
-
-    // Build revenue series (last 6 months) from transactions
-    listTransactions<any[]>()
-      .then((txs) => {
+    getDashboardData({ months: 6, productDays: 90 })
+      .then((data) => {
         if (!mounted) return
-        const now = new Date()
-        const months: { key: string; label: string }[] = []
-        for (let i = 5; i >= 0; i--) {
-          const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
-          months.push({ key: `${d.getFullYear()}-${d.getMonth()}`, label: d.toLocaleString(locale as any, { month: 'short' }) })
-        }
-        const sums: Record<string, number> = {}
-        months.forEach(m => (sums[m.key] = 0));
-        (txs || []).forEach((t: any) => {
-          const dt = t.date ? new Date(t.date) : null
-          if (!dt || String(t.type) !== 'income') return
-          const key = `${dt.getFullYear()}-${dt.getMonth()}`
-          if (key in sums) sums[key] += Number(t.amount || 0)
-        })
-        setRevenueData(months.map(m => ({ name: m.label, revenue: sums[m.key] || 0 })))
+        setOverview(data.overview)
+        setRevenueData(data.revenueSeries)
+        setProductData(data.productSales)
       })
-      .catch(() => setRevenueData([]))
-
-    // Build product sales (top 4) from recent orders (last 90 days)
-    listOrders<any[]>()
-      .then((raw) => {
-        if (!mounted) return
-        const orders = (raw || []).map(normalizeOrder)
-        const cutoff = new Date()
-        cutoff.setDate(cutoff.getDate() - 90)
-        const totals: Record<string, number> = {}
-        orders.forEach((o) => {
-          const created = o.createdAt || new Date()
-          if (created < cutoff) return
-          o.items.forEach((it) => {
-            totals[it.productName] = (totals[it.productName] || 0) + Number(it.quantity || 0)
-          })
-        })
-        const sorted = Object.entries(totals).sort((a, b) => b[1] - a[1]).slice(0, 4)
-        setProductData(sorted.map(([name, qty]) => ({ name, sales: qty })))
-      })
-      .catch(() => setProductData([]))
-
+      .catch(() => { setRevenueData([]); setProductData([]) })
     return () => { mounted = false }
   }, [locale])
 

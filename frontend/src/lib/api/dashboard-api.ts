@@ -1,8 +1,4 @@
-import { toNumber } from './http'
-import { listOrders } from './order-api'
-import { listProducts } from './product-api'
-import { listCustomers } from './customer-api'
-import { listTransactions } from './transaction-api'
+import { api } from './http'
 import { normalizeOrder } from './normalize'
 
 export type DashboardOverview = {
@@ -13,39 +9,29 @@ export type DashboardOverview = {
   stockedProductValue: number
 }
 
+export type DashboardData = {
+  overview: DashboardOverview
+  revenueSeries: { name: string; revenue: number }[]
+  productSales: { name: string; sales: number }[]
+}
+
+export async function getDashboardData(params?: { months?: number; productDays?: number }): Promise<DashboardData> {
+  const search = new URLSearchParams()
+  if (params?.months) search.set('months', String(params.months))
+  if (params?.productDays) search.set('productDays', String(params.productDays))
+  const res = await api.get<DashboardData>(`/dashboard${search.toString() ? `?${search}` : ''}`)
+  return res.data
+}
+
 export async function getDashboardOverview(): Promise<DashboardOverview> {
-  const [orders, products, customers, transactions] = await Promise.all([
-    listOrders<any[]>(),
-    listProducts<any[]>(),
-    listCustomers<any[]>(),
-    listTransactions<any[]>(),
-  ])
-
-  const totalRevenue = (transactions || [])
-    .filter((t: any) => String(t.type) === 'income')
-    .reduce((sum: number, t: any) => sum + toNumber(t.amount), 0)
-
-  const totalExpenses = (transactions || [])
-    .filter((t: any) => String(t.type) === 'expense')
-    .reduce((sum: number, t: any) => sum + toNumber(t.amount), 0)
-
-  const activeOrders = (orders || []).filter((o: any) => !['delivered', 'cancelled'].includes(String(o.status))).length
-
-  const stockedProductValue = (products || [])
-    .reduce((sum: number, p: any) => sum + toNumber(p.price) * toNumber(p.stock), 0)
-
-  return {
-    totalRevenue,
-    totalExpenses,
-    activeOrders,
-    customers: (customers || []).length,
-    stockedProductValue,
-  }
+  const data = await getDashboardData()
+  return data.overview
 }
 
 export async function getRecentOrders(limit = 5): Promise<ReturnType<typeof normalizeOrder>[]> {
-  const raw = await listOrders<any[]>()
-  const orders = (raw || []).map(normalizeOrder)
+  // For now, still rely on listOrders here (optional to move into /dashboard later)
+  const res = await api.get<any[]>('/orders')
+  const orders = (res.data || []).map(normalizeOrder)
   const sorted = orders.slice().sort((a, b) => {
     const da = new Date(a.createdAt || a.date || 0).getTime()
     const db = new Date(b.createdAt || b.date || 0).getTime()
@@ -53,4 +39,3 @@ export async function getRecentOrders(limit = 5): Promise<ReturnType<typeof norm
   })
   return sorted.slice(0, limit)
 }
-

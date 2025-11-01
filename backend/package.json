@@ -4,7 +4,7 @@
   "private": true,
   "description": "Minimal NestJS + Prisma API for Business Management",
   "scripts": {
-    "build": "nest build",
+    "build": "nest build -p tsconfig.build.json",
     "start": "node dist/main.js",
     "start:dev": "nest start --watch",
     "dev": "nest start --watch",
@@ -32,7 +32,8 @@
     "prisma": "^5.18.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.0",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.1",
+    "tslib": "^2.6.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "sourceMap": false,
+    "declaration": false,
+    "removeComments": true,
+    "importHelpers": true,
+    "noEmitHelpers": true,
+    "target": "ES2020"
+  }
+}
+
