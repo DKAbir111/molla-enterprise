@@ -38,3 +38,6 @@ export default async function LocaleLayout({
     </NextIntlClientProvider>
   );
 }
+
+// Avoid static pre-render issues in restricted environments
+export const dynamic = 'force-dynamic'

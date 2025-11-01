@@ -109,7 +109,7 @@ export function generateCustomerPDF(
   })
   
   // Footer
-  const pageCount = doc.internal.getNumberOfPages()
+  const pageCount = (doc as any).internal?.getNumberOfPages?.() ?? 1
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i)
     doc.setFontSize(10)

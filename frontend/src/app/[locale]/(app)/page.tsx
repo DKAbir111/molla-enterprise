@@ -108,3 +108,5 @@ export default function DashboardPage() {
   )
 }
 
+// Avoid static generation issues during build
+export const dynamic = 'force-dynamic'

@@ -34,10 +34,14 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex items-center justify-center h-full">
-      <div className="w-full max-w-md bg-white p-6 rounded-lg shadow">
-        <h1 className="text-2xl font-bold mb-4">Login</h1>
-        <form onSubmit={onSubmit} className="space-y-4">
+    <div className="w-full max-w-md">
+      <div className="gradient-border rounded-xl">
+        <div className="glass rounded-xl p-8 shadow-xl">
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold gradient-text">Welcome back</h1>
+            <p className="text-sm text-gray-600 mt-1">Sign in to your account</p>
+          </div>
+          <form onSubmit={onSubmit} className="space-y-4">
           <div>
             <Label htmlFor="email">Email</Label>
             <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
@@ -55,9 +59,10 @@ export default function LoginPage() {
               <a href={`/${locale}/forgot-password`} className="text-blue-600 hover:underline">Forgot password?</a>
             </div>
           </div>
+          <div className="text-sm mt-4 text-gray-600">
+            New here? <a href={`/${locale}/register`} className="text-blue-600 hover:underline">Create account</a>
+          </div>
         </form>
-        <div className="text-sm mt-4">
-          New here? <a href={`/${locale}/register`} className="text-blue-600 hover:underline">Create account</a>
         </div>
       </div>
     </div>

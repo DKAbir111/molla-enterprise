@@ -33,10 +33,14 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="flex items-center justify-center h-full">
-      <div className="w-full max-w-md bg-white p-6 rounded-lg shadow">
-        <h1 className="text-2xl font-bold mb-4">Reset Password</h1>
-        <form onSubmit={onSubmit} className="space-y-4">
+    <div className="w-full max-w-md">
+      <div className="gradient-border rounded-xl">
+        <div className="glass rounded-xl p-8 shadow-xl">
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold gradient-text">Reset password</h1>
+            <p className="text-sm text-gray-600 mt-1">Enter your token and new password</p>
+          </div>
+          <form onSubmit={onSubmit} className="space-y-4">
           <div>
             <Label htmlFor="token">Token</Label>
             <Input id="token" value={token} onChange={(e) => setToken(e.target.value)} required />
@@ -50,8 +54,8 @@ export default function ResetPasswordPage() {
           </Button>
         </form>
         {message && <p className="text-sm mt-3">{message}</p>}
+        </div>
       </div>
     </div>
   )
 }
-

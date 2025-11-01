@@ -39,7 +39,7 @@ export function ViewOrderModal({ isOpen, onClose, order }: ViewOrderModalProps) 
               {t('viewOrder.description')}
             </DialogDescription>
           </div>
-          <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full w-8 h-8">
+          <Button variant="ghost" onClick={onClose} className="rounded-full w-8 h-8 p-0">
             <X className="h-5 w-5 text-gray-500" />
           </Button>
         </DialogHeader>

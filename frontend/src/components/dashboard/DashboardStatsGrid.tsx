@@ -46,7 +46,7 @@ export function DashboardStatsGrid({ stats }: DashboardStatsGridProps) {
               {stat.title}
             </CardTitle>
             <div className="flex items-center">
-              {stat.toggle && (
+              {stat.toggle && stat.toggleIcon && (
                 <button onClick={stat.toggle} className="mr-2">
                   <stat.toggleIcon className="h-4 w-4 text-gray-400" />
                 </button>

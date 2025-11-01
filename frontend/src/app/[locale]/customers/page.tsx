@@ -14,7 +14,6 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { useStore } from '@/store/useStore'
-// import { mockCustomers } from '@/lib/mockData'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { useLocale } from 'next-intl'
 import { Plus, Search, Eye, Edit, Trash2, Phone, MapPin } from 'lucide-react'

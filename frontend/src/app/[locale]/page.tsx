@@ -2,7 +2,6 @@
 
 import { useTranslations } from 'next-intl'
 import { DateFilter } from '@/components/dashboard/DateFilter'
-// import { mockOrders, mockCustomers, mockTransactions, mockProducts } from '@/lib/mockData'
 import { RecentOrders } from '@/components/dashboard/RecentOrders'
 import { DashboardStatsGrid } from '@/components/dashboard/DashboardStatsGrid'
 import { DashboardCharts } from '@/components/dashboard/DashboardCharts'

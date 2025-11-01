@@ -31,10 +31,14 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="flex items-center justify-center h-full">
-      <div className="w-full max-w-md bg-white p-6 rounded-lg shadow">
-        <h1 className="text-2xl font-bold mb-4">Forgot Password</h1>
-        <form onSubmit={onSubmit} className="space-y-4">
+    <div className="w-full max-w-md">
+      <div className="gradient-border rounded-xl">
+        <div className="glass rounded-xl p-8 shadow-xl">
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold gradient-text">Forgot password</h1>
+            <p className="text-sm text-gray-600 mt-1">We’ll send a reset link to your email</p>
+          </div>
+          <form onSubmit={onSubmit} className="space-y-4">
           <div>
             <Label htmlFor="email">Email</Label>
             <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
@@ -49,8 +53,8 @@ export default function ForgotPasswordPage() {
             Dev token: <a className="text-blue-600 underline" href={`/${locale}/reset-password?token=${devToken}`}>open reset</a>
           </p>
         )}
+        </div>
       </div>
     </div>
   )
 }
-

@@ -13,7 +13,6 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { useStore } from '@/store/useStore'
-// import { mockTransactions } from '@/lib/mockData'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { useLocale } from 'next-intl'
 import { TrendingUp, TrendingDown, DollarSign, Calculator, ArrowUpRight, ArrowDownRight } from 'lucide-react'
@@ -199,7 +198,7 @@ export default function AccountsPage() {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
+                  label={({ name, percent }) => `${name} ${(Number(percent || 0) * 100).toFixed(0)}%`}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"

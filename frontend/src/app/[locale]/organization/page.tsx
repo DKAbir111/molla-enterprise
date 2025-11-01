@@ -56,14 +56,18 @@ export default function OrganizationPage() {
   }
 
   if (loading) {
-    return <div className="flex items-center justify-center h-full">Checking organization...</div>
+    return <div className="text-gray-600">Checking organization...</div>
   }
 
   return (
-    <div className="flex items-start justify-center h-full">
-      <div className="w-full max-w-2xl bg-white p-6 rounded-lg shadow">
-        <h1 className="text-2xl font-bold mb-6">Create Organization</h1>
-        <form onSubmit={onSubmit} className="space-y-4">
+    <div className="w-full max-w-2xl">
+      <div className="gradient-border rounded-xl">
+        <div className="glass rounded-xl p-8 shadow-xl">
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold gradient-text">Create your organization</h1>
+            <p className="text-sm text-gray-600 mt-1">Provide business details to get started</p>
+          </div>
+          <form onSubmit={onSubmit} className="space-y-4">
           <div>
             <Label htmlFor="name">Business Name</Label>
             <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Sand Business Company Ltd." required />
@@ -91,6 +95,7 @@ export default function OrganizationPage() {
             </Button>
           </div>
         </form>
+        </div>
       </div>
     </div>
   )

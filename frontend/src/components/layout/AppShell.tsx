@@ -38,7 +38,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, [shouldHide, router, locale, pathname])
 
   if (shouldHide) {
-    return <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-6">{children}</div>
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-white to-blue-50 p-6">
+        {children}
+      </div>
+    )
   }
 
   return (

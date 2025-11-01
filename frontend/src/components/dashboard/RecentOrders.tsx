@@ -10,7 +10,7 @@ import React from 'react'
 
 interface RecentOrdersProps {
   // If you need to pass filtered orders, you can add a prop like:
-  // orders: typeof mockOrders;
+  // orders: any[];
 }
 
 function cn(...classes: string[]) {
