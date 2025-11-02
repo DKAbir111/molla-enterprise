@@ -15,6 +15,8 @@ import { useStore } from '@/store/useStore'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
+import { BuyDetailsModal } from '@/components/buys/BuyDetailsModal'
+import { EditBuyModal } from '@/components/buys/EditBuyModal'
 
 export default function BuysPage() {
   const t = useTranslations('buys')
@@ -23,6 +25,9 @@ export default function BuysPage() {
   const [search, setSearch] = useState('')
   const [open, setOpen] = useState(false)
   const { products, addProduct } = useStore()
+  const [selectedBuy, setSelectedBuy] = useState<any | null>(null)
+  const [showDetails, setShowDetails] = useState(false)
+  const [showEdit, setShowEdit] = useState(false)
 
   useEffect(() => {
     let mounted = true
@@ -48,10 +53,59 @@ export default function BuysPage() {
       {filtered.length === 0 ? (
         <Card className="border-dashed"><CardContent className="py-16 text-center"><div className="mx-auto mb-4 h-14 w-14 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white flex items-center justify-center text-2xl">+</div><h3 className="text-lg font-semibold mb-1">{t('emptyTitle')}</h3><p className="text-gray-600 mb-4">{t('emptyDescription')}</p><Button onClick={() => setOpen(true)}>{t('new')}</Button></CardContent></Card>
       ) : (
-        <Card><CardContent className="p-0"><Table><TableHeader><TableRow><TableHead>{t('vendor')}</TableHead><TableHead>{t('date')}</TableHead><TableHead className="text-right">{t('total')}</TableHead></TableRow></TableHeader><TableBody>{filtered.map((b, idx) => (<TableRow key={`${b.id}-${idx}`}><TableCell className="font-medium">{b.vendorName || '-'}</TableCell><TableCell>{new Date(b.createdAt).toLocaleDateString()}</TableCell><TableCell className="text-right font-medium">{formatCurrency(Number(b.total || 0), locale)}</TableCell></TableRow>))}</TableBody></Table></CardContent></Card>
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t('vendor')}</TableHead>
+                  <TableHead>{t('date')}</TableHead>
+                  <TableHead className="text-right">Paid / Due</TableHead>
+                  <TableHead className="text-right">{t('total')}</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filtered.map((b, idx) => {
+                  const itemsTotal = (b.items || []).reduce((s: number, it: any) => s + Number(it.total || 0), 0)
+                  const discount = Number(b.discount || 0)
+                  const transport = Number(b.transportTotal || 0)
+                  const grand = Math.max(0, itemsTotal + transport - discount)
+                  const paid = Number(b.paidAmount || 0)
+                  const due = Math.max(0, grand - paid)
+                  return (
+                    <TableRow key={`${b.id}-${idx}`}>
+                      <TableCell className="font-medium">{b.vendorName || '-'}</TableCell>
+                      <TableCell>{new Date(b.createdAt).toLocaleDateString()}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(paid, locale)} / {formatCurrency(due, locale)}</TableCell>
+                      <TableCell className="text-right font-medium">{formatCurrency(grand, locale)}</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button variant="outline" size="sm" onClick={() => { setSelectedBuy(b); setShowDetails(true) }}>View</Button>
+                          <Button variant="outline" size="sm" onClick={() => { setSelectedBuy(b); setShowEdit(true) }}>Edit</Button>
+                          <Button variant="outline" size="sm" onClick={() => { setSelectedBuy(b); setShowDetails(true); setTimeout(()=>window.print(), 0) }}>Print</Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       )}
 
       {open && <CreateBuyModal isOpen={open} onClose={() => setOpen(false)} />}
+
+      {showDetails && selectedBuy && (
+        <BuyDetailsModal isOpen={showDetails} onClose={() => setShowDetails(false)} buy={selectedBuy} />
+      )}
+
+      {showEdit && selectedBuy && (
+        <EditBuyModal isOpen={showEdit} onClose={() => setShowEdit(false)} buy={selectedBuy} onUpdated={(b)=>{
+          setBuys(prev => prev.map(x => x.id === b.id ? b : x))
+        }} />
+      )}
     </div>
   )
 }
@@ -120,4 +174,3 @@ function CreateBuyModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
     </Dialog>
   )
 }
-

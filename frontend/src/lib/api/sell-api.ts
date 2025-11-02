@@ -40,3 +40,12 @@ export async function deleteSell(id: string): Promise<{ ok: boolean } | any> {
   const res = await api.delete(`/sells/${id}`)
   return res.data
 }
+
+export type UpdateSellItemsInput = {
+  items: { productId: string; quantity: number; price?: number }[]
+}
+
+export async function updateSellItems<T = any>(id: string, data: UpdateSellItemsInput): Promise<T> {
+  const res = await api.put<T>(`/sells/${id}/items`, data)
+  return res.data
+}

@@ -15,7 +15,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useStore } from '@/store/useStore'
 import { Product } from '@/types'
-import { Edit3, Warehouse, Tag, Layers, Save, ImagePlus, ToggleLeft, ToggleRight } from 'lucide-react'
+import { Edit3, Warehouse, Tag, Layers, Save, ImagePlus, ToggleLeft, ToggleRight, Plus, Minus } from 'lucide-react'
 import { toast } from 'sonner'
 import { updateProduct as apiUpdateProduct } from '@/lib/api/product-api'
 import { uploadProductImage } from '@/lib/api/product-api'
@@ -167,11 +167,28 @@ export function EditProductModal({ isOpen, onClose, product }: EditProductModalP
             </div>
 
             {/* Active Toggle */}
+            <div className="flex items-center justify-between py-1">
+              <div className="flex items-center gap-3">
+                <Label className="text-sm font-medium text-gray-700">Active</Label>
+                <Button type="button" variant="outline" size="sm" onClick={() => setActive(v => !v)}>
+                  {active ? <ToggleRight className="h-4 w-4 mr-1 text-green-600" /> : <ToggleLeft className="h-4 w-4 mr-1 text-gray-500" />} {active ? 'Active' : 'Inactive'}
+                </Button>
+              </div>
+              <span className="text-xs text-gray-500">Auto-activates when stock &gt; 0</span>
+            </div>
+
+            {/* Quick Change Stock */}
             <div className="flex items-center gap-3 py-1">
-              <Label className="text-sm font-medium text-gray-700">Active</Label>
-              <Button type="button" variant="outline" size="sm" onClick={() => setActive(v => !v)}>
-                {active ? <ToggleRight className="h-4 w-4 mr-1 text-green-600" /> : <ToggleLeft className="h-4 w-4 mr-1 text-gray-500" />} {active ? 'Active' : 'Inactive'}
-              </Button>
+              <Label className="text-sm font-medium text-gray-700">Change Stock</Label>
+              <div className="flex items-center gap-2">
+                <Button type="button" variant="outline" size="icon" className="h-8 w-8" onClick={() => setStock((s) => Math.max(0, Number(s || 0) - 1))}>
+                  <Minus className="h-3 w-3" />
+                </Button>
+                <Input type="number" value={stock} onChange={(e) => setStock(parseInt(e.target.value || '0', 10))} className="w-24 text-center h-8" />
+                <Button type="button" variant="outline" size="icon" className="h-8 w-8" onClick={() => setStock((s) => Number(s || 0) + 1)}>
+                  <Plus className="h-3 w-3" />
+                </Button>
+              </div>
             </div>
 
             {/* Product Information Section */}

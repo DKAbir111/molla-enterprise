@@ -12,6 +12,8 @@ import { Plus, Search } from 'lucide-react'
 import { listSells } from '@/lib/api/sell-api'
 import { normalizeOrder } from '@/lib/api'
 import CreateSellForm from '@/components/sells/CreateSellForm'
+import { SellDetailsModal } from '@/components/sells/SellDetailsModal'
+import { EditSellModal } from '@/components/sells/EditSellModal'
 
 export default function SellsPage() {
   const t = useTranslations('sells')
@@ -19,6 +21,9 @@ export default function SellsPage() {
   const { sells, addSell } = useStore()
   const [searchQuery, setSearchQuery] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
+  const [selectedSell, setSelectedSell] = useState<any | null>(null)
+  const [showDetails, setShowDetails] = useState(false)
+  const [showEdit, setShowEdit] = useState(false)
 
   useEffect(() => {
     let mounted = true
@@ -66,18 +71,36 @@ export default function SellsPage() {
                   <TableHead>{t('orderId')}</TableHead>
                   <TableHead>{t('customer')}</TableHead>
                   <TableHead>{t('date')}</TableHead>
+                  <TableHead className="text-right">Paid / Due</TableHead>
                   <TableHead className="text-right">{t('total')}</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.map((o, idx) => (
-                  <TableRow key={`${o.id}-${idx}`}>
-                    <TableCell className="font-medium">{formatOrderCode(o.id, o.createdAt)}</TableCell>
-                    <TableCell>{o.customerName}</TableCell>
-                    <TableCell>{formatDate(o.createdAt, locale)}</TableCell>
-                    <TableCell className="text-right font-medium">{formatCurrency(o.total, locale)}</TableCell>
-                  </TableRow>
-                ))}
+                {filtered.map((o, idx) => {
+                  const itemsTotal = (o.items || []).reduce((s, it) => s + Number(it.total || 0), 0)
+                  const discount = Number(o.discount || 0)
+                  const transport = Number(o.transportTotal || 0)
+                  const grand = Math.max(0, itemsTotal + transport - discount)
+                  const paid = Number(o.paidAmount || 0)
+                  const due = Math.max(0, grand - paid)
+                  return (
+                    <TableRow key={`${o.id}-${idx}`}>
+                      <TableCell className="font-medium">{formatOrderCode(o.id, o.createdAt)}</TableCell>
+                      <TableCell>{o.customerName}</TableCell>
+                      <TableCell>{formatDate(o.createdAt, locale)}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(paid, locale)} / {formatCurrency(due, locale)}</TableCell>
+                      <TableCell className="text-right font-medium">{formatCurrency(grand, locale)}</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button variant="outline" size="sm" onClick={() => { setSelectedSell(o); setShowDetails(true) }}>View</Button>
+                          <Button variant="outline" size="sm" onClick={() => { setSelectedSell(o); setShowEdit(true) }}>Edit</Button>
+                          <Button variant="outline" size="sm" onClick={() => { setSelectedSell(o); setShowDetails(true); setTimeout(()=>window.print(), 0) }}>Print</Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
               </TableBody>
             </Table>
           </CardContent>
@@ -86,6 +109,14 @@ export default function SellsPage() {
 
       {modalOpen && (
         <CreateSellForm isOpen={modalOpen} onClose={() => setModalOpen(false)} />
+      )}
+
+      {showDetails && selectedSell && (
+        <SellDetailsModal isOpen={showDetails} onClose={() => setShowDetails(false)} sell={selectedSell} />
+      )}
+
+      {showEdit && selectedSell && (
+        <EditSellModal isOpen={showEdit} onClose={() => setShowEdit(false)} sell={selectedSell} />
       )}
     </div>
   )
