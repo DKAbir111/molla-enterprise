@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProductsService = void 0;
 const tslib_1 = require("tslib");
 const common_1 = require("@nestjs/common");
+const client_1 = require("@prisma/client");
 const prisma_service_1 = require("../prisma/prisma.service");
 let ProductsService = class ProductsService {
     constructor(prisma) {
@@ -87,7 +88,15 @@ let ProductsService = class ProductsService {
         const found = await this.prisma.product.findFirst({ where: { id, organizationId } });
         if (!found)
             throw new common_1.NotFoundException('Product not found');
-        await this.prisma.product.delete({ where: { id } });
+        try {
+            await this.prisma.product.delete({ where: { id } });
+        }
+        catch (e) {
+            if (e instanceof client_1.Prisma.PrismaClientKnownRequestError && e.code === 'P2003') {
+                throw new common_1.ForbiddenException('Cannot delete product because it is referenced by existing orders. Consider archiving it instead.');
+            }
+            throw e;
+        }
         return { ok: true };
     }
 };

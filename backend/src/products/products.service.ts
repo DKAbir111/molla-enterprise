@@ -1,4 +1,5 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client'
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -91,7 +92,15 @@ export class ProductsService {
     const organizationId = this.ensureOrg(orgId);
     const found = await this.prisma.product.findFirst({ where: { id, organizationId } });
     if (!found) throw new NotFoundException('Product not found');
-    await this.prisma.product.delete({ where: { id } });
+    try {
+      await this.prisma.product.delete({ where: { id } });
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2003') {
+        // Foreign key constraint failed (referenced by OrderItem)
+        throw new ForbiddenException('Cannot delete product because it is referenced by existing orders. Consider archiving it instead.');
+      }
+      throw e
+    }
     return { ok: true };
   }
 }

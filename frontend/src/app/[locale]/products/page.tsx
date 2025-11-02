@@ -78,11 +78,12 @@ export default function ProductsPage() {
     if (productToDeleteId) {
       try {
         await apiDeleteProduct(productToDeleteId)
+        deleteProduct(productToDeleteId)
         toast.success('Product deleted')
-      } catch {
-        toast.error('Failed to delete product (showing locally)')
+      } catch (err: any) {
+        const msg = err?.response?.data?.message || 'Failed to delete product. It may be used in orders.'
+        toast.error(msg)
       }
-      deleteProduct(productToDeleteId)
       setProductToDeleteId(null)
       setIsDeleteModalOpen(false)
     }
@@ -191,6 +192,11 @@ export default function ProductsPage() {
               </div>
 
               <div className="flex gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                <a href={`/${locale}/products/${product.id}`}>
+                  <Button variant="outline" size="sm" className="flex-1">
+                    {t('view') || 'View'}
+                  </Button>
+                </a>
                 <Button variant="outline" size="sm" className="flex-1" onClick={() => handleEditClick(product)}>
                   <Edit className="h-3 w-3 mr-1" />
                   {t('edit')}
