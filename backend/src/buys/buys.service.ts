@@ -10,7 +10,7 @@ export class BuysService {
 
   findAll(orgId?: string | null) {
     const organizationId = this.ensureOrg(orgId)
-    return (this.prisma as any).buy.findMany({ where: { organizationId }, include: { items: true }, orderBy: { createdAt: 'desc' } })
+    return this.prisma.buy.findMany({ where: { organizationId }, include: { items: true }, orderBy: { createdAt: 'desc' } })
   }
 
   async create(orgId: string | null | undefined, dto: CreateBuyDto) {
@@ -30,7 +30,7 @@ export class BuysService {
     itemsData.forEach(it => { it.productName = map.get(it.productId) || 'Item' })
 
     const created = await this.prisma.$transaction(async (tx) => {
-      const buy = await (tx as any).buy.create({
+      const buy = await tx.buy.create({
         data: {
           organizationId,
           vendorName: (dto as any).vendorName,
@@ -48,11 +48,11 @@ export class BuysService {
       })
 
       for (const it of itemsData) {
-        await (tx as any).product.update({ where: { id: it.productId }, data: { stock: { increment: it.quantity } } })
+        await tx.product.update({ where: { id: it.productId }, data: { stock: { increment: it.quantity } } })
       }
 
       if (paidAmount && paidAmount > 0) {
-        await (tx as any).transaction.create({
+        await tx.transaction.create({
           data: {
             organizationId,
             description: `Buy payment - ${buy.id}`,

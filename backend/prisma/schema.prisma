@@ -35,7 +35,6 @@ model Organization {
 
   products     Product[]
   customers    Customer[]
-  orders       Order[]
   sells        Sell[]
   buys         Buy[]
   transactions Transaction[]
@@ -56,8 +55,6 @@ model Product {
   organization   Organization  @relation(fields: [organizationId], references: [id])
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
-
-  orderItems     OrderItem[]
   sellItems      SellItem[]
   buyItems       BuyItem[]
 
@@ -74,54 +71,15 @@ model Customer {
   organization   Organization  @relation(fields: [organizationId], references: [id])
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
-
-  orders         Order[]
   sells          Sell[]
 
   @@index([organizationId])
 }
 
-model Order {
-  id             String        @id @default(uuid())
-  customerId     String
-  customer       Customer      @relation(fields: [customerId], references: [id])
-  organizationId String
-  organization   Organization  @relation(fields: [organizationId], references: [id])
-  status         String        @default("pending")
-  deliveryAddress String?
-  date           DateTime      @default(now())
-  createdAt      DateTime      @default(now())
-  deliveredAt    DateTime?
-  total          Decimal       @db.Decimal(12,2) @default(0)
-  discount       Decimal       @db.Decimal(12,2) @default(0)
-  paidAmount     Decimal       @db.Decimal(12,2) @default(0)
-  transportPerTrip Decimal     @db.Decimal(12,2) @default(0)
-  transportTrips Int           @default(0)
-  transportTotal Decimal       @db.Decimal(12,2) @default(0)
-
-  items          OrderItem[]
-
-  @@index([organizationId])
-  @@index([customerId])
-}
-
-model OrderItem {
-  id        String   @id @default(uuid())
-  orderId   String
-  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId String
-  product   Product  @relation(fields: [productId], references: [id])
-  productName String
-  quantity  Int
-  price     Decimal  @db.Decimal(12,2)
-  total     Decimal  @db.Decimal(12,2)
-
-  @@index([orderId])
-  @@index([productId])
-}
 
 model Sell {
   id             String        @id @default(uuid())
+  shortCode      String?
   customerId     String
   customer       Customer      @relation(fields: [customerId], references: [id])
   organizationId String

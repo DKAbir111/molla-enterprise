@@ -14,12 +14,12 @@ interface Store {
   updateCustomer: (id: string, customer: Partial<Customer>) => void
   deleteCustomer: (id: string) => void
 
-  // Orders
-  orders: Order[]
-  addOrder: (order: Order) => void
-  updateOrderStatus: (id: string, status: Order['status']) => void
-  updateOrder: (id: string, patch: Partial<Order>) => void
-  deleteOrder: (id: string) => void
+  // Sells (was Orders)
+  sells: Order[]
+  addSell: (sell: Order) => void
+  updateSellStatus: (id: string, status: Order['status']) => void
+  updateSell: (id: string, patch: Partial<Order>) => void
+  deleteSell: (id: string) => void
 
   // Invoices removed
   // Delivery removed
@@ -58,19 +58,19 @@ export const useStore = create<Store>((set) => ({
     customers: state.customers.filter((c) => c.id !== id)
   })),
 
-  // Orders
-  orders: [],
-  addOrder: (order) => set((state) => {
-    const exists = state.orders.some((o) => o.id === order.id)
-    return exists ? { orders: state.orders } : { orders: [...state.orders, order] }
+  // Sells (was Orders)
+  sells: [],
+  addSell: (sell) => set((state) => {
+    const exists = state.sells.some((o) => o.id === sell.id)
+    return exists ? { sells: state.sells } : { sells: [...state.sells, sell] }
   }),
-  updateOrderStatus: (id, status) => set((state) => ({
-    orders: state.orders.map((o) => o.id === id ? { ...o, status } : o)
+  updateSellStatus: (id, status) => set((state) => ({
+    sells: state.sells.map((o) => o.id === id ? { ...o, status } : o)
   })),
-  updateOrder: (id, patch) => set((state) => ({
-    orders: state.orders.map((o) => o.id === id ? { ...o, ...patch } : o)
+  updateSell: (id, patch) => set((state) => ({
+    sells: state.sells.map((o) => o.id === id ? { ...o, ...patch } : o)
   })),
-  deleteOrder: (id) => set((state) => ({ orders: state.orders.filter((o) => o.id !== id) })),
+  deleteSell: (id) => set((state) => ({ sells: state.sells.filter((o) => o.id !== id) })),
 
   // Invoices removed
   // Delivery removed

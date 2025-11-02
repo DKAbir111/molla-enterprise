@@ -52,8 +52,8 @@ export class ProductsService {
       await this.prisma.product.delete({ where: { id } });
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2003') {
-        // Foreign key constraint failed (referenced by OrderItem)
-        throw new ForbiddenException('Cannot delete product because it is referenced by existing orders. Consider archiving it instead.');
+        // Foreign key constraint failed (referenced by SellItem/BuyItem)
+        throw new ForbiddenException('Cannot delete product because it is referenced by existing sells/buys. Consider archiving it instead.');
       }
       throw e
     }

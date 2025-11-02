@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useStore } from '@/store/useStore'
 import { formatCurrency } from '@/lib/utils'
-import { listTransactions, listOrders, normalizeOrder } from '@/lib/api'
+import { listTransactions, listSells, normalizeOrder } from '@/lib/api'
 import { useLocale } from 'next-intl'
 import { Download, FileText, BarChart3, PieChart, TrendingUp } from 'lucide-react'
 import React from 'react'
@@ -30,7 +30,7 @@ import {
 export default function ReportsPage() {
   const t = useTranslations('reports')
   const locale = useLocale()
-  const { orders, products, customers, transactions } = useStore()
+  const { products, customers, transactions } = useStore()
 
   // Derived state
   const [revenueTrend, setRevenueTrend] = React.useState<{ month: string; total: number }[]>([])
@@ -63,8 +63,8 @@ export default function ReportsPage() {
       })
       .catch(() => setRevenueTrend([]))
 
-    // Orders-based metrics (last 90 days)
-    listOrders<any[]>()
+    // Sells-based metrics (last 90 days)
+    listSells<any[]>()
       .then((raw) => {
         if (!mounted) return
         const normalized = (raw || []).map(normalizeOrder)
@@ -73,7 +73,7 @@ export default function ReportsPage() {
         // Top products by quantity and revenue
         const qtyByProduct: Record<string, number> = {}
         const revByProduct: Record<string, number> = {}
-        // Customer order counts
+        // Customer sell counts
         const ordersByCustomer: Record<string, number> = {}
 
         normalized.forEach(o => {
@@ -97,12 +97,12 @@ export default function ReportsPage() {
         setCategorySales(catSeries)
 
         // Customer distribution buckets
-        const buckets = { '0-5 orders': 0, '6-15 orders': 0, '16-25 orders': 0, '26+ orders': 0 }
+        const buckets = { '0-5 sells': 0, '6-15 sells': 0, '16-25 sells': 0, '26+ sells': 0 }
         Object.values(ordersByCustomer).forEach(c => {
-          if (c <= 5) buckets['0-5 orders']++
-          else if (c <= 15) buckets['6-15 orders']++
-          else if (c <= 25) buckets['16-25 orders']++
-          else buckets['26+ orders']++
+          if (c <= 5) buckets['0-5 sells']++
+          else if (c <= 15) buckets['6-15 sells']++
+          else if (c <= 25) buckets['16-25 sells']++
+          else buckets['26+ sells']++
         })
         setCustomerDistribution(Object.entries(buckets).map(([range, count]) => ({ range, count })))
 

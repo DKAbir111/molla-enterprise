@@ -1,4 +1,5 @@
 "use strict";
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OrdersController = void 0;
 const tslib_1 = require("tslib");
@@ -76,5 +77,5 @@ exports.OrdersController = OrdersController = tslib_1.__decorate([
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Controller)('orders'),
-    tslib_1.__metadata("design:paramtypes", [orders_service_1.OrdersService])
+    tslib_1.__metadata("design:paramtypes", [typeof (_a = typeof orders_service_1.OrdersService !== "undefined" && orders_service_1.OrdersService) === "function" ? _a : Object])
 ], OrdersController);

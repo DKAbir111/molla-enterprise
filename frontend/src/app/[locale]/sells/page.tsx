@@ -16,21 +16,21 @@ import CreateSellForm from '@/components/sells/CreateSellForm'
 export default function SellsPage() {
   const t = useTranslations('sells')
   const locale = useLocale()
-  const { orders, addOrder } = useStore() // reuse store
+  const { sells, addSell } = useStore()
   const [searchQuery, setSearchQuery] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
 
   useEffect(() => {
     let mounted = true
-    if (orders.length === 0) {
+    if (sells.length === 0) {
       listSells<any[]>()
-        .then((res) => { if (!mounted) return; (res || []).map(normalizeOrder).forEach(addOrder) })
+        .then((res) => { if (!mounted) return; (res || []).map(normalizeOrder).forEach(addSell) })
         .catch(() => {})
     }
     return () => { mounted = false }
-  }, [orders.length, addOrder])
+  }, [sells.length, addSell])
 
-  const filtered = orders.filter((o) => {
+  const filtered = sells.filter((o) => {
     const q = searchQuery.toLowerCase()
     const code = formatOrderCode(o.id, o.createdAt).toLowerCase()
     return o.customerName.toLowerCase().includes(q) || o.id.toLowerCase().includes(q) || code.includes(q)

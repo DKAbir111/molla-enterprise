@@ -118,7 +118,7 @@ export default function AccountsPage() {
           <CardContent className="py-16 text-center">
             <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white flex items-center justify-center text-2xl">+</div>
             <h3 className="text-lg font-semibold mb-1">{t('emptyTitle') || 'No transactions yet'}</h3>
-            <p className="text-gray-600">{t('emptyDescription') || 'As you add orders and record payments/expenses, analytics will appear here.'}</p>
+            <p className="text-gray-600">{t('emptyDescription') || 'As you add sells and record payments/expenses, analytics will appear here.'}</p>
           </CardContent>
         </Card>
       </div>

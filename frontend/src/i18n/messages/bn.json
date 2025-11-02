@@ -50,7 +50,7 @@
   "dashboard": {
     "title": "ড্যাশবোর্ড সংক্ষিপ্ত বিবরণ",
     "totalRevenue": "মোট আয়",
-    "activeOrders": "সক্রিয় অর্ডার",
+    "activeOrders": "সক্রিয় বিক্রি",
     "customers": "গ্রাহক",
     "pendingDeliveries": "অপেক্ষমাণ ডেলিভারি",
     "totalPaid": "মোট পরিশোধিত",
@@ -58,6 +58,7 @@
     "stockedProductPrice": "মজুদ পণ্যের মূল্য",
     "totalExpenses": "মোট খরচ",
     "recentOrders": "সাম্প্রতিক অর্ডার",
+    "recentSells": "সাম্প্রতিক বিক্রয়",
     "viewAll": "সব দেখুন",
     "revenueOverview": "আয় সংক্ষিপ্ত বিবরণ",
     "productSales": "পণ্য বিক্রয়",

@@ -17,7 +17,7 @@ export class SellsService {
 
   findAll(orgId?: string | null) {
     const organizationId = this.ensureOrg(orgId);
-    return (this.prisma as any).sell.findMany({
+    return this.prisma.sell.findMany({
       where: { organizationId },
       include: { items: true, customer: true },
       orderBy: { createdAt: 'desc' },
@@ -49,7 +49,7 @@ export class SellsService {
     const transportTotal = tPerTrip * tTrips
 
     const created = await this.prisma.$transaction(async (tx) => {
-      const sell = await (tx as any).sell.create({
+      const sell = await tx.sell.create({
         data: {
           organizationId,
           customerId: dto.customerId,
@@ -67,12 +67,19 @@ export class SellsService {
         include: { items: true },
       });
 
+      // Generate and persist short code for fast lookup
+      try {
+        const code = this.makeShortCode(sell.id, new Date((sell as any).createdAt ?? Date.now()))
+        await (tx as any).sell.update({ where: { id: sell.id }, data: { shortCode: code } })
+        ;(sell as any).shortCode = code
+      } catch {}
+
       for (const it of itemsData) {
-        await (tx as any).product.update({ where: { id: it.productId }, data: { stock: { decrement: it.quantity } } });
+        await tx.product.update({ where: { id: it.productId }, data: { stock: { decrement: it.quantity } } });
       }
 
       if (paidAmount && paidAmount > 0) {
-        await (tx as any).transaction.create({
+        await tx.transaction.create({
           data: {
             organizationId,
             description: `Sell payment - ${sell.id}`,
@@ -92,7 +99,7 @@ export class SellsService {
 
   async update(orgId: string | null | undefined, id: string, dto: UpdateSellDto) {
     const organizationId = this.ensureOrg(orgId);
-    const found = await (this.prisma as any).sell.findFirst({ where: { id, organizationId } });
+    const found = await this.prisma.sell.findFirst({ where: { id, organizationId } });
     if (!found) throw new NotFoundException('Sell not found');
     const data: any = { ...dto };
     const tPerTrip = (dto as any).transportPerTrip ?? (found as any).transportPerTrip ?? 0;
@@ -104,12 +111,12 @@ export class SellsService {
       data.transportTrips = trips
       data.transportTotal = per * trips
     }
-    return (this.prisma as any).sell.update({ where: { id }, data });
+    return this.prisma.sell.update({ where: { id }, data });
   }
 
   async updateItems(orgId: string | null | undefined, id: string, dto: UpdateSellItemsDto) {
     const organizationId = this.ensureOrg(orgId);
-    const found = await (this.prisma as any).sell.findFirst({ where: { id, organizationId } });
+    const found = await this.prisma.sell.findFirst({ where: { id, organizationId } });
     if (!found) throw new NotFoundException('Sell not found');
 
     const productIds = dto.items.map((i) => i.productId);
@@ -126,19 +133,52 @@ export class SellsService {
 
     const grand = rows.reduce((s, r) => s + r.total, 0);
     const result = await this.prisma.$transaction(async (tx) => {
-      const existing = await (tx as any).sellItem.findMany({ where: { sellId: id } as any });
+      const existing = await tx.sellItem.findMany({ where: { sellId: id } });
       for (const it of existing) {
-        await (tx as any).product.update({ where: { id: (it as any).productId }, data: { stock: { increment: (it as any).quantity } } });
+        await tx.product.update({ where: { id: it.productId }, data: { stock: { increment: it.quantity } } });
       }
-      await (tx as any).sellItem.deleteMany({ where: { sellId: id } as any });
-      await (tx as any).sellItem.createMany({ data: rows.map(r => ({ sellId: id, ...r, orderId: undefined })) as any });
+      await tx.sellItem.deleteMany({ where: { sellId: id } });
+      await tx.sellItem.createMany({ data: rows.map(r => ({ sellId: id, ...r, orderId: undefined })) as any });
       for (const r of rows) {
-        await (tx as any).product.update({ where: { id: r.productId }, data: { stock: { decrement: r.quantity } } });
+        await tx.product.update({ where: { id: r.productId }, data: { stock: { decrement: r.quantity } } });
       }
-      try { await (tx as any).sell.update({ where: { id }, data: { total: grand } as any }); } catch {}
-      return (tx as any).sell.findUnique({ where: { id }, include: { items: true, customer: true } });
+      try { await tx.sell.update({ where: { id }, data: { total: grand } as any }); } catch {}
+      return tx.sell.findUnique({ where: { id }, include: { items: true, customer: true } });
     });
     return result;
+  }
+
+  search(orgId?: string | null, q?: string) {
+    const organizationId = this.ensureOrg(orgId)
+    const raw = (q || '').trim()
+    if (!raw) return this.prisma.sell.findMany({ where: { organizationId }, orderBy: { createdAt: 'desc' }, include: { items: true, customer: true } })
+    const normalized = raw.toUpperCase()
+    // Extract short suffix if a display code like ORD-YYMM-XXXXXX
+    let suffix = ''
+    const m = normalized.match(/^ORD-\d{4}-([A-Z0-9]{6})$/)
+    if (m) suffix = m[1].toLowerCase()
+    else if (/^[A-Z0-9]{6}$/.test(normalized)) suffix = normalized.toLowerCase()
+    return this.prisma.sell.findMany({
+      where: {
+        organizationId,
+        OR: [
+          { id: raw },
+          { shortCode: normalized },
+          ...(suffix ? [{ id: { contains: suffix } }] : []),
+        ] as any,
+      },
+      include: { items: true, customer: true },
+      orderBy: { createdAt: 'desc' },
+      take: 25,
+    })
+  }
+
+  private makeShortCode(id: string, date?: Date) {
+    const d = date || new Date()
+    const yy = String(d.getFullYear()).slice(-2)
+    const mm = String(d.getMonth() + 1).padStart(2, '0')
+    const short = (id || '').replace(/-/g, '').slice(0, 6).toUpperCase()
+    return `ORD-${yy}${mm}-${short}`
   }
 }
 

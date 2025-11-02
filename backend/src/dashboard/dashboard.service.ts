@@ -20,14 +20,14 @@ export class DashboardService {
     const [incomeTx, expenseTx, activeOrders, customersCount, products, ordersForSales, ordersForRevenue] = await Promise.all([
       this.prisma.transaction.findMany({ where: { organizationId: orgId, type: 'income' } }),
       this.prisma.transaction.findMany({ where: { organizationId: orgId, type: 'expense' } }),
-      (this.prisma as any).sell.count({ where: { organizationId: orgId, NOT: { status: { in: ['delivered', 'cancelled'] } } } }),
+      this.prisma.sell.count({ where: { organizationId: orgId, NOT: { status: { in: ['delivered', 'cancelled'] } } } }),
       this.prisma.customer.count({ where: { organizationId: orgId } }),
       this.prisma.product.findMany({ where: { organizationId: orgId }, select: { price: true, buyPrice: true, stock: true, name: true, id: true } }),
-      (this.prisma as any).sell.findMany({
+      this.prisma.sell.findMany({
         where: { organizationId: orgId, createdAt: { gte: new Date(Date.now() - productDays * 24 * 60 * 60 * 1000) } },
         include: { items: true },
       }),
-      (this.prisma as any).sell.findMany({
+      this.prisma.sell.findMany({
         where: { organizationId: orgId, createdAt: { gte: seriesStart, lte: seriesEnd } },
         include: { items: true },
       }),

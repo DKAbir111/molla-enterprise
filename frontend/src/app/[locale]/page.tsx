@@ -112,7 +112,7 @@ export default function DashboardPage() {
       {/* Charts */}
       <Charts revenueData={revenueData} productData={productData} />
 
-      {/* Recent Orders */}
+      {/* Recent Sells */}
       <RecentOrders />
     </div>
   )

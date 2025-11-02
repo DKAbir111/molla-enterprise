@@ -20,7 +20,7 @@ import { toast } from 'sonner'
 export default function CreateSellForm({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const t = useTranslations('createOrder')
   const locale = useLocale()
-  const { customers, products, addOrder, addCustomer, addProduct } = useStore()
+  const { customers, products, addSell, addCustomer, addProduct } = useStore()
 
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
   const [customerSearch, setCustomerSearch] = useState('')
@@ -79,7 +79,7 @@ export default function CreateSellForm({ isOpen, onClose }: { isOpen: boolean; o
       const created = await apiCreateSell<any>(payload)
       const normalized = normalizeOrder(created)
       const final: Order = { ...normalized, customerName: selectedCustomer.name }
-      addOrder(final)
+      addSell(final)
       toast.success('Sell created successfully')
       onClose()
       setSelectedCustomer(null); setCustomerSearch(''); setCustomerPhone(''); setDeliveryAddress(''); setOrderItems([]); setProductSearch('')
@@ -144,4 +144,3 @@ export default function CreateSellForm({ isOpen, onClose }: { isOpen: boolean; o
     </Dialog>
   )
 }
-

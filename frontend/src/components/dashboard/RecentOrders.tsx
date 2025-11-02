@@ -3,11 +3,12 @@
 import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { formatCurrency } from '@/lib/utils'
+import { formatCurrency, formatOrderCode } from '@/lib/utils'
 import { api } from '@/lib/api/http'
 import { normalizeOrder } from '@/lib/api'
 import { useLocale } from 'next-intl'
 import React from 'react'
+import Link from 'next/link'
 
 interface RecentOrdersProps {
   // If you need to pass filtered orders, you can add a prop like:
@@ -36,10 +37,12 @@ export function RecentOrders({}: RecentOrdersProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>{t('recentOrders')}</CardTitle>
-        <Button variant="outline" size="sm">
-          {t('viewAll')}
-        </Button>
+        <CardTitle>{t('recentSells') || 'Recent Sells'}</CardTitle>
+        <Link href={`/${locale}/sells`}>
+          <Button variant="outline" size="sm">
+            {t('viewAll')}
+          </Button>
+        </Link>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -51,7 +54,7 @@ export function RecentOrders({}: RecentOrdersProps) {
                 </div>
                 <div>
                   <p className="font-medium">{order.customerName}</p>
-                  <p className="text-sm text-gray-500">Order #{order.id}</p>
+                  <p className="text-sm text-gray-500">{`Sell ${formatOrderCode(order.id, order.createdAt)}`}</p>
                 </div>
               </div>
               <div className="text-right">

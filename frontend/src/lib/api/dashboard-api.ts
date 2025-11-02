@@ -35,7 +35,7 @@ export async function getDashboardOverview(): Promise<DashboardOverview> {
 
 export async function getRecentOrders(limit = 5): Promise<ReturnType<typeof normalizeOrder>[]> {
   // For now, still rely on listOrders here (optional to move into /dashboard later)
-  const res = await api.get<any[]>('/orders')
+  const res = await api.get<any[]>('/sells')
   const orders = (res.data || []).map(normalizeOrder)
   const sorted = orders.slice().sort((a, b) => {
     const da = new Date(a.createdAt || a.date || 0).getTime()

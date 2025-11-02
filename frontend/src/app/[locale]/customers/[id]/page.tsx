@@ -31,7 +31,7 @@ import {
 } from 'lucide-react'
 import { useReactToPrint } from 'react-to-print'
 import { generateCustomerPDF } from '@/lib/pdfGenerator'
-import { listOrders as fetchOrders, getCustomer as apiGetCustomer } from '@/lib/api'
+import { listSells as fetchSells, getCustomer as apiGetCustomer } from '@/lib/api'
 import { normalizeOrder, normalizeCustomer } from '@/lib/api'
 
 interface PurchaseHistoryItem {
@@ -73,7 +73,7 @@ export default function CustomerDetailsPage() {
   // Load customer's purchase history once per customer and avoid loops
   useEffect(() => {
     let mounted = true
-    fetchOrders<any[]>()
+    fetchSells<any[]>()
       .then((res) => {
         if (!mounted) return
         const all = (res || []).map(normalizeOrder)

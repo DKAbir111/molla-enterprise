@@ -52,7 +52,7 @@ let ProductsService = class ProductsService {
         }
         catch (e) {
             if (e instanceof client_1.Prisma.PrismaClientKnownRequestError && e.code === 'P2003') {
-                throw new common_1.ForbiddenException('Cannot delete product because it is referenced by existing orders. Consider archiving it instead.');
+                throw new common_1.ForbiddenException('Cannot delete product because it is referenced by existing sells/buys. Consider archiving it instead.');
             }
             throw e;
         }

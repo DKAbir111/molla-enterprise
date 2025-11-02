@@ -50,7 +50,7 @@
   "dashboard": {
     "title": "Dashboard Overview",
     "totalRevenue": "Total Revenue",
-    "activeOrders": "Active Orders",
+    "activeOrders": "Active Sells",
     "customers": "Customers",
     "pendingDeliveries": "Pending Deliveries",
     "totalPaid": "Total Paid",
@@ -58,6 +58,7 @@
     "stockedProductPrice": "Stocked Product Price",
     "totalExpenses": "Total Expenses",
     "recentOrders": "Recent Orders",
+    "recentSells": "Recent Sells",
     "viewAll": "View All",
     "revenueOverview": "Revenue Overview",
     "productSales": "Product Sales",

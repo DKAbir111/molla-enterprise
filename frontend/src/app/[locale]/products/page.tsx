@@ -81,7 +81,7 @@ export default function ProductsPage() {
         deleteProduct(productToDeleteId)
         toast.success('Product deleted')
       } catch (err: any) {
-        const msg = err?.response?.data?.message || 'Failed to delete product. It may be used in orders.'
+        const msg = err?.response?.data?.message || 'Failed to delete product. It may be used in sells/buys.'
         toast.error(msg)
       }
       setProductToDeleteId(null)

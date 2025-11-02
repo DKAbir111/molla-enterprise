@@ -17,7 +17,7 @@ import { useStore } from '@/store/useStore'
 import { formatCurrency, formatDate, formatOrderCode } from '@/lib/utils'
 import { useLocale } from 'next-intl'
 import { ChevronLeft, Package, TrendingUp, Layers, Tag } from 'lucide-react'
-import { listOrders as fetchOrders, listProducts as fetchProducts } from '@/lib/api'
+import { listSells as fetchSells, listProducts as fetchProducts } from '@/lib/api'
 import { normalizeOrder, normalizeProduct } from '@/lib/api'
 
 type SaleRow = { id: string; date: Date; orderId: string; quantity: number; price: number; total: number }
@@ -51,7 +51,7 @@ export default function ProductDetailsPage() {
   useEffect(() => {
     let mounted = true
     setLoading(true)
-    fetchOrders<any[]>()
+    fetchSells<any[]>()
       .then(res => {
         if (!mounted) return
         const orders = (res || []).map(normalizeOrder)
@@ -118,7 +118,7 @@ export default function ProductDetailsPage() {
           <CardContent><div className="text-2xl font-bold text-green-600">{formatCurrency(summary.totalRevenue, locale)}</div></CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600">Orders</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600">Sells</CardTitle></CardHeader>
           <CardContent><div className="text-2xl font-bold">{summary.ordersCount}</div></CardContent>
         </Card>
         <Card>
@@ -185,4 +185,3 @@ export default function ProductDetailsPage() {
     </div>
   )
 }
-
