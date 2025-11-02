@@ -33,3 +33,10 @@ export async function deleteProduct(id: string): Promise<{ ok: boolean } | any> 
   const res = await api.delete(`/products/${id}`)
   return res.data
 }
+
+export async function uploadProductImage<T = any>(id: string, file: File): Promise<T> {
+  const form = new FormData()
+  form.append('image', file)
+  const res = await api.patch<T>(`/products/${id}/image`, form, { headers: { 'Content-Type': 'multipart/form-data' } })
+  return res.data
+}

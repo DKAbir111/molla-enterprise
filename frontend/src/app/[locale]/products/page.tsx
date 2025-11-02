@@ -163,10 +163,15 @@ export default function ProductsPage() {
         {filteredProducts.map((product, idx) => (
           <Card key={`${product.id}-${idx}`} className="hover:shadow-lg transition-all group">
             <CardHeader className="pb-4">
-              <div className={`h-32 rounded-lg bg-gradient-to-br ${getProductImage(product.type)} mb-4 flex items-center justify-center text-white`}>
-                <span className="text-4xl font-bold opacity-50">
-                  {product?.name?.split(" ")[0]}
-                </span>
+              <div className={`h-32 rounded-lg mb-4 overflow-hidden ${product.imageUrl ? '' : `bg-gradient-to-br ${getProductImage(product.type)} flex items-center justify-center text-white`}`}>
+                {product.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={product.imageUrl} alt={product.name} className="h-full w-full object-cover" />
+                ) : (
+                  <span className="text-4xl font-bold opacity-50">
+                    {product?.name?.split(" ")[0]}
+                  </span>
+                )}
               </div>
               <CardTitle className="text-lg">{product?.name}</CardTitle>
               {product.grade && (

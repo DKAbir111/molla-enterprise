@@ -18,7 +18,7 @@ export class ProductsService {
     return this.prisma.product.findMany({ where: { organizationId }, orderBy: { createdAt: 'desc' } });
   }
 
-  async create(orgId: string | null | undefined, dto: CreateProductDto) {
+  async create(orgId: string | null | undefined, dto: CreateProductDto, imagePath?: string) {
     const organizationId = this.ensureOrg(orgId);
     const created = await this.prisma.product.create({ data: ({
       name: dto.name,
@@ -30,17 +30,19 @@ export class ProductsService {
       unit: dto.unit,
       stock: dto.stock,
       description: dto.description,
+      imageUrl: imagePath,
       organizationId,
     } as any) });
 
     return created
   }
 
-  async update(orgId: string | null | undefined, id: string, dto: UpdateProductDto) {
+  async update(orgId: string | null | undefined, id: string, dto: UpdateProductDto, imagePath?: string) {
     const organizationId = this.ensureOrg(orgId);
     const found = await this.prisma.product.findFirst({ where: { id, organizationId } });
     if (!found) throw new NotFoundException('Product not found');
     const data: any = { ...dto };
+    if (imagePath) data.imageUrl = imagePath;
     return this.prisma.product.update({ where: { id }, data });
   }
 

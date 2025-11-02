@@ -18,7 +18,7 @@ let ProductsService = class ProductsService {
         const organizationId = this.ensureOrg(orgId);
         return this.prisma.product.findMany({ where: { organizationId }, orderBy: { createdAt: 'desc' } });
     }
-    async create(orgId, dto) {
+    async create(orgId, dto, imagePath) {
         const organizationId = this.ensureOrg(orgId);
         const created = await this.prisma.product.create({ data: {
                 name: dto.name,
@@ -30,16 +30,19 @@ let ProductsService = class ProductsService {
                 unit: dto.unit,
                 stock: dto.stock,
                 description: dto.description,
+                imageUrl: imagePath,
                 organizationId,
             } });
         return created;
     }
-    async update(orgId, id, dto) {
+    async update(orgId, id, dto, imagePath) {
         const organizationId = this.ensureOrg(orgId);
         const found = await this.prisma.product.findFirst({ where: { id, organizationId } });
         if (!found)
             throw new common_1.NotFoundException('Product not found');
         const data = { ...dto };
+        if (imagePath)
+            data.imageUrl = imagePath;
         return this.prisma.product.update({ where: { id }, data });
     }
     async remove(orgId, id) {

@@ -15,8 +15,11 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useStore } from '@/store/useStore'
 import { Product } from '@/types'
-import { Edit3, Warehouse, Tag, Layers, Save } from 'lucide-react'
+import { Edit3, Warehouse, Tag, Layers, Save, ImagePlus } from 'lucide-react'
 import { toast } from 'sonner'
+import { updateProduct as apiUpdateProduct } from '@/lib/api/product-api'
+import { uploadProductImage } from '@/lib/api/product-api'
+import { normalizeProduct } from '@/lib/api'
 
 interface EditProductModalProps {
   isOpen: boolean;
@@ -35,6 +38,8 @@ export function EditProductModal({ isOpen, onClose, product }: EditProductModalP
   const [unit, setUnit] = React.useState(product?.unit || '')
   const [stock, setStock] = React.useState<number>(product?.stock || 0)
   const [isLoading, setIsLoading] = React.useState(false)
+  const [imageFile, setImageFile] = React.useState<File | null>(null)
+  const [imagePreview, setImagePreview] = React.useState<string | null>(product?.imageUrl || null)
 
   // Update form fields when product changes
   React.useEffect(() => {
@@ -60,9 +65,6 @@ export function EditProductModal({ isOpen, onClose, product }: EditProductModalP
 
     setIsLoading(true)
 
-    // Simulate API call delay for better UX
-    await new Promise(resolve => setTimeout(resolve, 500))
-
     const updatedProduct: Partial<Product> = {
       name,
       type,
@@ -71,12 +73,26 @@ export function EditProductModal({ isOpen, onClose, product }: EditProductModalP
       unit,
       stock: Number(stock) || 0,
     }
-
-    // Fix: Pass both id and product data
-    updateProduct(product.id, updatedProduct)
-    toast.success('Product updated')
-    onClose()
-    setIsLoading(false)
+    try {
+      // Persist main fields
+      const updated = await apiUpdateProduct<any>(product.id, updatedProduct)
+      let normalized = normalizeProduct(updated)
+      // Upload image if selected
+      if (imageFile) {
+        try {
+          const withImage = await uploadProductImage<any>(product.id, imageFile)
+          normalized = normalizeProduct(withImage)
+        } catch {}
+      }
+      // Update store
+      updateProduct(product.id, normalized as Partial<Product>)
+      toast.success('Product updated')
+      onClose()
+    } catch {
+      toast.error('Failed to update product')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleClose = () => {
@@ -122,6 +138,31 @@ export function EditProductModal({ isOpen, onClose, product }: EditProductModalP
         {/* Form content */}
         <div className="px-8 py-6">
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Product Image */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">Product Image</Label>
+              <div className="flex items-center gap-4">
+                <div className="h-24 w-24 rounded-lg border overflow-hidden bg-gray-50 flex items-center justify-center">
+                  {imagePreview ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={imagePreview} alt="Preview" className="h-full w-full object-cover" />
+                  ) : (
+                    <span className="text-xs text-gray-400">No image</span>
+                  )}
+                </div>
+                <div>
+                  <input id="edit-product-image" type="file" accept="image/*" className="hidden" onChange={(e) => {
+                    const f = e.target.files?.[0] || null
+                    setImageFile(f)
+                    setImagePreview(f ? URL.createObjectURL(f) : (product?.imageUrl || null))
+                  }} />
+                  <Button type="button" variant="outline" onClick={() => document.getElementById('edit-product-image')?.click()}>
+                    <ImagePlus className="h-4 w-4 mr-1" /> Change Image
+                  </Button>
+                </div>
+              </div>
+            </div>
+
             {/* Product Information Section */}
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

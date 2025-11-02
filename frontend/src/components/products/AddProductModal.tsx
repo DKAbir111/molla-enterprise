@@ -18,6 +18,7 @@ import { Product } from '@/types'
 import { Plus, Warehouse, Tag, Layers, Save } from 'lucide-react'
 import { toast } from 'sonner'
 import { createProduct as apiCreateProduct } from '@/lib/api'
+import { uploadProductImage } from '@/lib/api/product-api'
 import { normalizeProduct } from '@/lib/api'
 
 interface AddProductModalProps {
@@ -37,6 +38,8 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
   const [unit, setUnit] = React.useState('')
   const [stock, setStock] = React.useState<number>(0)
   const [isLoading, setIsLoading] = React.useState(false)
+  const [imageFile, setImageFile] = React.useState<File | null>(null)
+  const [imagePreview, setImagePreview] = React.useState<string | null>(null)
 
   const totalCost = React.useMemo(() => (stock > 0 ? buyPrice * stock : 0), [stock, buyPrice])
   const totalSell = React.useMemo(() => (stock > 0 ? price * stock : 0), [stock, price])
@@ -52,7 +55,13 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
         return
       }
       const created = await apiCreateProduct<any>({ name: name.trim(), type: type.trim(), grade: grade.trim() || undefined, price, buyPrice, unit, stock })
-      const normalized = normalizeProduct(created)
+      let normalized = normalizeProduct(created)
+      if (imageFile) {
+        try {
+          const withImage = await uploadProductImage<any>(normalized.id, imageFile)
+          normalized = normalizeProduct(withImage)
+        } catch {}
+      }
       addProduct(normalized as Product)
       toast.success('Product added')
       onClose()
@@ -62,6 +71,8 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
       setPrice(0)
       setUnit('')
       setStock(0)
+      setImageFile(null)
+      setImagePreview(null)
     } catch (err) {
       toast.error('Failed to add product')
     } finally {
@@ -94,6 +105,29 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
         {/* Form content */}
         <div className="px-8 py-6">
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Product Image */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">Product Image</Label>
+              <div className="flex items-center gap-4">
+                <div className="h-24 w-24 rounded-lg border overflow-hidden bg-gray-50 flex items-center justify-center">
+                  {imagePreview ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={imagePreview} alt="Preview" className="h-full w-full object-cover" />
+                  ) : (
+                    <span className="text-xs text-gray-400">No image</span>
+                  )}
+                </div>
+                <div>
+                  <input id="product-image" type="file" accept="image/*" className="hidden" onChange={(e) => {
+                    const f = e.target.files?.[0] || null
+                    setImageFile(f)
+                    setImagePreview(f ? URL.createObjectURL(f) : null)
+                  }} />
+                  <Button type="button" variant="outline" onClick={() => document.getElementById('product-image')?.click()}>Upload Image</Button>
+                </div>
+              </div>
+            </div>
+
             {/* Product Information Section */}
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

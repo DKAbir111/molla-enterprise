@@ -22,6 +22,7 @@ export interface Product {
   unit: string
   stock: number
   description?: string
+  imageUrl?: string
 }
 
 export interface Customer {

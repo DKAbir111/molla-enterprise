@@ -56,6 +56,7 @@ export function normalizeProduct(apiProduct: any): Product {
     unit: String(apiProduct.unit ?? ''),
     stock: Number(apiProduct.stock ?? 0),
     description: apiProduct.description ? String(apiProduct.description) : undefined,
+    imageUrl: apiProduct.imageUrl ? String(apiProduct.imageUrl) : undefined,
   }
 }
 

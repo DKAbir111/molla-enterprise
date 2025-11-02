@@ -51,6 +51,7 @@ model Product {
   unit           String
   stock          Int           @default(0)
   description    String?
+  imageUrl       String?
   organizationId String
   organization   Organization  @relation(fields: [organizationId], references: [id])
   createdAt      DateTime      @default(now())
