@@ -27,7 +27,7 @@ let OrdersService = class OrdersService {
         if (!customer)
             throw new common_1.NotFoundException('Customer not found');
         const productIds = dto.items.map((i) => i.productId);
-        const products = await this.prisma.product.findMany({ where: { id: { in: productIds }, organizationId } });
+        const products = await this.prisma.product.findMany({ where: { id: { in: productIds }, organizationId }, select: { id: true, name: true, price: true, stock: true } });
         const productMap = new Map(products.map((p) => [p.id, p]));
         const itemsData = dto.items.map((i) => {
             const p = productMap.get(i.productId);
@@ -49,28 +49,46 @@ let OrdersService = class OrdersService {
         const tPerTrip = num(dto.transportPerTrip);
         const tTrips = Math.max(0, Number(dto.transportTrips ?? 0));
         const transportTotal = tPerTrip * tTrips;
-        const created = await this.prisma.order.create({
-            data: {
-                organizationId,
-                customerId: dto.customerId,
-                deliveryAddress: dto.deliveryAddress,
-                status: 'pending',
-                items: { create: itemsData },
-                createdAt: new Date(),
-            },
-            include: { items: true },
+        const created = await this.prisma.$transaction(async (tx) => {
+            const order = await tx.order.create({
+                data: {
+                    organizationId,
+                    customerId: dto.customerId,
+                    deliveryAddress: dto.deliveryAddress,
+                    status: 'pending',
+                    items: { create: itemsData },
+                    createdAt: new Date(),
+                },
+                include: { items: true },
+            });
+            for (const it of itemsData) {
+                await tx.product.update({ where: { id: it.productId }, data: { stock: { decrement: it.quantity } } });
+            }
+            try {
+                await tx.order.update({ where: { id: order.id }, data: {
+                        total: total,
+                        discount: discount,
+                        paidAmount: paidAmount,
+                        transportPerTrip: tPerTrip,
+                        transportTrips: tTrips,
+                        transportTotal: transportTotal,
+                    } });
+            }
+            catch { }
+            if (paidAmount && paidAmount > 0) {
+                await tx.transaction.create({
+                    data: {
+                        organizationId,
+                        description: `Order payment - ${order.id}`,
+                        type: 'income',
+                        amount: paidAmount,
+                        category: 'sales',
+                        date: new Date(),
+                    },
+                });
+            }
+            return order;
         });
-        try {
-            await this.prisma.order.update({ where: { id: created.id }, data: {
-                    total: total,
-                    discount: discount,
-                    paidAmount: paidAmount,
-                    transportPerTrip: tPerTrip,
-                    transportTrips: tTrips,
-                    transportTotal: transportTotal,
-                } });
-        }
-        catch { }
         return created;
     }
     async update(orgId, id, dto) {
@@ -114,15 +132,23 @@ let OrdersService = class OrdersService {
             };
         });
         const grand = rows.reduce((s, r) => s + r.total, 0);
-        await this.prisma.$transaction([
-            this.prisma.orderItem.deleteMany({ where: { orderId: id } }),
-            this.prisma.orderItem.createMany({ data: rows }),
-        ]);
-        try {
-            await this.prisma.order.update({ where: { id }, data: { total: grand } });
-        }
-        catch { }
-        return this.prisma.order.findUnique({ where: { id }, include: { items: true, customer: true } });
+        const result = await this.prisma.$transaction(async (tx) => {
+            const existing = await tx.orderItem.findMany({ where: { orderId: id } });
+            for (const it of existing) {
+                await tx.product.update({ where: { id: it.productId }, data: { stock: { increment: it.quantity } } });
+            }
+            await tx.orderItem.deleteMany({ where: { orderId: id } });
+            await tx.orderItem.createMany({ data: rows });
+            for (const r of rows) {
+                await tx.product.update({ where: { id: r.productId }, data: { stock: { decrement: r.quantity } } });
+            }
+            try {
+                await tx.order.update({ where: { id }, data: { total: grand } });
+            }
+            catch { }
+            return tx.order.findUnique({ where: { id }, include: { items: true, customer: true } });
+        });
+        return result;
     }
     async remove(orgId, id) {
         const organizationId = this.ensureOrg(orgId);

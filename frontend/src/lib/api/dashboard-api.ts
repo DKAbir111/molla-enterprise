@@ -9,6 +9,7 @@ export type DashboardOverview = {
   stockedProductValue: number
   moneyReceived?: number
   moneyDue?: number
+  transportRevenue?: number
 }
 
 export type DashboardData = {

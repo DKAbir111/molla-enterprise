@@ -3,7 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { UpdateOrderItemsDto } from './dto/update-order-items.dto';
-type ProductLite = { id: string; name: string; price: any };
+type ProductLite = { id: string; name: string; price: any; stock: number };
 
 @Injectable()
 export class OrdersService {
@@ -31,8 +31,8 @@ export class OrdersService {
 
     // Build items with price lookup
     const productIds = dto.items.map((i) => i.productId);
-    const products = await this.prisma.product.findMany({ where: { id: { in: productIds }, organizationId } });
-    const productMap: Map<string, ProductLite> = new Map(products.map((p) => [p.id, p as unknown as ProductLite]));
+    const products = await this.prisma.product.findMany({ where: { id: { in: productIds }, organizationId }, select: { id: true, name: true, price: true, stock: true } });
+    const productMap: Map<string, ProductLite> = new Map(products.map((p) => [p.id, p as ProductLite]));
 
     const itemsData = dto.items.map((i) => {
       const p = productMap.get(i.productId);
@@ -55,29 +55,52 @@ export class OrdersService {
     const tTrips = Math.max(0, Number((dto as any).transportTrips ?? 0))
     const transportTotal = tPerTrip * tTrips
 
-    const created = await this.prisma.order.create({
-      data: {
-        organizationId,
-        customerId: dto.customerId,
-        deliveryAddress: dto.deliveryAddress,
-        status: 'pending',
-        items: { create: itemsData },
-        createdAt: new Date(),
-      },
-      include: { items: true },
-    });
+    // Create order, adjust stock, and record income in a single transaction
+    const created = await this.prisma.$transaction(async (tx) => {
+      const order = await tx.order.create({
+        data: {
+          organizationId,
+          customerId: dto.customerId,
+          deliveryAddress: dto.deliveryAddress,
+          status: 'pending',
+          items: { create: itemsData },
+          createdAt: new Date(),
+        },
+        include: { items: true },
+      });
 
-    // Best-effort persist of total (works after migration adds the column)
-    try {
-      await this.prisma.order.update({ where: { id: created.id }, data: {
-        total: total as any,
-        discount: discount as any,
-        paidAmount: paidAmount as any,
-        transportPerTrip: tPerTrip as any,
-        transportTrips: tTrips as any,
-        transportTotal: transportTotal as any,
-      } as any });
-    } catch {}
+      // Deduct stock
+      for (const it of itemsData) {
+        await tx.product.update({ where: { id: it.productId }, data: { stock: { decrement: it.quantity } } });
+      }
+
+      // Persist monetary fields if present
+      try {
+        await tx.order.update({ where: { id: order.id }, data: {
+          total: total as any,
+          discount: discount as any,
+          paidAmount: paidAmount as any,
+          transportPerTrip: tPerTrip as any,
+          transportTrips: tTrips as any,
+          transportTotal: transportTotal as any,
+        } as any });
+      } catch {}
+
+      // Record received payment as income transaction
+      if (paidAmount && paidAmount > 0) {
+        await tx.transaction.create({
+          data: {
+            organizationId,
+            description: `Order payment - ${order.id}`,
+            type: 'income',
+            amount: paidAmount as any,
+            category: 'sales',
+            date: new Date(),
+          },
+        });
+      }
+      return order;
+    });
 
     return created;
   }
@@ -126,16 +149,23 @@ export class OrdersService {
     });
 
     const grand = rows.reduce((s, r) => s + r.total, 0);
-    await this.prisma.$transaction([
-      this.prisma.orderItem.deleteMany({ where: { orderId: id } }),
-      this.prisma.orderItem.createMany({ data: rows }),
-    ]);
-    // Best-effort persist of total
-    try {
-      await this.prisma.order.update({ where: { id }, data: { total: grand } as any });
-    } catch {}
-
-    return this.prisma.order.findUnique({ where: { id }, include: { items: true, customer: true } });
+    const result = await this.prisma.$transaction(async (tx) => {
+      // restore previous stock from existing items
+      const existing = await tx.orderItem.findMany({ where: { orderId: id } });
+      for (const it of existing) {
+        await tx.product.update({ where: { id: it.productId }, data: { stock: { increment: it.quantity } } });
+      }
+      await tx.orderItem.deleteMany({ where: { orderId: id } });
+      // create new items and deduct stock
+      await tx.orderItem.createMany({ data: rows });
+      for (const r of rows) {
+        await tx.product.update({ where: { id: r.productId }, data: { stock: { decrement: r.quantity } } });
+      }
+      // Best-effort persist of total
+      try { await tx.order.update({ where: { id }, data: { total: grand } as any }); } catch {}
+      return tx.order.findUnique({ where: { id }, include: { items: true, customer: true } });
+    });
+    return result;
   }
   async remove(orgId: string | null | undefined, id: string) {
     const organizationId = this.ensureOrg(orgId);

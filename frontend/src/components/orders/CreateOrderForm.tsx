@@ -321,7 +321,7 @@ export default function CreateOrderForm({ isOpen, onClose, onSuccess, mode = 'cr
                     id="phone"
                     value={customerPhone}
                     onChange={(e) => setCustomerPhone(e.target.value)}
-                    placeholder={t('enterPhone')}
+                    placeholder={t('enterPhoneNumber')}
                     className="h-11 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
                     required
                     disabled={mode === 'edit'}

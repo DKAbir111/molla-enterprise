@@ -58,6 +58,11 @@ export default function DashboardPage() {
       positive: prev > 0 ? revPositive : undefined,
     },
     {
+      title: 'Transport Revenue',
+      value: formatCurrency((overview as any).transportRevenue || 0, locale),
+      icon: TrendingUp,
+    },
+    {
       title: 'Money Received',
       value: formatCurrency((overview as any).moneyReceived || 0, locale),
       icon: TrendingUp,

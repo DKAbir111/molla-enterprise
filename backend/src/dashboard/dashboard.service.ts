@@ -22,7 +22,7 @@ export class DashboardService {
       this.prisma.transaction.findMany({ where: { organizationId: orgId, type: 'expense' } }),
       this.prisma.order.count({ where: { organizationId: orgId, NOT: { status: { in: ['delivered', 'cancelled'] } } } }),
       this.prisma.customer.count({ where: { organizationId: orgId } }),
-      this.prisma.product.findMany({ where: { organizationId: orgId }, select: { price: true, stock: true, name: true, id: true } }),
+      this.prisma.product.findMany({ where: { organizationId: orgId }, select: { price: true, buyPrice: true, stock: true, name: true, id: true } }),
       this.prisma.order.findMany({
         where: { organizationId: orgId, createdAt: { gte: new Date(Date.now() - productDays * 24 * 60 * 60 * 1000) } },
         include: { items: true },
@@ -38,7 +38,7 @@ export class DashboardService {
     // Revenue should be based on orders (sales), not transactions
     let totalRevenue = 0;
     const totalExpenses = expenseTx.reduce((s, t) => s + toNumber((t as any).amount), 0);
-    const stockedProductValue = products.reduce((s, p) => s + toNumber((p as any).price) * toNumber((p as any).stock), 0);
+    const stockedProductValue = products.reduce((s, p) => s + toNumber((p as any).buyPrice ?? 0) * toNumber((p as any).stock), 0);
 
     // Revenue series by month for the last N months
     const monthsKeys: { key: string; label: string; month: number; year: number }[] = [];
@@ -85,6 +85,9 @@ export class DashboardService {
       return s + Math.max(0, due);
     }, 0);
 
+    // Transportation revenue (sum of transportTotal)
+    const transportRevenue = ordersForRevenue.reduce((s, o) => s + toNumber((o as any).transportTotal), 0);
+
     // Product sales (top 4 by quantity)
     const totals: Record<string, number> = {};
     ordersForSales.forEach((o) => {
@@ -101,6 +104,7 @@ export class DashboardService {
         activeOrders,
         customers: customersCount,
         stockedProductValue,
+        transportRevenue,
         moneyReceived,
         moneyDue,
       },

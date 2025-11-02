@@ -138,7 +138,7 @@ export default function OrdersPage() {
             <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white flex items-center justify-center text-2xl">+</div>
             <h3 className="text-lg font-semibold mb-1">{t('emptyTitle')}</h3>
             <p className="text-gray-600 mb-4">{t('emptyDescription')}</p>
-            <Button onClick={() => setShowCreateForm(true)}>{t('newOrder')}</Button>
+            <Button onClick={() => { setModalMode('create'); setSelectedOrder(null); setModalOpen(true) }}>{t('newOrder')}</Button>
           </CardContent>
         </Card>
       ) : (
