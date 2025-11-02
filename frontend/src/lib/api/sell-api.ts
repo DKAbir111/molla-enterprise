@@ -1,7 +1,7 @@
 import { api } from './http'
 import type { OrderStatus } from '@/types'
 
-export type SellItemInput = { productId: string; quantity: number }
+export type SellItemInput = { productId: string; quantity: number; price?: number }
 export type CreateSellInput = {
   customerId: string
   items: SellItemInput[]
@@ -40,4 +40,3 @@ export async function deleteSell(id: string): Promise<{ ok: boolean } | any> {
   const res = await api.delete(`/sells/${id}`)
   return res.data
 }
-

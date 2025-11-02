@@ -48,7 +48,10 @@ export class BuysService {
       })
 
       for (const it of itemsData) {
-        await tx.product.update({ where: { id: it.productId }, data: { stock: { increment: it.quantity } } })
+        const updated = await tx.product.update({ where: { id: it.productId }, data: { stock: { increment: it.quantity } } })
+        if ((updated as any).stock > 0) {
+          try { await tx.product.update({ where: { id: it.productId }, data: { active: true } }) } catch {}
+        }
       }
 
       if (paidAmount && paidAmount > 0) {

@@ -10,6 +10,12 @@ class SellItemInput {
   @ApiProperty()
   @Min(1)
   quantity: number;
+
+  @ApiProperty({ required: false, description: 'Custom unit price for this sell line' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  price?: number;
 }
 
 export class CreateSellDto {
@@ -48,4 +54,3 @@ export class CreateSellDto {
   @IsNumber()
   transportTrips?: number;
 }
-

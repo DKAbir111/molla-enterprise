@@ -31,6 +31,7 @@ let ProductsService = class ProductsService {
                 stock: dto.stock,
                 description: dto.description,
                 imageUrl: imagePath,
+                active: dto.active ?? (dto.stock > 0),
                 organizationId,
             } });
         return created;
@@ -43,6 +44,9 @@ let ProductsService = class ProductsService {
         const data = { ...dto };
         if (imagePath)
             data.imageUrl = imagePath;
+        if (typeof dto.active === 'undefined' && typeof dto.stock === 'number' && dto.stock <= 0) {
+            data.active = false;
+        }
         return this.prisma.product.update({ where: { id }, data });
     }
     async remove(orgId, id) {

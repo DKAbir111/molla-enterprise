@@ -40,7 +40,9 @@ export default function CreateSellForm({ isOpen, onClose }: { isOpen: boolean; o
   }, [customers.length, products.length, addCustomer, addProduct])
 
   const filteredCustomers = customers.filter(c => customerSearch === '' || c.name.toLowerCase().includes(customerSearch.toLowerCase()) || c.phone.includes(customerSearch))
-  const filteredProducts = products.filter(p => (productSearch === '' || p.name.toLowerCase().includes(productSearch.toLowerCase())) && !orderItems.some(i => i.productId === p.id))
+  const filteredProducts = products
+    .filter(p => p.active !== false)
+    .filter(p => (productSearch === '' || p.name.toLowerCase().includes(productSearch.toLowerCase())) && !orderItems.some(i => i.productId === p.id))
 
   const total = orderItems.reduce((sum, item) => sum + item.total, 0)
   const [discount, setDiscount] = useState(0)
@@ -52,10 +54,19 @@ export default function CreateSellForm({ isOpen, onClose }: { isOpen: boolean; o
   const due = Math.max(0, grandTotal - paidAmount)
 
   const addProductToOrder = (product: Product) => {
-    const newItem: OrderItem = { productId: product.id, productName: product.name, quantity: 1, price: product.price, total: product.price }
+    const startPrice = (typeof product.price === 'number' ? product.price : 0)
+    const minPrice = typeof product.targetPrice === 'number' ? product.targetPrice! : startPrice
+    const effective = Math.max(startPrice, minPrice)
+    const newItem: OrderItem = { productId: product.id, productName: product.name, quantity: 1, price: effective, total: effective }
     setOrderItems(prev => [...prev, newItem])
     setProductSearch('')
     setShowProductDropdown(false)
+  }
+  const updateItemPrice = (productId: string, price: number) => {
+    const p = products.find(pr => pr.id === productId)
+    const floor = p && typeof p.targetPrice === 'number' ? p.targetPrice! : (p?.price || 0)
+    const next = isNaN(price) ? floor : Math.max(price, floor)
+    setOrderItems(prev => prev.map(i => i.productId === productId ? { ...i, price: next, total: next * i.quantity } : i))
   }
   const updateItemQuantity = (productId: string, quantity: number) => {
     if (quantity <= 0) return setOrderItems(prev => prev.filter(i => i.productId !== productId))
@@ -73,7 +84,7 @@ export default function CreateSellForm({ isOpen, onClose }: { isOpen: boolean; o
       const payload = {
         customerId: selectedCustomer.id,
         deliveryAddress: deliveryAddress.trim(),
-        items: orderItems.map(i => ({ productId: i.productId, quantity: i.quantity })),
+        items: orderItems.map(i => ({ productId: i.productId, quantity: i.quantity, price: i.price })),
         discount, paidAmount, transportPerTrip, transportTrips,
       }
       const created = await apiCreateSell<any>(payload)
@@ -130,7 +141,7 @@ export default function CreateSellForm({ isOpen, onClose }: { isOpen: boolean; o
             <div className="space-y-6">
               <div className="flex items-center gap-2 text-lg font-semibold text-gray-800"><Package className="h-5 w-5" />Add Products</div>
               <div className="space-y-2"><Label className="text-sm font-medium text-gray-700">Search products</Label><div className="relative dropdown-container"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" /><Input id="product" placeholder="Search products to add..." value={productSearch} onChange={(e) => { setProductSearch(e.target.value); setShowProductDropdown(true) }} onClick={() => setShowProductDropdown(true)} className="pl-10 h-11" />{showProductDropdown && filteredProducts.length > 0 && (<div className="absolute top-full left-0 right-0 bg-white border rounded-lg shadow-xl z-10 max-h-64 overflow-y-auto"><div className="p-3 space-y-2">{filteredProducts.map(p => (<div key={p.id} className="p-3 hover:bg-purple-50 cursor-pointer rounded" onClick={() => addProductToOrder(p)}><div className="font-semibold">{p.name}</div><div className="text-xs text-gray-500">{formatCurrency(p.price, locale)} per {p.unit}</div></div>))}</div></div>)}</div></div>
-              <div className="border rounded-lg overflow-hidden"><Table><TableHeader><TableRow><TableHead>Product</TableHead><TableHead className="text-center">Qty</TableHead><TableHead className="text-right">Price</TableHead><TableHead className="text-right">Total</TableHead><TableHead /></TableRow></TableHeader><TableBody>{orderItems.map(it => (<TableRow key={it.productId}><TableCell className="font-medium">{it.productName}</TableCell><TableCell><div className="flex items-center justify-center gap-2"><Button type="button" variant="outline" size="icon" className="h-7 w-7" onClick={() => updateItemQuantity(it.productId, it.quantity - 1)}><Minus className="h-3 w-3" /></Button><Input type="number" value={it.quantity} onChange={(e) => updateItemQuantity(it.productId, parseInt(e.target.value || '0', 10))} className="w-16 text-center h-9" /><Button type="button" variant="outline" size="icon" className="h-7 w-7" onClick={() => updateItemQuantity(it.productId, it.quantity + 1)}><Plus className="h-3 w-3" /></Button></div></TableCell><TableCell className="text-right">{formatCurrency(it.price, locale)}</TableCell><TableCell className="text-right font-semibold">{formatCurrency(it.total, locale)}</TableCell><TableCell className="text-right"><Button type="button" variant="ghost" className="text-red-600" onClick={() => updateItemQuantity(it.productId, 0)}><X className="h-4 w-4" /></Button></TableCell></TableRow>))}</TableBody></Table></div>
+              <div className="border rounded-lg overflow-hidden"><Table><TableHeader><TableRow><TableHead>Product</TableHead><TableHead className="text-center">Qty</TableHead><TableHead className="text-right">Price / Unit</TableHead><TableHead className="text-right">Total</TableHead><TableHead /></TableRow></TableHeader><TableBody>{orderItems.map(it => (<TableRow key={it.productId}><TableCell className="font-medium">{it.productName}</TableCell><TableCell><div className="flex items-center justify-center gap-2"><Button type="button" variant="outline" size="icon" className="h-7 w-7" onClick={() => updateItemQuantity(it.productId, it.quantity - 1)}><Minus className="h-3 w-3" /></Button><Input type="number" value={it.quantity} onChange={(e) => updateItemQuantity(it.productId, parseInt(e.target.value || '0', 10))} className="w-16 text-center h-9" /><Button type="button" variant="outline" size="icon" className="h-7 w-7" onClick={() => updateItemQuantity(it.productId, it.quantity + 1)}><Plus className="h-3 w-3" /></Button></div></TableCell><TableCell className="text-right"><Input type="number" step="0.01" value={it.price} onChange={(e) => updateItemPrice(it.productId, parseFloat(e.target.value))} className="w-28 text-right h-9" /></TableCell><TableCell className="text-right font-semibold">{formatCurrency(it.total, locale)}</TableCell><TableCell className="text-right"><Button type="button" variant="ghost" className="text-red-600" onClick={() => updateItemQuantity(it.productId, 0)}><X className="h-4 w-4" /></Button></TableCell></TableRow>))}</TableBody></Table></div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2"><Label className="text-sm font-medium text-gray-700">Discount</Label><Input type="number" value={discount} onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)} className="h-11" placeholder="0" /></div>

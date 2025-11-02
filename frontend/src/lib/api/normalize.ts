@@ -57,6 +57,7 @@ export function normalizeProduct(apiProduct: any): Product {
     stock: Number(apiProduct.stock ?? 0),
     description: apiProduct.description ? String(apiProduct.description) : undefined,
     imageUrl: apiProduct.imageUrl ? String(apiProduct.imageUrl) : undefined,
+    active: typeof apiProduct.active === 'boolean' ? apiProduct.active : true,
   }
 }
 

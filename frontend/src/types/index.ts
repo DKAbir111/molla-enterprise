@@ -23,6 +23,7 @@ export interface Product {
   stock: number
   description?: string
   imageUrl?: string
+  active?: boolean
 }
 
 export interface Customer {

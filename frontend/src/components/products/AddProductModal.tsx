@@ -84,7 +84,7 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl p-0 bg-white border-0 shadow-2xl overflow-hidden">
+      <DialogContent className="sm:max-w-2xl p-0 bg-white border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
         {/* Header with gradient background */}
         <div className="bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-6 text-white">
           <DialogHeader className="space-y-2">

@@ -5,6 +5,8 @@ import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Label } from '@/components/ui/label'
 import { useStore } from '@/store/useStore'
 import { formatCurrency } from '@/lib/utils'
 import { useLocale } from 'next-intl'
@@ -14,6 +16,7 @@ import { EditProductModal } from '@/components/products/EditProductModal'
 import { DeleteConfirmationModal } from '@/components/shared/DeleteConfirmationModal'
 import { Product } from '@/types'
 import { listProducts as fetchProducts, deleteProduct as apiDeleteProduct } from '@/lib/api'
+import { updateProduct as apiUpdateProduct } from '@/lib/api/product-api'
 import { toast } from 'sonner'
 import { normalizeProduct } from '@/lib/api'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -22,13 +25,18 @@ export default function ProductsPage() {
   const t = useTranslations('products')
   const locale = useLocale()
   const { products, addProduct, deleteProduct } = useStore()
+  const updateProductStore = useStore((s) => s.updateProduct)
   const [searchQuery, setSearchQuery] = useState('')
   const [filterGrade, setFilterGrade] = useState<string>('all')
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all')
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [productToDeleteId, setProductToDeleteId] = useState<string | null>(null)
+  const [isRestockOpen, setIsRestockOpen] = useState(false)
+  const [restockProduct, setRestockProduct] = useState<Product | null>(null)
+  const [restockQty, setRestockQty] = useState<number>(0)
 
   // Load from API
   useEffect(() => {
@@ -47,7 +55,8 @@ export default function ProductsPage() {
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesGrade = filterGrade === 'all' || product.grade === filterGrade
-    return matchesSearch && matchesGrade
+    const matchesStatus = statusFilter === 'all' || (statusFilter === 'active' ? product.active !== false : product.active === false)
+    return matchesSearch && matchesGrade && matchesStatus
   })
 
   const getProductImage = (type: string) => {
@@ -115,6 +124,18 @@ export default function ProductsPage() {
               </SelectContent>
             </Select>
           </div>
+          <div className="w-44">
+            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
+              <SelectTrigger className="h-10">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="inactive">Inactive</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         <Button className="flex items-center gap-2" onClick={() => setIsAddModalOpen(true)}>
           <Plus className="h-4 w-4" /> {t('addProduct')}
@@ -162,7 +183,10 @@ export default function ProductsPage() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {filteredProducts.map((product, idx) => (
           <Card key={`${product.id}-${idx}`} className="hover:shadow-lg transition-all group">
-            <CardHeader className="pb-4">
+            <CardHeader className="pb-4 relative">
+              {!product.active && (
+                <span className="absolute top-2 right-2 text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">Inactive</span>
+              )}
               <div className={`h-32 rounded-lg mb-4 overflow-hidden ${product.imageUrl ? '' : `bg-gradient-to-br ${getProductImage(product.type)} flex items-center justify-center text-white`}`}>
                 {product.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -209,12 +233,69 @@ export default function ProductsPage() {
                 <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700" onClick={() => handleDeleteClick(product.id)}>
                   <Trash2 className="h-3 w-3" />
                 </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={product.active ? 'text-amber-600 hover:text-amber-700' : 'text-green-700 hover:text-green-800'}
+                  onClick={async () => {
+                    try {
+                      const updated = await apiUpdateProduct(product.id, { active: !product.active })
+                      updateProductStore(product.id, normalizeProduct(updated))
+                    } catch {
+                      // fallback optimistic
+                      updateProductStore(product.id, { active: !product.active })
+                    }
+                  }}
+                >
+                  {product.active ? 'Deactivate' : 'Activate'}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => { setRestockProduct(product); setRestockQty(0); setIsRestockOpen(true) }}
+                >
+                  Restock
+                </Button>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
       )}
+
+      {/* Restock Dialog */}
+      <Dialog open={isRestockOpen} onOpenChange={setIsRestockOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Restock Product</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="text-sm text-gray-600">{restockProduct?.name}</div>
+            <div className="flex items-center gap-3">
+              <Label htmlFor="restock-qty">Quantity to add</Label>
+              <Input id="restock-qty" type="number" value={restockQty} onChange={(e) => setRestockQty(parseInt(e.target.value || '0', 10))} className="w-32" />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setIsRestockOpen(false)}>Cancel</Button>
+              <Button onClick={async () => {
+                if (!restockProduct || restockQty <= 0) { setIsRestockOpen(false); return }
+                try {
+                  const newStock = (restockProduct.stock || 0) + restockQty
+                  const payload: any = { stock: newStock }
+                  // Auto-activate if previously inactive
+                  if (restockProduct.active === false && newStock > 0) payload.active = true
+                  const updated = await apiUpdateProduct(restockProduct.id, payload)
+                  updateProductStore(restockProduct.id, normalizeProduct(updated))
+                } catch {
+                  // Optimistic fallback
+                  updateProductStore(restockProduct.id, { stock: (restockProduct.stock || 0) + restockQty, active: true })
+                }
+                setIsRestockOpen(false)
+              }}>Save</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

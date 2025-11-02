@@ -31,6 +31,7 @@ export class ProductsService {
       stock: dto.stock,
       description: dto.description,
       imageUrl: imagePath,
+      active: (dto as any).active ?? (dto.stock > 0),
       organizationId,
     } as any) });
 
@@ -43,6 +44,10 @@ export class ProductsService {
     if (!found) throw new NotFoundException('Product not found');
     const data: any = { ...dto };
     if (imagePath) data.imageUrl = imagePath;
+    // Auto-deactivate when stock drops to 0 if active not explicitly set
+    if (typeof dto.active === 'undefined' && typeof (dto as any).stock === 'number' && (dto as any).stock <= 0) {
+      data.active = false
+    }
     return this.prisma.product.update({ where: { id }, data });
   }
 

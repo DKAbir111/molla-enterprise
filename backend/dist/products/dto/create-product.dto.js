@@ -58,3 +58,9 @@ tslib_1.__decorate([
     (0, class_validator_1.IsOptional)(),
     tslib_1.__metadata("design:type", String)
 ], CreateProductDto.prototype, "description", void 0);
+tslib_1.__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Whether product is active/visible' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsBoolean)(),
+    tslib_1.__metadata("design:type", Boolean)
+], CreateProductDto.prototype, "active", void 0);

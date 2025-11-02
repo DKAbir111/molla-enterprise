@@ -57,10 +57,17 @@ export default function ProductDetailsPage() {
         const orders = (res || []).map(normalizeOrder)
         const rows: SaleRow[] = []
         orders.forEach(o => {
+          // Allocate order-level discount proportionally to items only (exclude transport)
+          const itemsTotal = (o.items || []).reduce((s, it) => s + (Number(it.total) || 0), 0)
+          const discount = Number(o.discount || 0)
           o.items.forEach(it => {
-            if (it.productId === productId) {
-              rows.push({ id: `${o.id}-${it.productId}`, date: o.createdAt, orderId: o.id, quantity: it.quantity, price: it.price, total: it.total })
-            }
+            if (it.productId !== productId) return
+            const share = itemsTotal > 0 ? (Number(it.total) || 0) / itemsTotal : 0
+            const alloc = share * discount
+            const netTotal = Math.max(0, (Number(it.total) || 0) - alloc)
+            const qty = Number(it.quantity) || 0
+            const effUnit = qty > 0 ? netTotal / qty : Number(it.price) || 0
+            rows.push({ id: `${o.id}-${it.productId}`, date: o.createdAt, orderId: o.id, quantity: qty, price: effUnit, total: netTotal })
           })
         })
         rows.sort((a, b) => b.date.getTime() - a.date.getTime())
@@ -138,8 +145,12 @@ export default function ProductDetailsPage() {
           <CardContent><div className="text-lg font-semibold">{product?.grade || '-'}</div></CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600">Sell Price / Unit</CardTitle></CardHeader>
-          <CardContent><div className="text-lg font-semibold">{formatCurrency(product?.price || 0, locale)}</div></CardContent>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600">Target Sell Price / Unit</CardTitle></CardHeader>
+          <CardContent><div className="text-lg font-semibold">{formatCurrency((product as any)?.targetPrice || product?.price || 0, locale)}</div></CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600">Current Avg Price / Unit (after discount)</CardTitle></CardHeader>
+          <CardContent><div className="text-lg font-semibold">{formatCurrency(summary.avgSellPrice, locale)}</div></CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600">Stock Left</CardTitle></CardHeader>

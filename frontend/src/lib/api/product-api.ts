@@ -10,9 +10,10 @@ export type CreateProductInput = {
   unit: string
   stock: number
   description?: string
+  active?: boolean
 }
 
-export type UpdateProductInput = Partial<CreateProductInput>
+export type UpdateProductInput = Partial<CreateProductInput> & { active?: boolean }
 
 export async function listProducts<T = any[]>(): Promise<T> {
   const res = await api.get<T>('/products')

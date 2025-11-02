@@ -4,7 +4,7 @@ import { CreateSellDto } from './dto/create-sell.dto';
 import { UpdateSellDto } from './dto/update-sell.dto';
 import { UpdateSellItemsDto } from './dto/update-sell-items.dto';
 
-type ProductLite = { id: string; name: string; price: any; stock: number };
+type ProductLite = { id: string; name: string; price: any; stock: number; targetPrice?: any };
 
 @Injectable()
 export class SellsService {
@@ -30,13 +30,15 @@ export class SellsService {
     if (!customer) throw new NotFoundException('Customer not found');
 
     const productIds = dto.items.map((i) => i.productId);
-    const products = await this.prisma.product.findMany({ where: { id: { in: productIds }, organizationId }, select: { id: true, name: true, price: true, stock: true } });
+    const products = await this.prisma.product.findMany({ where: { id: { in: productIds }, organizationId }, select: { id: true, name: true, price: true, stock: true, targetPrice: true } });
     const productMap: Map<string, ProductLite> = new Map(products.map((p) => [p.id, p as ProductLite]));
 
     const itemsData = dto.items.map((i) => {
       const p = productMap.get(i.productId);
       if (!p) throw new NotFoundException(`Product not found: ${i.productId}`);
-      const price = Number(p.price);
+      let price = typeof (i as any).price === 'number' ? Number((i as any).price) : Number(p.price);
+      const floor = Number((p as any).targetPrice ?? p.price ?? 0);
+      if (price < floor) price = floor;
       const total = price * i.quantity;
       return { productId: p.id, productName: p.name, quantity: i.quantity, price, total };
     });
@@ -75,7 +77,10 @@ export class SellsService {
       } catch {}
 
       for (const it of itemsData) {
-        await tx.product.update({ where: { id: it.productId }, data: { stock: { decrement: it.quantity } } });
+        const updated = await tx.product.update({ where: { id: it.productId }, data: { stock: { decrement: it.quantity } } });
+        if ((updated as any).stock <= 0) {
+          try { await tx.product.update({ where: { id: it.productId }, data: { active: false } }); } catch {}
+        }
       }
 
       if (paidAmount && paidAmount > 0) {
@@ -140,7 +145,10 @@ export class SellsService {
       await tx.sellItem.deleteMany({ where: { sellId: id } });
       await tx.sellItem.createMany({ data: rows.map(r => ({ sellId: id, ...r, orderId: undefined })) as any });
       for (const r of rows) {
-        await tx.product.update({ where: { id: r.productId }, data: { stock: { decrement: r.quantity } } });
+        const updated = await tx.product.update({ where: { id: r.productId }, data: { stock: { decrement: r.quantity } } });
+        if ((updated as any).stock <= 0) {
+          try { await tx.product.update({ where: { id: r.productId }, data: { active: false } }); } catch {}
+        }
       }
       try { await tx.sell.update({ where: { id }, data: { total: grand } as any }); } catch {}
       return tx.sell.findUnique({ where: { id }, include: { items: true, customer: true } });

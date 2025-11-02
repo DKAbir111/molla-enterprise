@@ -15,7 +15,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useStore } from '@/store/useStore'
 import { Product } from '@/types'
-import { Edit3, Warehouse, Tag, Layers, Save, ImagePlus } from 'lucide-react'
+import { Edit3, Warehouse, Tag, Layers, Save, ImagePlus, ToggleLeft, ToggleRight } from 'lucide-react'
 import { toast } from 'sonner'
 import { updateProduct as apiUpdateProduct } from '@/lib/api/product-api'
 import { uploadProductImage } from '@/lib/api/product-api'
@@ -40,6 +40,7 @@ export function EditProductModal({ isOpen, onClose, product }: EditProductModalP
   const [isLoading, setIsLoading] = React.useState(false)
   const [imageFile, setImageFile] = React.useState<File | null>(null)
   const [imagePreview, setImagePreview] = React.useState<string | null>(product?.imageUrl || null)
+  const [active, setActive] = React.useState<boolean>(product?.active !== false)
 
   // Update form fields when product changes
   React.useEffect(() => {
@@ -50,6 +51,7 @@ export function EditProductModal({ isOpen, onClose, product }: EditProductModalP
       setPrice(product.price || 0)
       setUnit(product.unit || '')
       setStock(product.stock || 0)
+      setActive(product.active !== false)
     }
   }, [product])
 
@@ -72,6 +74,7 @@ export function EditProductModal({ isOpen, onClose, product }: EditProductModalP
       price: Number(price) || 0,
       unit,
       stock: Number(stock) || 0,
+      active,
     }
     try {
       // Persist main fields
@@ -117,7 +120,7 @@ export function EditProductModal({ isOpen, onClose, product }: EditProductModalP
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-2xl p-0 bg-white border-0 shadow-2xl overflow-hidden">
+      <DialogContent className="sm:max-w-2xl p-0 bg-white border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
         {/* Header with gradient background */}
         <div className="bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-6 text-white">
           <DialogHeader className="space-y-2">
@@ -161,6 +164,14 @@ export function EditProductModal({ isOpen, onClose, product }: EditProductModalP
                   </Button>
                 </div>
               </div>
+            </div>
+
+            {/* Active Toggle */}
+            <div className="flex items-center gap-3 py-1">
+              <Label className="text-sm font-medium text-gray-700">Active</Label>
+              <Button type="button" variant="outline" size="sm" onClick={() => setActive(v => !v)}>
+                {active ? <ToggleRight className="h-4 w-4 mr-1 text-green-600" /> : <ToggleLeft className="h-4 w-4 mr-1 text-gray-500" />} {active ? 'Active' : 'Inactive'}
+              </Button>
             </div>
 
             {/* Product Information Section */}
