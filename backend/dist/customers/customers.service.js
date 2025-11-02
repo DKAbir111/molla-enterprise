@@ -18,13 +18,13 @@ let CustomersService = class CustomersService {
         const [customers, aggregates] = await Promise.all([
             this.prisma.customer.findMany({ where: { organizationId }, orderBy: { createdAt: 'desc' } }),
             this.prisma.$queryRaw `
-        SELECT o."customerId"    AS "customerId",
-               COUNT(DISTINCT o."id")::int AS orders,
-               COALESCE(SUM(oi.total), 0)   AS total_spent
-        FROM "Order" o
-        LEFT JOIN "OrderItem" oi ON oi."orderId" = o."id"
-        WHERE o."organizationId" = ${organizationId}
-        GROUP BY o."customerId"
+        SELECT s."customerId"    AS "customerId",
+               COUNT(DISTINCT s."id")::int AS orders,
+               COALESCE(SUM(si.total), 0)   AS total_spent
+        FROM "Sell" s
+        LEFT JOIN "SellItem" si ON si."sellId" = s."id"
+        WHERE s."organizationId" = ${organizationId}
+        GROUP BY s."customerId"
       `,
         ]);
         const map = new Map();

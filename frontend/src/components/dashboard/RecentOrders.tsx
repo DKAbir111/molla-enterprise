@@ -4,7 +4,8 @@ import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { formatCurrency } from '@/lib/utils'
-import { getRecentOrders } from '@/lib/api'
+import { api } from '@/lib/api/http'
+import { normalizeOrder } from '@/lib/api'
 import { useLocale } from 'next-intl'
 import React from 'react'
 
@@ -24,7 +25,11 @@ export function RecentOrders({}: RecentOrdersProps) {
 
   React.useEffect(() => {
     let mounted = true
-    getRecentOrders(5).then((o) => { if (mounted) setOrders(o) }).catch(() => {})
+    api.get<any[]>('/sells').then((res) => {
+      if (!mounted) return
+      const list = (res.data || []).map(normalizeOrder).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5)
+      setOrders(list)
+    }).catch(() => {})
     return () => { mounted = false }
   }, [])
 

@@ -1,0 +1,43 @@
+# Root-level ignores
+node_modules/
+.env
+.env.*
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.DS_Store
+dist/
+coverage/
+*.tsbuildinfo
+
+# Frontend (Next.js) specific ignores
+/frontend/.next/
+frontend/out/
+frontend/node_modules/
+frontend/.env
+frontend/.env.*
+frontend/.turbo/
+frontend/.vercel/
+frontend/.eslintcache
+
+# Backend (NestJS + Prisma) specific ignores
+/backend/dist/
+backend/node_modules/
+backend/.env
+backend/.env.*
+backend/prisma/*.db
+backend/prisma/migrations/
+backend/coverage/
+backend/*.tsbuildinfo
+
+# VS Code and IDE settings
+.vscode/
+.idea/
+*.swp
+
+# OS-specific files
+Thumbs.db
+ehthumbs.db
+Icon?

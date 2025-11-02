@@ -4,6 +4,8 @@
     "products": "Products",
     "customers": "Customers",
     "orders": "Orders",
+    "sells": "Sells",
+    "buys": "Buys",
     "invoices": "Invoices",
     "delivery": "Delivery",
     "accounts": "Accounts",
@@ -11,6 +13,39 @@
     "reports": "Reports",
     "settings": "Settings",
     "organization": "Organization"
+  },
+  "sells": {
+    "title": "Sells",
+    "newOrder": "New Sell",
+    "search": "Search sells...",
+    "orderId": "Sell ID",
+    "customer": "Customer",
+    "date": "Date",
+    "status": "Status",
+    "total": "Total",
+    "actions": "Actions",
+    "view": "View",
+    "edit": "Edit",
+    "cancel": "Cancel",
+    "orderStatus": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    },
+    "emptyTitle": "No sells yet",
+    "emptyDescription": "Create your first sell to see it listed here."
+  },
+  "buys": {
+    "title": "Buys",
+    "new": "New Buy",
+    "search": "Search buys...",
+    "vendor": "Vendor",
+    "date": "Date",
+    "total": "Total",
+    "actions": "Actions",
+    "emptyTitle": "No buys yet",
+    "emptyDescription": "Record your first purchase to track inventory and expense."
   },
   "dashboard": {
     "title": "Dashboard Overview",

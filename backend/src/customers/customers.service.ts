@@ -16,15 +16,15 @@ export class CustomersService {
     const organizationId = this.ensureOrg(orgId);
     const [customers, aggregates] = await Promise.all([
       this.prisma.customer.findMany({ where: { organizationId }, orderBy: { createdAt: 'desc' } }),
-      // Aggregate by joining order items to avoid relying on Order.total
+      // Aggregate by joining sell items to avoid relying on totals
       this.prisma.$queryRaw<Array<{ customerId: string; orders: number; total_spent: any }>>`
-        SELECT o."customerId"    AS "customerId",
-               COUNT(DISTINCT o."id")::int AS orders,
-               COALESCE(SUM(oi.total), 0)   AS total_spent
-        FROM "Order" o
-        LEFT JOIN "OrderItem" oi ON oi."orderId" = o."id"
-        WHERE o."organizationId" = ${organizationId}
-        GROUP BY o."customerId"
+        SELECT s."customerId"    AS "customerId",
+               COUNT(DISTINCT s."id")::int AS orders,
+               COALESCE(SUM(si.total), 0)   AS total_spent
+        FROM "Sell" s
+        LEFT JOIN "SellItem" si ON si."sellId" = s."id"
+        WHERE s."organizationId" = ${organizationId}
+        GROUP BY s."customerId"
       `,
     ]);
 

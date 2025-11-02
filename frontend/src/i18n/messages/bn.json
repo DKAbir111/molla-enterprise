@@ -4,6 +4,8 @@
     "products": "পণ্য",
     "customers": "গ্রাহক",
     "orders": "অর্ডার",
+    "sells": "বিক্রি",
+    "buys": "ক্রয়",
     "invoices": "চালান",
     "delivery": "ডেলিভারি",
     "accounts": "হিসাব",
@@ -11,6 +13,39 @@
     "reports": "রিপোর্ট",
     "settings": "সেটিংস",
     "organization": "প্রতিষ্ঠান"
+  },
+  "sells": {
+    "title": "বিক্রি",
+    "newOrder": "নতুন বিক্রি",
+    "search": "বিক্রি খুঁজুন...",
+    "orderId": "বিক্রি আইডি",
+    "customer": "গ্রাহক",
+    "date": "তারিখ",
+    "status": "অবস্থা",
+    "total": "মোট",
+    "actions": "কার্যক্রম",
+    "view": "দেখুন",
+    "edit": "সম্পাদনা",
+    "cancel": "বাতিল",
+    "orderStatus": {
+      "pending": "অপেক্ষমান",
+      "processing": "প্রক্রিয়াকরণ",
+      "delivered": " বিতরণ",
+      "cancelled": "বাতিল"
+    },
+    "emptyTitle": "এখনও কোনো বিক্রি নেই",
+    "emptyDescription": "এখানে দেখতে প্রথম বিক্রিটি তৈরি করুন।"
+  },
+  "buys": {
+    "title": "ক্রয়",
+    "new": "নতুন ক্রয়",
+    "search": "ক্রয় খুঁজুন...",
+    "vendor": "সরবরাহকারী",
+    "date": "তারিখ",
+    "total": "মোট",
+    "actions": "কার্যক্রম",
+    "emptyTitle": "এখনও কোনো ক্রয় নেই",
+    "emptyDescription": "ইনভেন্টরি ও খরচ ট্র্যাক করতে প্রথম ক্রয়টি যোগ করুন।"
   },
   "dashboard": {
     "title": "ড্যাশবোর্ড সংক্ষিপ্ত বিবরণ",

@@ -12,7 +12,8 @@ const users_module_1 = require("./users/users.module");
 const organizations_module_1 = require("./organizations/organizations.module");
 const products_module_1 = require("./products/products.module");
 const customers_module_1 = require("./customers/customers.module");
-const orders_module_1 = require("./orders/orders.module");
+const sells_module_1 = require("./sells/sells.module");
+const buys_module_1 = require("./buys/buys.module");
 const transactions_module_1 = require("./transactions/transactions.module");
 const dashboard_module_1 = require("./dashboard/dashboard.module");
 let AppModule = class AppModule {
@@ -38,7 +39,8 @@ exports.AppModule = AppModule = tslib_1.__decorate([
             organizations_module_1.OrganizationsModule,
             products_module_1.ProductsModule,
             customers_module_1.CustomersModule,
-            orders_module_1.OrdersModule,
+            sells_module_1.SellsModule,
+            buys_module_1.BuysModule,
             transactions_module_1.TransactionsModule,
             dashboard_module_1.DashboardModule,
         ],

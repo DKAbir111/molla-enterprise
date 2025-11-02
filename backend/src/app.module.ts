@@ -8,7 +8,9 @@ import { UsersModule } from './users/users.module';
 import { OrganizationsModule } from './organizations/organizations.module';
 import { ProductsModule } from './products/products.module';
 import { CustomersModule } from './customers/customers.module';
-import { OrdersModule } from './orders/orders.module';
+// import { OrdersModule } from './orders/orders.module';
+import { SellsModule } from './sells/sells.module';
+import { BuysModule } from './buys/buys.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 
@@ -32,7 +34,9 @@ import { DashboardModule } from './dashboard/dashboard.module';
     OrganizationsModule,
     ProductsModule,
     CustomersModule,
-    OrdersModule,
+    // OrdersModule, // replaced by SellsModule
+    SellsModule,
+    BuysModule,
     TransactionsModule,
     DashboardModule,
   ],

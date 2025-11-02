@@ -25,10 +25,9 @@ const navigation = [
   { name: 'dashboard', href: '/', icon: LayoutDashboard },
   { name: 'products', href: '/products', icon: Package },
   { name: 'customers', href: '/customers', icon: Users },
-  { name: 'orders', href: '/orders', icon: ShoppingCart },
-  // Removed: invoices, delivery
+  { name: 'sells', href: '/sells', icon: ShoppingCart },
+  { name: 'buys', href: '/buys', icon: Package },
   { name: 'accounts', href: '/accounts', icon: Calculator },
-  // Removed: oil
   { name: 'reports', href: '/reports', icon: BarChart3 },
   { name: 'settings', href: '/settings', icon: Settings },
 ]
