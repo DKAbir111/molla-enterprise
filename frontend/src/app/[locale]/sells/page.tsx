@@ -12,7 +12,7 @@ import { Plus, Search, Eye, Edit, Printer } from 'lucide-react'
 import { listSells } from '@/lib/api/sell-api'
 import { normalizeOrder } from '@/lib/api'
 import CreateSellForm from '@/components/sells/CreateSellForm'
-import { SellDetailsModal } from '@/components/sells/SellDetailsModal'
+// Details shown in dedicated page now
 import { EditSellModal } from '@/components/sells/EditSellModal'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { updateSell as apiUpdateSell } from '@/lib/api/sell-api'
@@ -25,7 +25,7 @@ export default function SellsPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedSell, setSelectedSell] = useState<any | null>(null)
-  const [showDetails, setShowDetails] = useState(false)
+  // const [showDetails, setShowDetails] = useState(false)
   const [showEdit, setShowEdit] = useState(false)
   const updateSellStatus = useStore((s) => s.updateSellStatus)
 
@@ -159,15 +159,19 @@ export default function SellsPage() {
                       <TableCell className="text-right font-medium">{formatCurrency(grand, locale)}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-1">
-                          <Button variant="ghost" size="sm" title="View" onClick={() => { setSelectedSell(o); setShowDetails(true) }}>
-                            <Eye className="h-4 w-4" />
-                          </Button>
+                          <a href={`/${locale}/sells/${o.id}`}>
+                            <Button variant="ghost" size="sm" title="View">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </a>
                           <Button variant="ghost" size="sm" title="Edit" onClick={() => { setSelectedSell(o); setShowEdit(true) }}>
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="sm" title="Print" onClick={() => { setSelectedSell(o); setShowDetails(true); setTimeout(()=>window.print(), 0) }}>
+                          <a href={`/${locale}/sells/${o.id}`}>
+                          <Button variant="ghost" size="sm" title="Print">
                             <Printer className="h-4 w-4" />
                           </Button>
+                          </a>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -183,9 +187,7 @@ export default function SellsPage() {
         <CreateSellForm isOpen={modalOpen} onClose={() => setModalOpen(false)} />
       )}
 
-      {showDetails && selectedSell && (
-        <SellDetailsModal isOpen={showDetails} onClose={() => setShowDetails(false)} sell={selectedSell} />
-      )}
+      {/* Details modal removed in favor of dedicated page */}
 
       {showEdit && selectedSell && (
         <EditSellModal isOpen={showEdit} onClose={() => setShowEdit(false)} sell={selectedSell} />

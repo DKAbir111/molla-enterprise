@@ -15,7 +15,7 @@ import { useStore } from '@/store/useStore'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
-import { BuyDetailsModal } from '@/components/buys/BuyDetailsModal'
+// Details shown on dedicated page now
 import { EditBuyModal } from '@/components/buys/EditBuyModal'
 
 export default function BuysPage() {
@@ -26,7 +26,7 @@ export default function BuysPage() {
   const [open, setOpen] = useState(false)
   const { products, addProduct } = useStore()
   const [selectedBuy, setSelectedBuy] = useState<any | null>(null)
-  const [showDetails, setShowDetails] = useState(false)
+  // const [showDetails, setShowDetails] = useState(false)
   const [showEdit, setShowEdit] = useState(false)
 
   useEffect(() => {
@@ -105,15 +105,19 @@ export default function BuysPage() {
                       <TableCell className="text-right font-medium">{formatCurrency(grand, locale)}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-1">
-                          <Button variant="ghost" size="sm" title="View" onClick={() => { setSelectedBuy(b); setShowDetails(true) }}>
-                            <Eye className="h-4 w-4" />
-                          </Button>
+                          <a href={`/${locale}/buys/${b.id}`}>
+                            <Button variant="ghost" size="sm" title="View">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </a>
                           <Button variant="ghost" size="sm" title="Edit" onClick={() => { setSelectedBuy(b); setShowEdit(true) }}>
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="sm" title="Print" onClick={() => { setSelectedBuy(b); setShowDetails(true); setTimeout(()=>window.print(), 0) }}>
+                          <a href={`/${locale}/buys/${b.id}`}>
+                          <Button variant="ghost" size="sm" title="Print">
                             <Printer className="h-4 w-4" />
                           </Button>
+                          </a>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -126,11 +130,6 @@ export default function BuysPage() {
       )}
 
       {open && <CreateBuyModal isOpen={open} onClose={() => setOpen(false)} />}
-
-      {showDetails && selectedBuy && (
-        <BuyDetailsModal isOpen={showDetails} onClose={() => setShowDetails(false)} buy={selectedBuy} />
-      )}
-
       {showEdit && selectedBuy && (
         <EditBuyModal isOpen={showEdit} onClose={() => setShowEdit(false)} buy={selectedBuy} onUpdated={(b)=>{
           setBuys(prev => prev.map(x => x.id === b.id ? b : x))
