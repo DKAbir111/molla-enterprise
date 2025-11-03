@@ -26,6 +26,21 @@
     "emptyTitle": "No vendors yet",
     "emptyDescription": "Add your first vendor to record purchases."
   },
+  "ticker": {
+    "title": "Alerts",
+    "pause": "Click to pause",
+    "resume": "Click to resume",
+    "undelivered": "Undelivered: {name} · {items} items",
+    "receivable": "Receivable: {name} · {amount}"
+  },
+  "greeting": {
+    "morning": "Good morning",
+    "noon": "Good noon",
+    "afternoon": "Good afternoon",
+    "evening": "Good evening",
+    "night": "Good night",
+    "there": "there"
+  },
   "sells": {
     "title": "Sells",
     "newOrder": "New Sell",

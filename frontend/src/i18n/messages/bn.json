@@ -26,6 +26,21 @@
     "emptyTitle": "এখনও কোনো সরবরাহকারী নেই",
     "emptyDescription": "ক্রয় রেকর্ড করতে প্রথম সরবরাহকারী যোগ করুন।"
   },
+  "ticker": {
+    "title": "সতর্কবার্তা",
+    "pause": "বন্ধ করতে ক্লিক করুন",
+    "resume": "চালু করতে ক্লিক করুন",
+    "undelivered": "বিতরণ বাকি: {name} · {items} আইটেম",
+    "receivable": "প্রাপ্য: {name} · {amount}"
+  },
+  "greeting": {
+    "morning": "শুভ সকাল",
+    "noon": "শুভ মধ্যাহ্ন",
+    "afternoon": "শুভ বিকাল",
+    "evening": "শুভ সন্ধ্যা",
+    "night": "শুভ রাত্রি",
+    "there": "স্বাগতম"
+  },
   "sells": {
     "title": "বিক্রি",
     "newOrder": "নতুন বিক্রি",

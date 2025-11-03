@@ -2,7 +2,9 @@
 
 import { useTranslations } from 'next-intl'
 import { DateFilter } from '@/components/dashboard/DateFilter'
+import { Greeting } from '@/components/dashboard/Greeting'
 import { RecentOrders } from '@/components/dashboard/RecentOrders'
+import { RecentBuys } from '@/components/dashboard/RecentBuys'
 import { DashboardStatsGrid } from '@/components/dashboard/DashboardStatsGrid'
 import nextDynamic from 'next/dynamic'
 const Charts = nextDynamic(() => import('@/components/dashboard/DashboardCharts').then(m => m.DashboardCharts), { ssr: false })
@@ -102,7 +104,8 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-end">
+      <div className="flex items-center justify-between">
+        <Greeting />
         <DateFilter value={range} onChange={(v) => setRange({ start: v.start, end: v.end })} />
       </div>
 
@@ -112,8 +115,11 @@ export default function DashboardPage() {
       {/* Charts */}
       <Charts revenueData={revenueData} productData={productData} />
 
-      {/* Recent Sells */}
-      <RecentOrders />
+      {/* Activity */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <RecentOrders />
+        <RecentBuys />
+      </div>
     </div>
   )
 }

@@ -24,6 +24,14 @@ export class SellsService {
     });
   }
 
+  findOne(orgId: string | null | undefined, id: string) {
+    const organizationId = this.ensureOrg(orgId);
+    return this.prisma.sell.findFirst({
+      where: { id, organizationId },
+      include: { items: true, customer: true },
+    });
+  }
+
   async create(orgId: string | null | undefined, dto: CreateSellDto) {
     const organizationId = this.ensureOrg(orgId);
     const customer = await this.prisma.customer.findFirst({ where: { id: dto.customerId, organizationId } });

@@ -1,22 +1,6 @@
 import { api } from './http'
 import { normalizeOrder } from './normalize'
-
-export type DashboardOverview = {
-  totalRevenue: number
-  totalExpenses: number
-  activeOrders: number
-  customers: number
-  stockedProductValue: number
-  moneyReceived?: number
-  moneyDue?: number
-  transportRevenue?: number
-}
-
-export type DashboardData = {
-  overview: DashboardOverview
-  revenueSeries: { name: string; revenue: number }[]
-  productSales: { name: string; sales: number }[]
-}
+import type { DashboardData, DashboardOverview } from '@/types/dashboard'
 
 export async function getDashboardData(params?: { months?: number; productDays?: number; startDate?: string; endDate?: string }): Promise<DashboardData> {
   const search = new URLSearchParams()

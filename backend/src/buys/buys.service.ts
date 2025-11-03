@@ -120,6 +120,11 @@ export class BuysService {
     })
     return result
   }
+
+  findOne(orgId: string | null | undefined, id: string) {
+    const organizationId = this.ensureOrg(orgId)
+    return this.prisma.buy.findFirst({ where: { id, organizationId }, include: { items: true } })
+  }
 }
 
 function num(v: any): number { return typeof v === 'number' ? v : Number(v ?? 0) }

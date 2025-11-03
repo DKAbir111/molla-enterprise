@@ -126,6 +126,21 @@ html.theme-contrast .border-gray-200 { border-color: #ffffff !important; }
       transform: translateY(-10px);
     }
   }
+
+  /* Horizontal marquee for breaking news ticker */
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .marquee-mask {
+    display: inline-block;
+    animation: marquee 18s linear infinite;
+    -webkit-mask-image: linear-gradient(to right, transparent 0, black 40px, black calc(100% - 40px), transparent 100%);
+            mask-image: linear-gradient(to right, transparent 0, black 40px, black calc(100% - 40px), transparent 100%);
+  }
+  .marquee-run { animation-play-state: running; }
+  .marquee-paused { animation-play-state: paused; }
 }
 
 /* Print Styles */

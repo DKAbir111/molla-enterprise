@@ -27,4 +27,7 @@ export class SellsController {
 
   @Put(':id/items')
   updateItems(@Req() req: any, @Param('id') id: string, @Body() dto: UpdateSellItemsDto) { return this.sells.updateItems(req.user.organizationId, id, dto) }
+
+  @Get(':id')
+  get(@Req() req: any, @Param('id') id: string) { return this.sells.findOne(req.user.organizationId, id) }
 }

@@ -24,4 +24,7 @@ export class BuysController {
 
   @Put(':id/items')
   updateItems(@Req() req: any, @Param('id') id: string, @Body() dto: UpdateBuyItemsDto) { return this.buys.updateItems(req.user.organizationId, id, dto) }
+
+  @Get(':id')
+  get(@Req() req: any, @Param('id') id: string) { return this.buys.findOne(req.user.organizationId, id) }
 }
