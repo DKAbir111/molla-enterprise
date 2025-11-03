@@ -18,9 +18,12 @@ import { formatCurrency, formatDate } from '@/lib/utils'
 import { useLocale } from 'next-intl'
 import { Plus, Search, Eye, Edit, Trash2, Phone, MapPin } from 'lucide-react'
 import Link from 'next/link'
+import { InlineEditCustomer } from '@/components/customers/InlineEditCustomer'
 import { listCustomers as fetchCustomers } from '@/lib/api'
 import { normalizeCustomer } from '@/lib/api'
 import { AddCustomerModal } from '@/components/customers/AddCustomerModal'
+import { DeleteConfirmationModal } from '@/components/shared/DeleteConfirmationModal'
+import { updateCustomer as apiUpdateCustomer, deleteCustomer as apiDeleteCustomer } from '@/lib/api/customer-api'
 
 export default function CustomersPage() {
   const t = useTranslations('customers')
@@ -29,6 +32,9 @@ export default function CustomersPage() {
   const updateCustomer = useStore((s) => s.updateCustomer)
   const [searchQuery, setSearchQuery] = useState('')
   const [isAddOpen, setIsAddOpen] = useState(false)
+  const [customerToDelete, setCustomerToDelete] = useState<any | null>(null)
+  const [editing, setEditing] = useState<any | null>(null)
+  const updateCustomerStore = useStore((s) => s.updateCustomer)
 
   // Load from API
   useEffect(() => {
@@ -207,10 +213,10 @@ export default function CustomersPage() {
                           <Eye className="h-4 w-4" />
                         </Button>
                       </Link>
-                      <Button variant="ghost" size="sm" title={t('edit')}>
+                      <Button variant="ghost" size="sm" title={t('edit')} onClick={() => setEditing(customer)}>
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700" title={t('delete')}>
+                      <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700" title={t('delete')} onClick={() => setCustomerToDelete(customer)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -224,6 +230,18 @@ export default function CustomersPage() {
       </>
       )}
       <AddCustomerModal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} />
+      {editing && (
+        <InlineEditCustomer customer={editing} onClose={() => setEditing(null)} onSaved={(c)=>{ updateCustomerStore(c.id, c); setEditing(null) }} />
+      )}
+      {customerToDelete && (
+        <DeleteConfirmationModal isOpen={!!customerToDelete} onClose={() => setCustomerToDelete(null)} onConfirm={async ()=>{
+          try { await apiDeleteCustomer(customerToDelete.id) } catch {}
+          // Optimistic removal from store
+          const delId = customerToDelete.id
+          useStore.setState(s => ({ customers: s.customers.filter(x => x.id !== delId) }))
+          setCustomerToDelete(null)
+        }} title={t('delete')} description={`Are you sure you want to delete ${customerToDelete.name}?`} />
+      )}
     </div>
   )
 }

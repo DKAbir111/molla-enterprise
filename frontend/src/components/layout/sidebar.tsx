@@ -25,6 +25,7 @@ const navigation = [
   { name: 'dashboard', href: '/', icon: LayoutDashboard },
   { name: 'products', href: '/products', icon: Package },
   { name: 'customers', href: '/customers', icon: Users },
+  { name: 'vendors', href: '/vendors', icon: Building2 },
   { name: 'sells', href: '/sells', icon: ShoppingCart },
   { name: 'buys', href: '/buys', icon: Package },
   { name: 'accounts', href: '/accounts', icon: Calculator },

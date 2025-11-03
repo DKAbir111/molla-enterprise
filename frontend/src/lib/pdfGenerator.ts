@@ -185,3 +185,84 @@ export function generateInvoicePDF(
   // Save the PDF
   doc.save(`invoice-${invoice.id}-${new Date().toISOString().split('T')[0]}.pdf`)
 }
+
+// Vendor details PDF (mirrors customer details but for purchases)
+export function generateVendorPDF(
+  vendor: { name: string; phone?: string },
+  purchaseHistory: Array<{ id: string; date: Date; productName: string; quantity: number; price: number; total: number; purchaseId: string }>,
+  productSummary: Record<string, { quantity: number; transactions: number; totalAmount: number }>,
+  locale: string
+) {
+  const doc = new jsPDF()
+  doc.setFont('helvetica', 'normal')
+
+  doc.setFontSize(20)
+  doc.setTextColor(40, 40, 40)
+  doc.text('Business Management System', 20, 20)
+
+  doc.setFontSize(16)
+  doc.setTextColor(100, 100, 100)
+  doc.text('Vendor Details Report', 20, 30)
+
+  // Vendor info
+  doc.setFontSize(14)
+  doc.setTextColor(40, 40, 40)
+  doc.text('Vendor Information', 20, 50)
+  doc.setFontSize(12)
+  doc.setTextColor(80, 80, 80)
+  doc.text(`Name: ${vendor.name}`, 20, 65)
+  doc.text(`Phone: ${vendor.phone || '-'}`, 20, 75)
+
+  // Product summary
+  doc.setFontSize(14)
+  doc.setTextColor(40, 40, 40)
+  doc.text('Products Supplied Summary', 20, 95)
+  const productData = Object.entries(productSummary).map(([name, data]) => [
+    name,
+    data.transactions.toString(),
+    data.quantity.toString(),
+    formatCurrency(data.totalAmount, locale)
+  ])
+  autoTable(doc, {
+    head: [['Product', 'Transactions', 'Total Qty', 'Total Spent']],
+    body: productData,
+    startY: 105,
+    styles: { fontSize: 10 },
+    headStyles: { fillColor: [66, 84, 178] },
+    margin: { top: 20 }
+  })
+
+  // Purchase history (limited rows)
+  const finalY = (doc as any).lastAutoTable.finalY || 200
+  doc.setFontSize(14)
+  doc.setTextColor(40, 40, 40)
+  doc.text('Purchase History', 20, finalY + 20)
+  const historyData = purchaseHistory.slice(0, 20).map((h) => [
+    formatDate(h.date, locale),
+    h.productName,
+    String(h.quantity),
+    formatCurrency(h.price, locale),
+    formatCurrency(h.total, locale),
+    h.purchaseId,
+  ])
+  autoTable(doc, {
+    head: [['Date', 'Product', 'Qty', 'Price', 'Total', 'Purchase']],
+    body: historyData,
+    startY: finalY + 30,
+    styles: { fontSize: 9 },
+    headStyles: { fillColor: [66, 84, 178] },
+    margin: { top: 20 },
+  })
+
+  // Footer with date/page
+  const pageCount = (doc as any).internal?.getNumberOfPages?.() ?? 1
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i)
+    doc.setFontSize(10)
+    doc.setTextColor(128, 128, 128)
+    doc.text(`Generated on ${new Date().toLocaleDateString()}`, 20, doc.internal.pageSize.height - 10)
+    doc.text(`Page ${i} of ${pageCount}`, doc.internal.pageSize.width - 40, doc.internal.pageSize.height - 10)
+  }
+
+  doc.save(`vendor-details-${vendor.name}-${new Date().toISOString().split('T')[0]}.pdf`)
+}

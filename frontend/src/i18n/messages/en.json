@@ -3,6 +3,7 @@
     "dashboard": "Dashboard",
     "products": "Products",
     "customers": "Customers",
+    "vendors": "Vendors",
     "orders": "Orders",
     "sells": "Sells",
     "buys": "Buys",
@@ -13,6 +14,17 @@
     "reports": "Reports",
     "settings": "Settings",
     "organization": "Organization"
+  },
+  "vendors": {
+    "search": "Search vendors...",
+    "name": "Name",
+    "phone": "Phone",
+    "address": "Address",
+    "totalPurchases": "Total Purchases",
+    "totalSpent": "Total Spent",
+    "actions": "Actions",
+    "emptyTitle": "No vendors yet",
+    "emptyDescription": "Add your first vendor to record purchases."
   },
   "sells": {
     "title": "Sells",
