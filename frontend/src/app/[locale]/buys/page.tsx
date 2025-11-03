@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { formatCurrency } from '@/lib/utils'
-import { Plus, Search } from 'lucide-react'
+import { Plus, Search, Eye, Edit, Printer } from 'lucide-react'
 import { listBuys, createBuy } from '@/lib/api/buy-api'
 import { listProducts } from '@/lib/api/product-api'
 import { normalizeProduct } from '@/lib/api'
@@ -38,6 +38,22 @@ export default function BuysPage() {
 
   const filtered = buys.filter(b => search === '' || String(b.vendorName || '').toLowerCase().includes(search.toLowerCase()))
 
+  // Mini dashboard stats
+  const stats = useMemo(() => {
+    const total = buys.length
+    let spent = 0, paid = 0, due = 0
+    buys.forEach((b:any) => {
+      const itemsTotal = (b.items || []).reduce((s:number,it:any)=>s+Number(it.total||0),0)
+      const discount = Number(b.discount||0)
+      const transport = Number(b.transportTotal||0)
+      const grand = Math.max(0, itemsTotal + transport - discount)
+      spent += grand
+      paid += Number(b.paidAmount||0)
+      due += Math.max(0, grand - Number(b.paidAmount||0))
+    })
+    return { total, spent, paid, due }
+  }, [buys])
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
@@ -48,6 +64,14 @@ export default function BuysPage() {
         <Button className="flex items-center gap-2" onClick={() => setOpen(true)}>
           <Plus className="h-4 w-4" /> {t('new')}
         </Button>
+      </div>
+
+      {/* Mini Dashboard like Sells */}
+      <div className="grid gap-4 md:grid-cols-4">
+        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600">Total Purchases</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold">{stats.total}</div></CardContent></Card>
+        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600">Total Spent</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold text-blue-600">{formatCurrency(stats.spent, locale)}</div></CardContent></Card>
+        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600">Total Paid</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold text-green-600">{formatCurrency(stats.paid, locale)}</div></CardContent></Card>
+        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600">Total Due</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold text-amber-600">{formatCurrency(stats.due, locale)}</div></CardContent></Card>
       </div>
 
       {filtered.length === 0 ? (
@@ -80,10 +104,16 @@ export default function BuysPage() {
                       <TableCell className="text-right">{formatCurrency(paid, locale)} / {formatCurrency(due, locale)}</TableCell>
                       <TableCell className="text-right font-medium">{formatCurrency(grand, locale)}</TableCell>
                       <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button variant="outline" size="sm" onClick={() => { setSelectedBuy(b); setShowDetails(true) }}>View</Button>
-                          <Button variant="outline" size="sm" onClick={() => { setSelectedBuy(b); setShowEdit(true) }}>Edit</Button>
-                          <Button variant="outline" size="sm" onClick={() => { setSelectedBuy(b); setShowDetails(true); setTimeout(()=>window.print(), 0) }}>Print</Button>
+                        <div className="flex justify-end gap-1">
+                          <Button variant="ghost" size="sm" title="View" onClick={() => { setSelectedBuy(b); setShowDetails(true) }}>
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm" title="Edit" onClick={() => { setSelectedBuy(b); setShowEdit(true) }}>
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm" title="Print" onClick={() => { setSelectedBuy(b); setShowDetails(true); setTimeout(()=>window.print(), 0) }}>
+                            <Printer className="h-4 w-4" />
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>

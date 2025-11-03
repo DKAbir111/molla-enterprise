@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useStore } from '@/store/useStore'
 import { formatCurrency, formatDate, formatOrderCode } from '@/lib/utils'
-import { Plus, Search } from 'lucide-react'
+import { Plus, Search, Eye, Edit, Printer } from 'lucide-react'
 import { listSells } from '@/lib/api/sell-api'
 import { normalizeOrder } from '@/lib/api'
 import CreateSellForm from '@/components/sells/CreateSellForm'
@@ -158,10 +158,16 @@ export default function SellsPage() {
                       <TableCell className="text-right">{formatCurrency(paid, locale)} / {formatCurrency(due, locale)}</TableCell>
                       <TableCell className="text-right font-medium">{formatCurrency(grand, locale)}</TableCell>
                       <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button variant="outline" size="sm" onClick={() => { setSelectedSell(o); setShowDetails(true) }}>View</Button>
-                          <Button variant="outline" size="sm" onClick={() => { setSelectedSell(o); setShowEdit(true) }}>Edit</Button>
-                          <Button variant="outline" size="sm" onClick={() => { setSelectedSell(o); setShowDetails(true); setTimeout(()=>window.print(), 0) }}>Print</Button>
+                        <div className="flex justify-end gap-1">
+                          <Button variant="ghost" size="sm" title="View" onClick={() => { setSelectedSell(o); setShowDetails(true) }}>
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm" title="Edit" onClick={() => { setSelectedSell(o); setShowEdit(true) }}>
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm" title="Print" onClick={() => { setSelectedSell(o); setShowDetails(true); setTimeout(()=>window.print(), 0) }}>
+                            <Printer className="h-4 w-4" />
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
