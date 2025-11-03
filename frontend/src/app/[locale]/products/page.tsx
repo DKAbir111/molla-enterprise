@@ -42,7 +42,7 @@ export default function ProductsPage() {
           if (!mounted) return
           (res || []).map(normalizeProduct).forEach(addProduct)
         })
-        .catch(() => {})
+        .catch(() => { })
     }
     return () => { mounted = false }
   }, [products.length, addProduct])
@@ -167,73 +167,73 @@ export default function ProductsPage() {
       {filteredProducts.length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="py-16 text-center">
-            <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white flex items-center justify-center text-2xl">+</div>
+            <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-linear-to-r from-purple-600 to-blue-600 text-white flex items-center justify-center text-2xl">+</div>
             <h3 className="text-lg font-semibold mb-1">{t('emptyTitle')}</h3>
             <p className="text-gray-600 mb-4">{t('emptyDescription')}</p>
             <Button onClick={() => setIsAddModalOpen(true)}>{t('addProduct')}</Button>
           </CardContent>
         </Card>
       ) : (
-      /* Products Grid */
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {filteredProducts.map((product, idx) => (
-          <Card key={`${product.id}-${idx}`} className="hover:shadow-lg transition-all group">
-            <CardHeader className="pb-4 relative">
-              {!product.active && (
-                <span className="absolute top-2 right-2 text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">Inactive</span>
-              )}
-              <div className={`h-32 rounded-lg mb-4 overflow-hidden ${product.imageUrl ? '' : `bg-gradient-to-br ${getProductImage(product.type)} flex items-center justify-center text-white`}`}>
-                {product.imageUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={product.imageUrl} alt={product.name} className="h-full w-full object-cover" />
-                ) : (
-                  <span className="text-4xl font-bold opacity-50">
-                    {product?.name?.split(" ")[0]}
+        /* Products Grid */
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {filteredProducts.map((product, idx) => (
+            <Card key={`${product.id}-${idx}`} className="hover:shadow-lg transition-all group">
+              <CardHeader className="pb-4 relative">
+                {!product.active && (
+                  <span className="absolute top-2 right-2 text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">Inactive</span>
+                )}
+                <div className={`h-32 rounded-lg mb-4 overflow-hidden ${product.imageUrl ? '' : `bg-linear-to-br ${getProductImage(product.type)} flex items-center justify-center text-white`}`}>
+                  {product.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={product.imageUrl} alt={product.name} className="h-full w-full object-cover" />
+                  ) : (
+                    <span className="text-4xl font-bold opacity-50">
+                      {product?.name?.split(" ")[0]}
+                    </span>
+                  )}
+                </div>
+                <CardTitle className="text-lg">{product?.name}</CardTitle>
+                {product.grade && (
+                  <span className="text-sm text-gray-500 capitalize">
+                    {product.grade}
                   </span>
                 )}
-              </div>
-              <CardTitle className="text-lg">{product?.name}</CardTitle>
-              {product.grade && (
-                <span className="text-sm text-gray-500 capitalize">
-                  {product.grade}
-                </span>
-              )}
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-500">{t('pricePerUnit')}</span>
-                  <span className="font-semibold">
-                    {formatCurrency(product.price, locale)}/{product.unit}
-                  </span>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">{t('pricePerUnit')}</span>
+                    <span className="font-semibold">
+                      {formatCurrency(product.price, locale)}/{product.unit}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">{t('stock')}</span>
+                    <span className="font-semibold text-green-600">
+                      {product.stock} {product.unit}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-500">{t('stock')}</span>
-                  <span className="font-semibold text-green-600">
-                    {product.stock} {product.unit}
-                  </span>
-                </div>
-              </div>
 
-              <div className="flex gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                <a href={`/${locale}/products/${product.id}`}>
-                  <Button variant="outline" size="sm" className="flex-1">
-                    {t('view') || 'View'}
+                <div className="flex gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <a href={`/${locale}/products/${product.id}`}>
+                    <Button variant="outline" size="sm" className="flex-1">
+                      {t('view') || 'View'}
+                    </Button>
+                  </a>
+                  <Button variant="outline" size="sm" className="flex-1" onClick={() => handleEditClick(product)}>
+                    <Edit className="h-3 w-3 mr-1" />
+                    {t('edit')}
                   </Button>
-                </a>
-                <Button variant="outline" size="sm" className="flex-1" onClick={() => handleEditClick(product)}>
-                  <Edit className="h-3 w-3 mr-1" />
-                  {t('edit')}
-                </Button>
-                <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700" onClick={() => handleDeleteClick(product.id)}>
-                  <Trash2 className="h-3 w-3" />
-                </Button>
-                {/* Status and restock controls moved into Edit modal */}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+                  <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700" onClick={() => handleDeleteClick(product.id)}>
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                  {/* Status and restock controls moved into Edit modal */}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       )}
 
     </div>

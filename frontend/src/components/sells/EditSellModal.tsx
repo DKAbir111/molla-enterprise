@@ -46,7 +46,7 @@ export function EditSellModal({ isOpen, onClose, sell }: { isOpen: boolean; onCl
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-4xl p-0 bg-white border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-6 text-white">
+        <div className="bg-linear-to-r from-purple-600 to-blue-600 px-8 py-6 text-white">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold">Edit Sell</DialogTitle>
           </DialogHeader>

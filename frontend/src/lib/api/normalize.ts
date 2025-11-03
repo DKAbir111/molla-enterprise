@@ -1,5 +1,5 @@
 import { toNumber } from './http'
-import type { Order, OrderItem, Customer, Product, Transaction } from '@/types'
+import type { Order, OrderItem, Customer, Product, Transaction, Buy, BuyItem } from '@/types'
 
 export function normalizeOrder(apiOrder: any): Order {
   const items: OrderItem[] = (apiOrder.items || []).map((i: any) => ({
@@ -69,5 +69,28 @@ export function normalizeTransaction(apiTx: any): Transaction {
     amount: toNumber(apiTx.amount),
     category: String(apiTx.category ?? ''),
     date: apiTx.date ? new Date(apiTx.date) : new Date(),
+  }
+}
+
+export function normalizeBuy(apiBuy: any): Buy {
+  const items: BuyItem[] = (apiBuy.items || []).map((i: any) => ({
+    productId: String(i.productId),
+    productName: String(i.productName ?? ''),
+    quantity: Number(i.quantity ?? 0),
+    price: toNumber(i.price),
+    total: toNumber(i.total),
+  }))
+  return {
+    id: String(apiBuy.id),
+    vendorName: apiBuy.vendorName ? String(apiBuy.vendorName) : undefined,
+    vendorPhone: apiBuy.vendorPhone ? String(apiBuy.vendorPhone) : undefined,
+    items,
+    total: toNumber(apiBuy.total ?? items.reduce((s, it) => s + it.total, 0)),
+    discount: toNumber(apiBuy.discount ?? 0),
+    paidAmount: toNumber(apiBuy.paidAmount ?? 0),
+    transportPerTrip: toNumber(apiBuy.transportPerTrip ?? 0),
+    transportTrips: Number(apiBuy.transportTrips ?? 0),
+    transportTotal: toNumber(apiBuy.transportTotal ?? 0),
+    createdAt: apiBuy.createdAt ? new Date(apiBuy.createdAt) : new Date(),
   }
 }

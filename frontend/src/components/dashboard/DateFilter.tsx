@@ -59,7 +59,7 @@ export function DateFilter({
   }
 
   return (
-    <div className="flex items-center gap-2 rounded-lg border border-[color:var(--card-border)] bg-[var(--card-bg)]/60 px-3 py-2">
+    <div className="flex items-center gap-2 rounded-lg border border-(--card-border) bg-(--card-bg)/60 px-3 py-2">
       <select
         onChange={handlePresetChange}
         defaultValue=""
@@ -80,7 +80,7 @@ export function DateFilter({
         onChange={(e) => { setStartDate(e.target.value); onChange?.({ start: e.target.value, end: endDate }) }}
         className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
       />
-      <span className="text-[color:var(--text)]/60">-</span>
+      <span className="text-(--text)/60">-</span>
       <input
         type="date"
         value={endDate}

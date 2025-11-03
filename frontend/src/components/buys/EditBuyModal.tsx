@@ -11,7 +11,7 @@ import { formatCurrency } from '@/lib/utils'
 import { updateBuy, updateBuyItems } from '@/lib/api/buy-api'
 import { toast } from 'sonner'
 
-export function EditBuyModal({ isOpen, onClose, buy, onUpdated }: { isOpen: boolean; onClose: () => void; buy: any; onUpdated?: (b: any)=>void }) {
+export function EditBuyModal({ isOpen, onClose, buy, onUpdated }: { isOpen: boolean; onClose: () => void; buy: any; onUpdated?: (b: any) => void }) {
   const locale = useLocale()
   const [items, setItems] = useState(buy.items || [])
   const [discount, setDiscount] = useState<number>(buy.discount || 0)
@@ -22,16 +22,16 @@ export function EditBuyModal({ isOpen, onClose, buy, onUpdated }: { isOpen: bool
   const transportTotal = transportPerTrip * transportTrips
   useEffect(() => { setItems(buy.items || []) }, [buy])
 
-  const setQty = (id: string, q: number) => setItems((prev:any[]) => prev.map(i => i.productId === id ? { ...i, quantity: q, total: (i.price) * q } : i))
-  const setPrice = (id: string, p: number) => setItems((prev:any[]) => prev.map(i => i.productId === id ? { ...i, price: p, total: p * i.quantity } : i))
-  const remove = (id: string) => setItems((prev:any[]) => prev.filter(i => i.productId !== id))
+  const setQty = (id: string, q: number) => setItems((prev: any[]) => prev.map(i => i.productId === id ? { ...i, quantity: q, total: (i.price) * q } : i))
+  const setPrice = (id: string, p: number) => setItems((prev: any[]) => prev.map(i => i.productId === id ? { ...i, price: p, total: p * i.quantity } : i))
+  const remove = (id: string) => setItems((prev: any[]) => prev.filter(i => i.productId !== id))
   const subtotal = items.reduce((s: number, it: any) => s + Number(it.total || 0), 0)
   const grand = Math.max(0, subtotal + transportTotal - discount)
 
   const submit = async () => {
     try {
       await updateBuy(buy.id, { vendorName, discount, paidAmount, transportPerTrip, transportTrips })
-      const payload = { items: items.map((i:any) => ({ productId: i.productId, quantity: i.quantity, price: i.price })) }
+      const payload = { items: items.map((i: any) => ({ productId: i.productId, quantity: i.quantity, price: i.price })) }
       const updated = await updateBuyItems<any>(buy.id, payload)
       toast.success('Purchase updated')
       onUpdated?.(updated)
@@ -44,7 +44,7 @@ export function EditBuyModal({ isOpen, onClose, buy, onUpdated }: { isOpen: bool
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-4xl p-0 bg-white border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-6 text-white">
+        <div className="bg-linear-to-r from-purple-600 to-blue-600 px-8 py-6 text-white">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold">Edit Purchase</DialogTitle>
           </DialogHeader>
@@ -62,7 +62,7 @@ export function EditBuyModal({ isOpen, onClose, buy, onUpdated }: { isOpen: bool
                 <TableRow><TableHead>Product</TableHead><TableHead className="text-center">Qty</TableHead><TableHead className="text-right">Price</TableHead><TableHead className="text-right">Total</TableHead><TableHead /></TableRow>
               </TableHeader>
               <TableBody>
-                {items.map((it:any) => (
+                {items.map((it: any) => (
                   <TableRow key={it.productId}>
                     <TableCell className="font-medium">{it.productName}</TableCell>
                     <TableCell className="text-center"><Input type="number" value={it.quantity} onChange={(e) => setQty(it.productId, parseInt(e.target.value || '0', 10))} className="h-9 w-20 text-center" /></TableCell>

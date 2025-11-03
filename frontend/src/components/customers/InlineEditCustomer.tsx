@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { updateCustomer } from '@/lib/api/customer-api'
 import { toast } from 'sonner'
 
-export function InlineEditCustomer({ customer, onClose, onSaved }: { customer: any; onClose: () => void; onSaved: (c:any)=>void }) {
+export function InlineEditCustomer({ customer, onClose, onSaved }: { customer: any; onClose: () => void; onSaved: (c: any) => void }) {
   const [name, setName] = React.useState(customer?.name || '')
   const [phone, setPhone] = React.useState(customer?.phone || '')
   const [email, setEmail] = React.useState(customer?.email || '')
@@ -30,7 +30,7 @@ export function InlineEditCustomer({ customer, onClose, onSaved }: { customer: a
   return (
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="sm:max-w-lg p-0 bg-white border-0 shadow-2xl overflow-hidden">
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-6 text-white">
+        <div className="bg-linear-to-r from-purple-600 to-blue-600 px-8 py-6 text-white">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold">Edit Customer</DialogTitle>
             <DialogDescription className="text-blue-100 text-base">Update customer information</DialogDescription>

@@ -60,7 +60,7 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
         try {
           const withImage = await uploadProductImage<any>(normalized.id, imageFile)
           normalized = normalizeProduct(withImage)
-        } catch {}
+        } catch { }
       }
       addProduct(normalized as Product)
       toast.success('Product added')
@@ -86,7 +86,7 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-2xl p-0 bg-white border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
         {/* Header with gradient background */}
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-6 text-white">
+        <div className="bg-linear-to-r from-purple-600 to-blue-600 px-8 py-6 text-white">
           <DialogHeader className="space-y-2">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
@@ -178,9 +178,9 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
 
             {/* Unit & Stock */}
             <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Unit */}
-              <div className="space-y-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Unit */}
+                <div className="space-y-2">
                   <Label htmlFor="unit" className="text-sm font-medium text-gray-700 flex items-center gap-2">
                     {t('unit')}
                   </Label>
@@ -198,8 +198,8 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
                   </Select>
                 </div>
 
-              {/* Total Stock */}
-              <div className="space-y-2">
+                {/* Total Stock */}
+                <div className="space-y-2">
                   <Label htmlFor="stock" className="text-sm font-medium text-gray-700 flex items-center gap-2">
                     <Warehouse className="h-4 w-4" />
                     Total Stock
@@ -215,31 +215,31 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
                     min="0"
                   />
                 </div>
-            </div>
-            {/* Pricing */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">Buy Price / Unit ({t('currencySymbol')})</Label>
-                <Input type="number" value={buyPrice} onChange={(e) => setBuyPrice(parseFloat(e.target.value) || 0)} className="h-11" placeholder="0.00" min="0" step="0.01" />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="price" className="text-sm font-medium text-gray-700 flex items-center gap-2">Sell Price / Unit ({t('currencySymbol')})</Label>
-                <Input id="price" type="number" value={price} onChange={(e) => setPrice(parseFloat(e.target.value) || 0)} required className="h-11" placeholder="0.00" min="0" step="0.01" />
+              {/* Pricing */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">Buy Price / Unit ({t('currencySymbol')})</Label>
+                  <Input type="number" value={buyPrice} onChange={(e) => setBuyPrice(parseFloat(e.target.value) || 0)} className="h-11" placeholder="0.00" min="0" step="0.01" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="price" className="text-sm font-medium text-gray-700 flex items-center gap-2">Sell Price / Unit ({t('currencySymbol')})</Label>
+                  <Input id="price" type="number" value={price} onChange={(e) => setPrice(parseFloat(e.target.value) || 0)} required className="h-11" placeholder="0.00" min="0" step="0.01" />
+                </div>
               </div>
-            </div>
 
-            {/* Totals */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">Total Cost (BDT)</Label>
-                <Input type="number" value={totalCost} onChange={(e) => { const v = parseFloat(e.target.value) || 0; setBuyPrice(stock > 0 ? v / stock : 0) }} className="h-11" placeholder="0.00" min="0" step="0.01" />
-                <div className="text-xs text-gray-500">Auto = unit × stock</div>
+              {/* Totals */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">Total Cost (BDT)</Label>
+                  <Input type="number" value={totalCost} onChange={(e) => { const v = parseFloat(e.target.value) || 0; setBuyPrice(stock > 0 ? v / stock : 0) }} className="h-11" placeholder="0.00" min="0" step="0.01" />
+                  <div className="text-xs text-gray-500">Auto = unit × stock</div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">Total Sell Value (BDT)</Label>
+                  <Input type="number" value={totalSell} onChange={(e) => { const v = parseFloat(e.target.value) || 0; setPrice(stock > 0 ? v / stock : 0) }} className="h-11" placeholder="0.00" min="0" step="0.01" />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">Total Sell Value (BDT)</Label>
-                <Input type="number" value={totalSell} onChange={(e) => { const v = parseFloat(e.target.value) || 0; setPrice(stock > 0 ? v / stock : 0) }} className="h-11" placeholder="0.00" min="0" step="0.01" />
-              </div>
-            </div>
             </div>
 
             {/* Action Buttons */}
@@ -255,7 +255,7 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
               </Button>
               <Button
                 type="submit"
-                className="flex-1 h-11 font-medium bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                className="flex-1 h-11 font-medium bg-linear-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
                 disabled={isLoading}
               >
                 {isLoading ? (

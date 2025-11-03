@@ -54,7 +54,7 @@ export default function SettingsPage() {
         setBusinessInfo(next)
         setLogoPreview(next.logoUrl || null)
       })
-      .catch(() => {})
+      .catch(() => { })
     return () => { mounted = false }
   }, [])
 
@@ -99,7 +99,7 @@ export default function SettingsPage() {
     const file = e.target.files?.[0]
     if (file) {
       if (logoPreview && logoPreview.startsWith('blob:')) {
-        try { URL.revokeObjectURL(logoPreview) } catch {}
+        try { URL.revokeObjectURL(logoPreview) } catch { }
       }
       const url = URL.createObjectURL(file)
       setLogoPreview(url)
@@ -334,7 +334,7 @@ export default function SettingsPage() {
             <button
               type="button"
               onClick={() => setTheme('default')}
-              className={`p-4 rounded-lg border-2 cursor-pointer ${theme === 'default' ? 'border-purple-600 bg-gradient-to-r from-purple-50 to-blue-50' : 'border-gray-200 hover:border-gray-300'}`}
+              className={`p-4 rounded-lg border-2 cursor-pointer ${theme === 'default' ? 'border-purple-600 bg-linear-to-r from-purple-50 to-blue-50' : 'border-gray-200 hover:border-gray-300'}`}
             >
               <h4 className="font-medium mb-2">Default Theme</h4>
               <div className="flex gap-2">

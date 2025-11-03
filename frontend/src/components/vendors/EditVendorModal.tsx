@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { toast } from 'sonner'
 import { updateVendor } from '@/lib/api/vendor-api'
 
-export function EditVendorModal({ isOpen, onClose, vendor, onSaved }: { isOpen: boolean; onClose: () => void; vendor: any; onSaved?: (v:any)=>void }) {
+export function EditVendorModal({ isOpen, onClose, vendor, onSaved }: { isOpen: boolean; onClose: () => void; vendor: any; onSaved?: (v: any) => void }) {
   const [name, setName] = React.useState(vendor?.name || '')
   const [phone, setPhone] = React.useState(vendor?.phone || '')
   const [email, setEmail] = React.useState(vendor?.email || '')
@@ -42,7 +42,7 @@ export function EditVendorModal({ isOpen, onClose, vendor, onSaved }: { isOpen: 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-lg p-0 bg-white border-0 shadow-2xl overflow-hidden">
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-6 text-white">
+        <div className="bg-linear-to-r from-purple-600 to-blue-600 px-8 py-6 text-white">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold">Edit Vendor</DialogTitle>
             <DialogDescription className="text-blue-100 text-base">Update vendor information</DialogDescription>

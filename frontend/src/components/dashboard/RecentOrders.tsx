@@ -19,7 +19,7 @@ function cn(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
 }
 
-export function RecentOrders({}: RecentOrdersProps) {
+export function RecentOrders({ }: RecentOrdersProps) {
   const t = useTranslations('dashboard')
   const locale = useLocale()
   const [orders, setOrders] = React.useState<any[]>([])
@@ -30,7 +30,7 @@ export function RecentOrders({}: RecentOrdersProps) {
       if (!mounted) return
       const list = (res.data || []).map(normalizeOrder).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5)
       setOrders(list)
-    }).catch(() => {})
+    }).catch(() => { })
     return () => { mounted = false }
   }, [])
 
@@ -50,7 +50,7 @@ export function RecentOrders({}: RecentOrdersProps) {
             <Link key={order.id} href={`/${locale}/sells/${order.id}`} className="block">
               <div className="flex items-center justify-between p-4 rounded-lg border hover:bg-gray-50">
                 <div className="flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center text-white font-semibold">
+                  <div className="h-10 w-10 rounded-full bg-linear-to-r from-purple-600 to-blue-600 flex items-center justify-center text-white font-semibold">
                     {order.customerName.charAt(0)}
                   </div>
                   <div>

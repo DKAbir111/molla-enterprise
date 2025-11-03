@@ -52,13 +52,13 @@ export default function ReportsPage() {
         }
         const sums: Record<string, number> = {}
         months.forEach(m => (sums[m.key] = 0))
-        ;(txs || []).forEach((t: any) => {
-          if (String(t.type) !== 'income') return
-          const dt = t.date ? new Date(t.date) : null
-          if (!dt) return
-          const key = `${dt.getFullYear()}-${dt.getMonth()}`
-          if (key in sums) sums[key] += Number(t.amount || 0)
-        })
+          ; (txs || []).forEach((t: any) => {
+            if (String(t.type) !== 'income') return
+            const dt = t.date ? new Date(t.date) : null
+            if (!dt) return
+            const key = `${dt.getFullYear()}-${dt.getMonth()}`
+            if (key in sums) sums[key] += Number(t.amount || 0)
+          })
         setRevenueTrend(months.map(m => ({ month: m.label, total: sums[m.key] || 0 })))
       })
       .catch(() => setRevenueTrend([]))
@@ -89,11 +89,11 @@ export default function ReportsPage() {
         // Category sales as product share (%)
         const totalQty = Object.values(qtyByProduct).reduce((s, v) => s + v, 0)
         const palette = ['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#6b7280']
-        const topPairs = Object.entries(qtyByProduct).sort((a,b) => b[1]-a[1]).slice(0, 4)
-        const others = Object.entries(qtyByProduct).sort((a,b) => b[1]-a[1]).slice(4)
-        const othersQty = others.reduce((s, [,v]) => s+v, 0)
-        const cat = [...topPairs, ...(othersQty>0 ? [['Others', othersQty] as const] : [])]
-        const catSeries = cat.map(([name, q], idx) => ({ name, value: totalQty>0 ? Math.round((q/totalQty)*100) : 0, color: palette[idx%palette.length] }))
+        const topPairs = Object.entries(qtyByProduct).sort((a, b) => b[1] - a[1]).slice(0, 4)
+        const others = Object.entries(qtyByProduct).sort((a, b) => b[1] - a[1]).slice(4)
+        const othersQty = others.reduce((s, [, v]) => s + v, 0)
+        const cat = [...topPairs, ...(othersQty > 0 ? [['Others', othersQty] as const] : [])]
+        const catSeries = cat.map(([name, q], idx) => ({ name, value: totalQty > 0 ? Math.round((q / totalQty) * 100) : 0, color: palette[idx % palette.length] }))
         setCategorySales(catSeries)
 
         // Customer distribution buckets
@@ -107,8 +107,8 @@ export default function ReportsPage() {
         setCustomerDistribution(Object.entries(buckets).map(([range, count]) => ({ range, count })))
 
         // Top products (revenue)
-        const top = Object.entries(revByProduct).map(([name, revenue]) => ({ name, revenue: Number(revenue||0), sales: Number(qtyByProduct[name]||0) }))
-          .sort((a,b) => b.revenue - a.revenue).slice(0,5)
+        const top = Object.entries(revByProduct).map(([name, revenue]) => ({ name, revenue: Number(revenue || 0), sales: Number(qtyByProduct[name] || 0) }))
+          .sort((a, b) => b.revenue - a.revenue).slice(0, 5)
         setTopProducts(top)
       })
       .catch(() => {
@@ -143,7 +143,7 @@ export default function ReportsPage() {
             </Button>
           </CardContent>
         </Card>
-        
+
         <Card className="cursor-pointer hover:shadow-lg transition-shadow">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
@@ -157,7 +157,7 @@ export default function ReportsPage() {
             </Button>
           </CardContent>
         </Card>
-        
+
         <Card className="cursor-pointer hover:shadow-lg transition-shadow">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
@@ -171,7 +171,7 @@ export default function ReportsPage() {
             </Button>
           </CardContent>
         </Card>
-        
+
         <Card className="cursor-pointer hover:shadow-lg transition-shadow">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
@@ -197,8 +197,8 @@ export default function ReportsPage() {
             <AreaChart data={revenueTrend}>
               <defs>
                 <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8} />
+                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" />
@@ -268,15 +268,15 @@ export default function ReportsPage() {
 
       {/* Top Products Table */}
       <Card>
-          <CardHeader>
+        <CardHeader>
           <CardTitle>{t('topProducts')}</CardTitle>
-          </CardHeader>
+        </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {topProducts.map((product, index) => (
               <div key={index} className="flex items-center justify-between p-4 rounded-lg border">
                 <div className="flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center text-white font-semibold">
+                  <div className="h-10 w-10 rounded-full bg-linear-to-r from-purple-600 to-blue-600 flex items-center justify-center text-white font-semibold">
                     {index + 1}
                   </div>
                   <div>

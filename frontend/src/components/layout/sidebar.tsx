@@ -49,7 +49,7 @@ export function Sidebar() {
         if (org?.name) setOrgName(org.name)
         if (org?.logoUrl) setLogoUrl(org.logoUrl)
       })
-      .catch(() => {})
+      .catch(() => { })
     return () => { mounted = false }
   }, [])
 
@@ -70,7 +70,7 @@ export function Sidebar() {
           {navigation.map((item) => {
             const href = `/${locale}${item.href}`
             const isActive = pathname === href || (item.href !== '/' && pathname.startsWith(href))
-            
+
             return (
               <Link
                 key={item.name}
@@ -79,10 +79,10 @@ export function Sidebar() {
                   'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                   isActive
                     ? (
-                        theme === 'contrast'
-                          ? 'bg-white text-black border border-black shadow'
-                          : 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow'
-                      )
+                      theme === 'contrast'
+                        ? 'bg-white text-black border border-black shadow'
+                        : 'bg-linear-to-r from-purple-600 to-blue-600 text-white shadow'
+                    )
                     : 'text-[color:var(--text)]/80 hover:bg-white/10'
                 )}
               >

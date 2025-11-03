@@ -34,7 +34,7 @@ export default function SellsPage() {
     if (sells.length === 0) {
       listSells<any[]>()
         .then((res) => { if (!mounted) return; (res || []).map(normalizeOrder).forEach(addSell) })
-        .catch(() => {})
+        .catch(() => { })
     }
     return () => { mounted = false }
   }, [sells.length, addSell])
@@ -92,7 +92,7 @@ export default function SellsPage() {
       {filtered.length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="py-16 text-center">
-            <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white flex items-center justify-center text-2xl">+</div>
+            <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-linear-to-r from-purple-600 to-blue-600 text-white flex items-center justify-center text-2xl">+</div>
             <h3 className="text-lg font-semibold mb-1">{t('emptyTitle')}</h3>
             <p className="text-gray-600 mb-4">{t('emptyDescription')}</p>
             <Button onClick={() => setModalOpen(true)}>{t('newOrder')}</Button>
@@ -168,9 +168,9 @@ export default function SellsPage() {
                             <Edit className="h-4 w-4" />
                           </Button>
                           <a href={`/${locale}/sells/${o.id}`}>
-                          <Button variant="ghost" size="sm" title="Print">
-                            <Printer className="h-4 w-4" />
-                          </Button>
+                            <Button variant="ghost" size="sm" title="Print">
+                              <Printer className="h-4 w-4" />
+                            </Button>
                           </a>
                         </div>
                       </TableCell>

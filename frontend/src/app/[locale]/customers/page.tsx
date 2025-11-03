@@ -53,7 +53,7 @@ export default function CustomersPage() {
           }
         })
       })
-      .catch(() => {})
+      .catch(() => { })
     return () => { mounted = false }
   }, [addCustomer, updateCustomer])
 
@@ -87,155 +87,155 @@ export default function CustomersPage() {
       {filteredCustomers.length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="py-16 text-center">
-            <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white flex items-center justify-center text-2xl">+</div>
+            <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-linear-to-r from-purple-600 to-blue-600 text-white flex items-center justify-center text-2xl">+</div>
             <h3 className="text-lg font-semibold mb-1">{t('emptyTitle')}</h3>
             <p className="text-gray-600 mb-4">{t('emptyDescription')}</p>
             <Button onClick={() => setIsAddOpen(true)}>{t('addCustomer')}</Button>
           </CardContent>
         </Card>
       ) : (
-      <>
-      {/* Customer Stats */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Total Customers
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{customers.length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Active Customers
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {customers.filter(c => c.totalOrders > 0).length}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Total Revenue
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formatCurrency(
-                customers.reduce((sum, c) => sum + c.totalSpent, 0),
-                locale
-              )}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Avg. Order Value
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formatCurrency(
-                customers.reduce((sum, c) => sum + c.totalSpent, 0) / 
-                customers.reduce((sum, c) => sum + c.totalOrders, 0) || 0,
-                locale
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+        <>
+          {/* Customer Stats */}
+          <div className="grid gap-4 md:grid-cols-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-600">
+                  Total Customers
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{customers.length}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-600">
+                  Active Customers
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {customers.filter(c => c.totalOrders > 0).length}
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-600">
+                  Total Revenue
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {formatCurrency(
+                    customers.reduce((sum, c) => sum + c.totalSpent, 0),
+                    locale
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-600">
+                  Avg. Order Value
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {formatCurrency(
+                    customers.reduce((sum, c) => sum + c.totalSpent, 0) /
+                    customers.reduce((sum, c) => sum + c.totalOrders, 0) || 0,
+                    locale
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
-      {/* Customers Table */}
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t('name')}</TableHead>
-                <TableHead>{t('phone')}</TableHead>
-                <TableHead>{t('address')}</TableHead>
-                <TableHead className="text-center">{t('totalOrders')}</TableHead>
-                <TableHead className="text-right">{t('totalSpent')}</TableHead>
-                <TableHead className="text-right">{t('actions')}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredCustomers.map((customer, idx) => (
-                <TableRow key={`${customer.id}-${idx}`}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center text-white font-semibold">
-                        {customer.name.charAt(0)}
-                      </div>
-                      <div>
-                        <Link href={`/customers/${customer.id}`}>
-                          <p className="font-medium hover:text-blue-600 cursor-pointer">
-                            {customer.name}
-                          </p>
-                        </Link>
-                        <p className="text-sm text-gray-500">
-                          Since {formatDate(customer.createdAt, locale)}
-                        </p>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1 text-gray-600">
-                      <Phone className="h-3 w-3" />
-                      {customer.phone}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1 text-gray-600">
-                      <MapPin className="h-3 w-3" />
-                      {customer.address}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700">
-                      {customer.totalOrders}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-right font-medium">
-                    {formatCurrency(customer.totalSpent, locale)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Link href={`/customers/${customer.id}`}>
-                        <Button variant="ghost" size="sm" title={t('viewDetails')}>
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </Link>
-                      <Button variant="ghost" size="sm" title={t('edit')} onClick={() => setEditing(customer)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700" title={t('delete')} onClick={() => setCustomerToDelete(customer)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-      </>
+          {/* Customers Table */}
+          <Card>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t('name')}</TableHead>
+                    <TableHead>{t('phone')}</TableHead>
+                    <TableHead>{t('address')}</TableHead>
+                    <TableHead className="text-center">{t('totalOrders')}</TableHead>
+                    <TableHead className="text-right">{t('totalSpent')}</TableHead>
+                    <TableHead className="text-right">{t('actions')}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredCustomers.map((customer, idx) => (
+                    <TableRow key={`${customer.id}-${idx}`}>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-full bg-linear-to-r from-purple-600 to-blue-600 flex items-center justify-center text-white font-semibold">
+                            {customer.name.charAt(0)}
+                          </div>
+                          <div>
+                            <Link href={`/customers/${customer.id}`}>
+                              <p className="font-medium hover:text-blue-600 cursor-pointer">
+                                {customer.name}
+                              </p>
+                            </Link>
+                            <p className="text-sm text-gray-500">
+                              Since {formatDate(customer.createdAt, locale)}
+                            </p>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1 text-gray-600">
+                          <Phone className="h-3 w-3" />
+                          {customer.phone}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1 text-gray-600">
+                          <MapPin className="h-3 w-3" />
+                          {customer.address}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700">
+                          {customer.totalOrders}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-right font-medium">
+                        {formatCurrency(customer.totalSpent, locale)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Link href={`/customers/${customer.id}`}>
+                            <Button variant="ghost" size="sm" title={t('viewDetails')}>
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </Link>
+                          <Button variant="ghost" size="sm" title={t('edit')} onClick={() => setEditing(customer)}>
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700" title={t('delete')} onClick={() => setCustomerToDelete(customer)}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </>
       )}
       <AddCustomerModal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} />
       {editing && (
-        <InlineEditCustomer customer={editing} onClose={() => setEditing(null)} onSaved={(c)=>{ updateCustomerStore(c.id, c); setEditing(null) }} />
+        <InlineEditCustomer customer={editing} onClose={() => setEditing(null)} onSaved={(c) => { updateCustomerStore(c.id, c); setEditing(null) }} />
       )}
       {customerToDelete && (
-        <DeleteConfirmationModal isOpen={!!customerToDelete} onClose={() => setCustomerToDelete(null)} onConfirm={async ()=>{
-          try { await apiDeleteCustomer(customerToDelete.id) } catch {}
+        <DeleteConfirmationModal isOpen={!!customerToDelete} onClose={() => setCustomerToDelete(null)} onConfirm={async () => {
+          try { await apiDeleteCustomer(customerToDelete.id) } catch { }
           // Optimistic removal from store
           const delId = customerToDelete.id
           useStore.setState(s => ({ customers: s.customers.filter(x => x.id !== delId) }))

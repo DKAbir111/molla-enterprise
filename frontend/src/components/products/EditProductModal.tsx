@@ -85,7 +85,7 @@ export function EditProductModal({ isOpen, onClose, product }: EditProductModalP
         try {
           const withImage = await uploadProductImage<any>(product.id, imageFile)
           normalized = normalizeProduct(withImage)
-        } catch {}
+        } catch { }
       }
       // Update store
       updateProduct(product.id, normalized as Partial<Product>)
@@ -122,7 +122,7 @@ export function EditProductModal({ isOpen, onClose, product }: EditProductModalP
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-2xl p-0 bg-white border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
         {/* Header with gradient background */}
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-6 text-white">
+        <div className="bg-linear-to-r from-purple-600 to-blue-600 px-8 py-6 text-white">
           <DialogHeader className="space-y-2">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
@@ -314,7 +314,7 @@ export function EditProductModal({ isOpen, onClose, product }: EditProductModalP
               </Button>
               <Button
                 type="submit"
-                className="flex-1 h-11 font-medium bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                className="flex-1 h-11 font-medium bg-linear-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
                 disabled={isLoading}
               >
                 {isLoading ? (

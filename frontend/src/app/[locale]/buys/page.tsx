@@ -31,8 +31,8 @@ export default function BuysPage() {
 
   useEffect(() => {
     let mounted = true
-    listBuys<any[]>().then(res => { if (mounted) setBuys(res || []) }).catch(() => {})
-    if (products.length === 0) listProducts<any[]>().then(res => { (res || []).map(normalizeProduct).forEach(addProduct) }).catch(() => {})
+    listBuys<any[]>().then(res => { if (mounted) setBuys(res || []) }).catch(() => { })
+    if (products.length === 0) listProducts<any[]>().then(res => { (res || []).map(normalizeProduct).forEach(addProduct) }).catch(() => { })
     return () => { mounted = false }
   }, [products.length, addProduct])
 
@@ -42,14 +42,14 @@ export default function BuysPage() {
   const stats = useMemo(() => {
     const total = buys.length
     let spent = 0, paid = 0, due = 0
-    buys.forEach((b:any) => {
-      const itemsTotal = (b.items || []).reduce((s:number,it:any)=>s+Number(it.total||0),0)
-      const discount = Number(b.discount||0)
-      const transport = Number(b.transportTotal||0)
+    buys.forEach((b: any) => {
+      const itemsTotal = (b.items || []).reduce((s: number, it: any) => s + Number(it.total || 0), 0)
+      const discount = Number(b.discount || 0)
+      const transport = Number(b.transportTotal || 0)
       const grand = Math.max(0, itemsTotal + transport - discount)
       spent += grand
-      paid += Number(b.paidAmount||0)
-      due += Math.max(0, grand - Number(b.paidAmount||0))
+      paid += Number(b.paidAmount || 0)
+      due += Math.max(0, grand - Number(b.paidAmount || 0))
     })
     return { total, spent, paid, due }
   }, [buys])
@@ -75,7 +75,7 @@ export default function BuysPage() {
       </div>
 
       {filtered.length === 0 ? (
-        <Card className="border-dashed"><CardContent className="py-16 text-center"><div className="mx-auto mb-4 h-14 w-14 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white flex items-center justify-center text-2xl">+</div><h3 className="text-lg font-semibold mb-1">{t('emptyTitle')}</h3><p className="text-gray-600 mb-4">{t('emptyDescription')}</p><Button onClick={() => setOpen(true)}>{t('new')}</Button></CardContent></Card>
+        <Card className="border-dashed"><CardContent className="py-16 text-center"><div className="mx-auto mb-4 h-14 w-14 rounded-full bg-linear-to-r from-purple-600 to-blue-600 text-white flex items-center justify-center text-2xl">+</div><h3 className="text-lg font-semibold mb-1">{t('emptyTitle')}</h3><p className="text-gray-600 mb-4">{t('emptyDescription')}</p><Button onClick={() => setOpen(true)}>{t('new')}</Button></CardContent></Card>
       ) : (
         <Card>
           <CardContent className="p-0">
@@ -114,9 +114,9 @@ export default function BuysPage() {
                             <Edit className="h-4 w-4" />
                           </Button>
                           <a href={`/${locale}/buys/${b.id}`}>
-                          <Button variant="ghost" size="sm" title="Print">
-                            <Printer className="h-4 w-4" />
-                          </Button>
+                            <Button variant="ghost" size="sm" title="Print">
+                              <Printer className="h-4 w-4" />
+                            </Button>
                           </a>
                         </div>
                       </TableCell>
@@ -131,7 +131,7 @@ export default function BuysPage() {
 
       {open && <CreateBuyModal isOpen={open} onClose={() => setOpen(false)} />}
       {showEdit && selectedBuy && (
-        <EditBuyModal isOpen={showEdit} onClose={() => setShowEdit(false)} buy={selectedBuy} onUpdated={(b)=>{
+        <EditBuyModal isOpen={showEdit} onClose={() => setShowEdit(false)} buy={selectedBuy} onUpdated={(b) => {
           setBuys(prev => prev.map(x => x.id === b.id ? b : x))
         }} />
       )}
@@ -174,7 +174,7 @@ function CreateBuyModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-4xl p-0 bg-white border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-6 text-white"><DialogHeader><DialogTitle className="text-2xl font-bold">New Buy</DialogTitle><DialogDescription>Record a purchase</DialogDescription></DialogHeader></div>
+        <div className="bg-linear-to-r from-purple-600 to-blue-600 px-8 py-6 text-white"><DialogHeader><DialogTitle className="text-2xl font-bold">New Buy</DialogTitle><DialogDescription>Record a purchase</DialogDescription></DialogHeader></div>
         <div className="px-8 py-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2"><Label>Vendor (optional)</Label><Input value={vendorName} onChange={(e) => setVendorName(e.target.value)} /></div>
@@ -197,7 +197,7 @@ function CreateBuyModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
             <div className="space-y-2"><Label>Transport (per trip × trips)</Label><div className="flex items-center gap-2"><Input type="number" value={transportPerTrip} onChange={(e) => setTransportPerTrip(parseFloat(e.target.value) || 0)} className="h-9 w-32 text-right" /><span>×</span><Input type="number" value={transportTrips} onChange={(e) => setTransportTrips(parseInt(e.target.value || '0', 10))} className="h-9 w-24 text-right" /><span className="ml-auto font-medium">= {formatCurrency(transportTotal, useLocale() as any)}</span></div></div>
           </div>
           <div className="p-4 rounded border"><div className="flex justify-between"><span className="font-semibold">Grand Total</span><span className="text-xl font-bold">{formatCurrency(grand, locale)}</span></div><div className="flex justify-between items-center gap-3 mt-2"><span className="text-sm text-gray-600">Paid</span><Input type="number" value={paidAmount} onChange={(e) => setPaidAmount(parseFloat(e.target.value) || 0)} className="h-10 w-32 text-right" /><span className="ml-auto font-semibold text-green-700">Due: {formatCurrency(Math.max(0, grand - paidAmount), locale)}</span></div></div>
-          <div className="flex gap-3 pt-4"><Button variant="outline" onClick={onClose} className="flex-1">Cancel</Button><Button onClick={submit} className="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 text-white">Save Buy</Button></div>
+          <div className="flex gap-3 pt-4"><Button variant="outline" onClick={onClose} className="flex-1">Cancel</Button><Button onClick={submit} className="flex-1 bg-linear-to-r from-purple-600 to-purple-700 text-white">Save Buy</Button></div>
         </div>
       </DialogContent>
     </Dialog>

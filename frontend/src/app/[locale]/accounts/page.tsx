@@ -116,7 +116,7 @@ export default function AccountsPage() {
         </div>
         <Card className="border-dashed">
           <CardContent className="py-16 text-center">
-            <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white flex items-center justify-center text-2xl">+</div>
+            <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-linear-to-r from-purple-600 to-blue-600 text-white flex items-center justify-center text-2xl">+</div>
             <h3 className="text-lg font-semibold mb-1">{t('emptyTitle') || 'No transactions yet'}</h3>
             <p className="text-gray-600">{t('emptyDescription') || 'As you add sells and record payments/expenses, analytics will appear here.'}</p>
           </CardContent>
@@ -288,8 +288,8 @@ export default function AccountsPage() {
                   <TableCell>{transaction.description}</TableCell>
                   <TableCell>
                     <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full ${transaction.type === 'income'
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-red-100 text-red-700'
+                      ? 'bg-green-100 text-green-700'
+                      : 'bg-red-100 text-red-700'
                       }`}>
                       {transaction.type === 'income' ? (
                         <ArrowUpRight className="h-3 w-3" />

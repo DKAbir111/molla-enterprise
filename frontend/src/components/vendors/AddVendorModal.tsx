@@ -38,7 +38,7 @@ export function AddVendorModal({ isOpen, onClose }: { isOpen: boolean; onClose: 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-lg p-0 bg-white border-0 shadow-2xl overflow-hidden">
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-6 text-white">
+        <div className="bg-linear-to-r from-purple-600 to-blue-600 px-8 py-6 text-white">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold">Add Vendor</DialogTitle>
             <DialogDescription className="text-blue-100 text-base">Create a new vendor</DialogDescription>

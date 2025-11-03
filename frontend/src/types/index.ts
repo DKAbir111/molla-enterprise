@@ -126,3 +126,26 @@ export interface OilSale {
   customerName: string
   date: Date
 }
+
+// Purchases (Buys)
+export interface BuyItem {
+  productId: string
+  productName: string
+  quantity: number
+  price: number
+  total: number
+}
+
+export interface Buy {
+  id: string
+  vendorName?: string
+  vendorPhone?: string
+  items: BuyItem[]
+  total: number
+  discount: number
+  paidAmount: number
+  transportPerTrip: number
+  transportTrips: number
+  transportTotal: number
+  createdAt: Date
+}

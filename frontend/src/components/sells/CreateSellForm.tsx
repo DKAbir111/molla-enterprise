@@ -34,8 +34,8 @@ export default function CreateSellForm({ isOpen, onClose }: { isOpen: boolean; o
 
   useEffect(() => {
     let mounted = true
-    if (customers.length === 0) fetchCustomers<any[]>().then(res => { if (mounted) (res || []).map(normalizeCustomer).forEach(addCustomer) }).catch(() => {})
-    if (products.length === 0) fetchProducts<any[]>().then(res => { if (mounted) (res || []).map(normalizeProduct).forEach(addProduct) }).catch(() => {})
+    if (customers.length === 0) fetchCustomers<any[]>().then(res => { if (mounted) (res || []).map(normalizeCustomer).forEach(addCustomer) }).catch(() => { })
+    if (products.length === 0) fetchProducts<any[]>().then(res => { if (mounted) (res || []).map(normalizeProduct).forEach(addProduct) }).catch(() => { })
     return () => { mounted = false }
   }, [customers.length, products.length, addCustomer, addProduct])
 
@@ -104,7 +104,7 @@ export default function CreateSellForm({ isOpen, onClose }: { isOpen: boolean; o
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-5xl p-0 bg-white border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-6 text-white">
+        <div className="bg-linear-to-r from-purple-600 to-blue-600 px-8 py-6 text-white">
           <DialogHeader className="space-y-2">
             <div className="flex items-center gap-3"><div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm"><ShoppingCart className="h-5 w-5" /></div><DialogTitle className="text-2xl font-bold tracking-tight">New Sell</DialogTitle></div>
             <DialogDescription className="text-purple-100 text-base">Fill in the details to create a new sell.</DialogDescription>
@@ -148,7 +148,7 @@ export default function CreateSellForm({ isOpen, onClose }: { isOpen: boolean; o
               <div className="space-y-2"><Label className="text-sm font-medium text-gray-700">Transport (per trip × trips)</Label><div className="flex items-center gap-2"><Input type="number" value={transportPerTrip} onChange={(e) => setTransportPerTrip(parseFloat(e.target.value) || 0)} className="h-11 w-32 text-right" placeholder="0" /><span>×</span><Input type="number" value={transportTrips} onChange={(e) => setTransportTrips(parseInt(e.target.value || '0', 10))} className="h-11 w-24 text-right" placeholder="0" /><span className="ml-auto font-medium">= {formatCurrency(transportTotal, locale)}</span></div></div>
             </div>
             <div className="p-4 rounded-lg border"><div className="flex justify-between"><span className="font-semibold">Grand Total</span><span className="text-xl font-bold">{formatCurrency(grandTotal, locale)}</span></div><div className="flex justify-between items-center gap-3 mt-2"><span className="text-sm text-gray-600">Paid</span><Input type="number" value={paidAmount} onChange={(e) => setPaidAmount(parseFloat(e.target.value) || 0)} className="h-10 w-32 text-right" /><span className="ml-auto font-semibold text-green-700">Due: {formatCurrency(due, locale)}</span></div></div>
-            <div className="flex gap-3 pt-6 border-t border-gray-200"><Button type="button" variant="outline" onClick={onClose} className="flex-1 h-12" disabled={isSubmitting}>Cancel</Button><Button type="submit" className="flex-1 h-12 bg-gradient-to-r from-purple-600 to-purple-700 text-white" disabled={isSubmitting || !selectedCustomer || orderItems.length === 0}>{isSubmitting ? 'Saving...' : 'Save Sell'}</Button></div>
+            <div className="flex gap-3 pt-6 border-t border-gray-200"><Button type="button" variant="outline" onClick={onClose} className="flex-1 h-12" disabled={isSubmitting}>Cancel</Button><Button type="submit" className="flex-1 h-12 bg-linear-to-r from-purple-600 to-purple-700 text-white" disabled={isSubmitting || !selectedCustomer || orderItems.length === 0}>{isSubmitting ? 'Saving...' : 'Save Sell'}</Button></div>
           </form>
         </div>
       </DialogContent>

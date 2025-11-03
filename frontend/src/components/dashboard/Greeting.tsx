@@ -11,7 +11,7 @@ export function Greeting() {
 
   React.useEffect(() => {
     let mounted = true
-    getMyOrganization<any>().then((org) => { if (!mounted) return; if (org?.name) setName(org.name) }).catch(() => {})
+    getMyOrganization<any>().then((org) => { if (!mounted) return; if (org?.name) setName(org.name) }).catch(() => { })
     return () => { mounted = false }
   }, [])
 
@@ -20,7 +20,7 @@ export function Greeting() {
 
   return (
     <div className="flex items-center gap-3">
-      <div className="rounded-full bg-gradient-to-r from-purple-600 to-blue-600 h-9 w-9 text-white flex items-center justify-center text-lg">👋</div>
+      <div className="rounded-full bg-linear-to-r from-purple-600 to-blue-600 h-9 w-9 text-white flex items-center justify-center text-lg">👋</div>
       <div className="leading-tight">
         <div className="text-sm text-gray-500">{t(key)}</div>
         <div className="text-lg font-semibold text-gray-800">{name || t('there')}</div>

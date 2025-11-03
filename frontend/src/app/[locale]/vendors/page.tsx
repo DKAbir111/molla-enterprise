@@ -33,7 +33,7 @@ export default function VendorsPage() {
     let mounted = true
     Promise.all([listBuys<any[]>(), listVendors<any[]>()])
       .then(([b, v]) => { if (!mounted) return; setBuys(b || []); setVendorsState(v || []) })
-      .catch(() => {})
+      .catch(() => { })
     return () => { mounted = false }
   }, [])
 
@@ -100,7 +100,7 @@ export default function VendorsPage() {
       </div>
 
       {filtered.length === 0 ? (
-        <Card className="border-dashed"><CardContent className="py-16 text-center"><div className="mx-auto mb-4 h-14 w-14 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white flex items-center justify-center text-2xl">+</div><h3 className="text-lg font-semibold mb-1">No vendors yet</h3><p className="text-gray-600 mb-4">Record purchases to build your vendor directory.</p></CardContent></Card>
+        <Card className="border-dashed"><CardContent className="py-16 text-center"><div className="mx-auto mb-4 h-14 w-14 rounded-full bg-linear-to-r from-purple-600 to-blue-600 text-white flex items-center justify-center text-2xl">+</div><h3 className="text-lg font-semibold mb-1">No vendors yet</h3><p className="text-gray-600 mb-4">Record purchases to build your vendor directory.</p></CardContent></Card>
       ) : (
         <Card>
           <CardContent className="p-0">
@@ -120,7 +120,7 @@ export default function VendorsPage() {
                   <TableRow key={`${v.name}-${idx}`}>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-gradient-to-r from-emerald-600 to-blue-600 flex items-center justify-center text-white font-semibold">
+                        <div className="h-10 w-10 rounded-full bg-linear-to-r from-emerald-600 to-blue-600 flex items-center justify-center text-white font-semibold">
                           {v.name.charAt(0)}
                         </div>
                         <div>
@@ -173,15 +173,15 @@ export default function VendorsPage() {
           </CardContent>
         </Card>
       )}
-      <AddVendorModal isOpen={addOpen} onClose={() => { setAddOpen(false); listVendors<any[]>().then(setVendorsState).catch(()=>{}) }} />
+      <AddVendorModal isOpen={addOpen} onClose={() => { setAddOpen(false); listVendors<any[]>().then(setVendorsState).catch(() => { }) }} />
       {editOpen && vendorToEdit && (
-        <EditVendorModal isOpen={editOpen} onClose={() => setEditOpen(false)} vendor={vendorToEdit} onSaved={(v)=>{
+        <EditVendorModal isOpen={editOpen} onClose={() => setEditOpen(false)} vendor={vendorToEdit} onSaved={(v) => {
           setVendorsState(prev => prev.map(x => x.id === v.id ? v : x))
         }} />
       )}
       {vendorToDelete && (
-        <DeleteConfirmationModal isOpen={!!vendorToDelete} onClose={() => setVendorToDelete(null)} onConfirm={async ()=>{
-          try { await deleteVendor(vendorToDelete.id); setVendorsState(prev => prev.filter(x => x.id !== vendorToDelete.id)) } catch {}
+        <DeleteConfirmationModal isOpen={!!vendorToDelete} onClose={() => setVendorToDelete(null)} onConfirm={async () => {
+          try { await deleteVendor(vendorToDelete.id); setVendorsState(prev => prev.filter(x => x.id !== vendorToDelete.id)) } catch { }
           setVendorToDelete(null)
         }} title={'Delete Vendor'} description={`Are you sure you want to delete ${vendorToDelete.name}?`} />
       )}
