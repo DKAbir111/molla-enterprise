@@ -15,7 +15,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useStore } from '@/store/useStore'
 import type { Product } from '@/types'
-import { Plus, Pencil, Warehouse, Save } from 'lucide-react'
+import { Plus, Pencil, Save, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { createProduct as apiCreateProduct, normalizeProduct } from '@/lib/api'
 import { updateProduct as apiUpdateProduct, uploadProductImage } from '@/lib/api/product-api'
@@ -95,7 +95,7 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
   const revokePreview = React.useCallback((url?: string | null) => {
     try {
       if (url && url.startsWith('blob:')) URL.revokeObjectURL(url)
-    } catch {}
+    } catch { }
   }, [])
 
   const handlePickFile = React.useCallback((f: File | null | undefined) => {
@@ -133,7 +133,7 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
           try {
             const withImage = await uploadProductImage<any>(product.id, imageFile)
             normalized = normalizeProduct(withImage)
-          } catch {}
+          } catch { }
         }
         updateProduct(product.id, normalized as Partial<Product>)
         toast.success('Product updated')
@@ -154,12 +154,13 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
           try {
             const withImage = await uploadProductImage<any>(normalized.id, imageFile)
             normalized = normalizeProduct(withImage)
-          } catch {}
+          } catch { }
         }
         addProduct(normalized as Product)
         toast.success('Product added')
         handleClose()
       }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       toast.error(isEdit ? 'Failed to update product' : 'Failed to add product')
     } finally {
@@ -169,7 +170,7 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent overlayClassName="bg-black/40 backdrop-blur-none" className="sm:max-w-2xl p-0 bg-white border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent overlayClassName="bg-black/20 backdrop-blur-none" className="sm:max-w-2xl p-0 bg-white border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
         <div className="bg-linear-to-r from-purple-600 to-blue-600 px-8 py-6 text-white">
           <DialogHeader className="space-y-2">
             <div className="flex items-center gap-3">
@@ -188,63 +189,65 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
 
         <div className="px-8 py-6">
           <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="grid gap-6 md:grid-cols-[150px,1fr]">
-            {/* Image */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-gray-700">Product Image</Label>
-              <div className="flex items-center gap-4">
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  onDragOver={(e) => { e.preventDefault(); e.stopPropagation() }}
-                  onDrop={(e) => { e.preventDefault(); handlePickFile(e.dataTransfer.files?.[0]) }}
-                  className="group relative h-[150px] w-[150px] rounded-xl border border-gray-300 overflow-hidden bg-gray-50 flex items-center justify-center shadow-sm hover:shadow-md transition cursor-pointer"
-                  aria-label="Upload product image"
-                >
-                  {imagePreview ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={imagePreview} alt="Preview" className="h-full w-full object-cover" />
-                  ) : (
-                    <span className="text-sm text-gray-400">No image</span>
-                  )}
-                  {/* subtle hover overlay without text for professionalism */}
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition" />
-                </button>
-                {imagePreview && (
+            <div className="gap-6 md:flex md:items-start">
+              {/* Image */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-4">
                   <button
                     type="button"
-                    onClick={() => { revokePreview(imagePreview); setImagePreview(null); setImageFile(null) }}
-                    className="text-xs text-red-600 hover:underline self-start"
+                    onClick={() => fileInputRef.current?.click()}
+                    onDragOver={(e) => { e.preventDefault(); e.stopPropagation() }}
+                    onDrop={(e) => { e.preventDefault(); handlePickFile(e.dataTransfer.files?.[0]) }}
+                    className="group relative h-40 w-[150px] rounded-xl border border-gray-300 overflow-hidden bg-gray-50 flex items-center justify-center shadow-sm hover:shadow-md transition cursor-pointer"
+                    aria-label="Upload product image"
                   >
-                    Remove image
+                    {imagePreview ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={imagePreview} alt="Preview" className="h-full w-full object-cover" />
+                    ) : (
+                      <span className="text-sm text-gray-400">No image</span>
+                    )}
+                    {/* subtle hover overlay without text */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition" />
+                    {imagePreview && (
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); revokePreview(imagePreview); setImagePreview(null); setImageFile(null) }}
+                        className="absolute top-1.5 right-1.5 inline-flex items-center justify-center h-6 w-6 rounded-full bg-white/95 border border-gray-300 shadow hover:bg-red-50"
+                        aria-label="Remove image"
+                      >
+                        <X className="h-4 w-4 text-gray-700" />
+                      </button>
+                    )}
                   </button>
-                )}
-                <input
-                  ref={fileInputRef}
-                  id="product-image"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => handlePickFile(e.target.files?.[0] || null)}
-                />
+                  <input
+                    ref={fileInputRef}
+                    id="product-image"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => handlePickFile(e.target.files?.[0] || null)}
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Name / Type / Grade */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-sm font-medium text-gray-700">{t('productName')}</Label>
-                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder={t('enterProductName')} />
+              {/* Right side: first row name, second row type + grade */}
+              <div className="space-y-5 self-start min-w-0 md:flex-1">
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="text-sm font-medium text-gray-700">{t('productName')}</Label>
+                  <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder={t('enterProductName')} />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="space-y-2">
+                    <Label htmlFor="type" className="text-sm font-medium text-gray-700">{t('productType')}</Label>
+                    <Input id="type" value={type} onChange={(e) => setType(e.target.value)} required className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder={t('exampleProductType')} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="grade" className="text-sm font-medium text-gray-700">{t('productGrade')}</Label>
+                    <Input id="grade" value={grade} onChange={(e) => setGrade(e.target.value)} className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder={t('exampleProductGrade')} />
+                  </div>
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="type" className="text-sm font-medium text-gray-700">{t('productType')}</Label>
-                <Input id="type" value={type} onChange={(e) => setType(e.target.value)} required className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder={t('exampleProductType')} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="grade" className="text-sm font-medium text-gray-700">{t('productGrade')}</Label>
-                <Input id="grade" value={grade} onChange={(e) => setGrade(e.target.value)} className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder={t('exampleProductGrade')} />
-              </div>
-            </div>
             </div>
 
             {/* Unit / Stock */}

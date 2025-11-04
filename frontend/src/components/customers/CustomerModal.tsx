@@ -106,7 +106,7 @@ export function CustomerModal({ open, mode, onClose, customer }: { open: boolean
 
   return (
     <Dialog open={open} onOpenChange={() => { revoke(avatarPreview); onClose() }}>
-      <DialogContent overlayClassName="bg-black/40 backdrop-blur-none" className="sm:max-w-2xl p-0 bg-white border-0 shadow-2xl overflow-hidden">
+      <DialogContent overlayClassName="bg-black/20 backdrop-blur-none" className="sm:max-w-2xl p-0 bg-white border-0 shadow-2xl overflow-hidden">
         <div className="bg-linear-to-r from-purple-600 to-blue-600 px-8 py-6 text-white">
           <DialogHeader className="space-y-2">
             <div className="flex items-center gap-3">
