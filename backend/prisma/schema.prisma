@@ -70,6 +70,7 @@ model Customer {
   phone          String
   email          String?
   address        String
+  avatarUrl      String?
   organizationId String
   organization   Organization  @relation(fields: [organizationId], references: [id])
   createdAt      DateTime      @default(now())

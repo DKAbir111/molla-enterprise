@@ -18,12 +18,13 @@ import { formatCurrency, formatDate } from '@/lib/utils'
 import { useLocale } from 'next-intl'
 import { Plus, Search, Eye, Edit, Trash2, Phone, MapPin } from 'lucide-react'
 import Link from 'next/link'
-import { InlineEditCustomer } from '@/components/customers/InlineEditCustomer'
+// import { InlineEditCustomer } from '@/components/customers/InlineEditCustomer'
 import { listCustomers as fetchCustomers } from '@/lib/api'
 import { normalizeCustomer } from '@/lib/api'
-import { AddCustomerModal } from '@/components/customers/AddCustomerModal'
+// import { AddCustomerModal } from '@/components/customers/AddCustomerModal'
+import { CustomerModal } from '@/components/customers/CustomerModal'
 import { DeleteConfirmationModal } from '@/components/shared/DeleteConfirmationModal'
-import { updateCustomer as apiUpdateCustomer, deleteCustomer as apiDeleteCustomer } from '@/lib/api/customer-api'
+import { deleteCustomer as apiDeleteCustomer } from '@/lib/api/customer-api'
 
 export default function CustomersPage() {
   const t = useTranslations('customers')
@@ -31,10 +32,8 @@ export default function CustomersPage() {
   const { customers, addCustomer } = useStore()
   const updateCustomer = useStore((s) => s.updateCustomer)
   const [searchQuery, setSearchQuery] = useState('')
-  const [isAddOpen, setIsAddOpen] = useState(false)
+  const [modal, setModal] = useState<{ open: boolean; mode: 'create' | 'edit'; customer?: any | null }>({ open: false, mode: 'create', customer: null })
   const [customerToDelete, setCustomerToDelete] = useState<any | null>(null)
-  const [editing, setEditing] = useState<any | null>(null)
-  const updateCustomerStore = useStore((s) => s.updateCustomer)
 
   // Load from API
   useEffect(() => {
@@ -77,7 +76,7 @@ export default function CustomersPage() {
             className="pl-10"
           />
         </div>
-        <Button className="flex items-center gap-2" onClick={() => setIsAddOpen(true)}>
+        <Button className="flex items-center gap-2" onClick={() => setModal({ open: true, mode: 'create' })}>
           <Plus className="h-4 w-4" />
           {t('addCustomer')}
         </Button>
@@ -90,7 +89,7 @@ export default function CustomersPage() {
             <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-linear-to-r from-purple-600 to-blue-600 text-white flex items-center justify-center text-2xl">+</div>
             <h3 className="text-lg font-semibold mb-1">{t('emptyTitle')}</h3>
             <p className="text-gray-600 mb-4">{t('emptyDescription')}</p>
-            <Button onClick={() => setIsAddOpen(true)}>{t('addCustomer')}</Button>
+            <Button onClick={() => setModal({ open: true, mode: 'create' })}>{t('addCustomer')}</Button>
           </CardContent>
         </Card>
       ) : (
@@ -213,7 +212,7 @@ export default function CustomersPage() {
                               <Eye className="h-4 w-4" />
                             </Button>
                           </Link>
-                          <Button variant="ghost" size="sm" title={t('edit')} onClick={() => setEditing(customer)}>
+                          <Button variant="ghost" size="sm" title={t('edit')} onClick={() => setModal({ open: true, mode: 'edit', customer })}>
                             <Edit className="h-4 w-4" />
                           </Button>
                           <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700" title={t('delete')} onClick={() => setCustomerToDelete(customer)}>
@@ -229,10 +228,7 @@ export default function CustomersPage() {
           </Card>
         </>
       )}
-      <AddCustomerModal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} />
-      {editing && (
-        <InlineEditCustomer customer={editing} onClose={() => setEditing(null)} onSaved={(c) => { updateCustomerStore(c.id, c); setEditing(null) }} />
-      )}
+      <CustomerModal open={modal.open} mode={modal.mode} customer={modal.customer || null} onClose={() => setModal((m) => ({ ...m, open: false }))} />
       {customerToDelete && (
         <DeleteConfirmationModal isOpen={!!customerToDelete} onClose={() => setCustomerToDelete(null)} onConfirm={async () => {
           try { await apiDeleteCustomer(customerToDelete.id) } catch { }

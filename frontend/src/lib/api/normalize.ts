@@ -38,6 +38,7 @@ export function normalizeCustomer(apiCustomer: any): Customer {
     phone: String(apiCustomer.phone),
     email: apiCustomer.email ? String(apiCustomer.email) : undefined,
     address: String(apiCustomer.address ?? ''),
+    avatarUrl: apiCustomer.avatarUrl ? String(apiCustomer.avatarUrl) : undefined,
     totalOrders: Number(apiCustomer.totalOrders ?? 0),
     totalSpent: toNumber(apiCustomer.totalSpent ?? 0),
     createdAt: apiCustomer.createdAt ? new Date(apiCustomer.createdAt) : new Date(),

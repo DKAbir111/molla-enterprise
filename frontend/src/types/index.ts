@@ -32,6 +32,7 @@ export interface Customer {
   phone: string
   email?: string
   address: string
+  avatarUrl?: string
   totalOrders: number
   totalSpent: number
   createdAt: Date

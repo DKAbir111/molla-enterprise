@@ -33,3 +33,10 @@ export async function deleteCustomer(id: string): Promise<{ ok: boolean } | any>
   const res = await api.delete(`/customers/${id}`)
   return res.data
 }
+
+export async function uploadCustomerAvatar<T = any>(id: string, file: File): Promise<T> {
+  const form = new FormData()
+  form.append('avatar', file)
+  const res = await api.patch<T>(`/customers/${id}/avatar`, form, { headers: { 'Content-Type': 'multipart/form-data' } })
+  return res.data
+}

@@ -168,8 +168,8 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
   }
 
   return (
-    <Dialog open={open} onOpenChange={handleClose} modal={false}>
-      <DialogContent className="sm:max-w-2xl p-0 bg-white border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent overlayClassName="bg-black/40 backdrop-blur-none" className="sm:max-w-2xl p-0 bg-white border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
         <div className="bg-linear-to-r from-purple-600 to-blue-600 px-8 py-6 text-white">
           <DialogHeader className="space-y-2">
             <div className="flex items-center gap-3">
@@ -187,7 +187,7 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
         </div>
 
         <div className="px-8 py-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid gap-6 md:grid-cols-[150px,1fr]">
             {/* Image */}
             <div className="space-y-2">
@@ -231,24 +231,24 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
             </div>
 
             {/* Name / Type / Grade */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-sm font-medium text-gray-700">{t('productName')}</Label>
-                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required className="h-11" placeholder={t('enterProductName')} />
+                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder={t('enterProductName')} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="type" className="text-sm font-medium text-gray-700">{t('productType')}</Label>
-                <Input id="type" value={type} onChange={(e) => setType(e.target.value)} required className="h-11" placeholder={t('exampleProductType')} />
+                <Input id="type" value={type} onChange={(e) => setType(e.target.value)} required className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder={t('exampleProductType')} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="grade" className="text-sm font-medium text-gray-700">{t('productGrade')}</Label>
-                <Input id="grade" value={grade} onChange={(e) => setGrade(e.target.value)} className="h-11" placeholder={t('exampleProductGrade')} />
+                <Input id="grade" value={grade} onChange={(e) => setGrade(e.target.value)} className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder={t('exampleProductGrade')} />
               </div>
             </div>
             </div>
 
             {/* Unit / Stock */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-2">
                 <Label htmlFor="unit" className="text-sm font-medium text-gray-700">{t('unit')}</Label>
                 <Select onValueChange={setUnit} value={unit || undefined} required>
@@ -264,24 +264,24 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
               </div>
               <div className="space-y-2">
                 <Label htmlFor="stock" className="text-sm font-medium text-gray-700">{t('stock')}</Label>
-                <Input id="stock" type="number" value={stock} onChange={(e) => setStock(parseFloat(e.target.value) || 0)} required className="h-11" min="0" />
+                <Input id="stock" type="number" value={stock} onChange={(e) => setStock(parseFloat(e.target.value) || 0)} required className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" min="0" />
               </div>
             </div>
 
             {/* Pricing */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700">Buy Price / Unit ({t('currencySymbol')})</Label>
-                <Input type="number" value={buyPrice} onChange={(e) => setBuyPrice(parseFloat(e.target.value) || 0)} className="h-11" placeholder="0.00" min={0} step="0.01" />
+                <Input type="number" value={buyPrice} onChange={(e) => setBuyPrice(parseFloat(e.target.value) || 0)} className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder="0.00" min={0} step="0.01" />
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700">Sell Price / Unit ({t('currencySymbol')})</Label>
-                <Input type="number" value={price} onChange={(e) => setPrice(parseFloat(e.target.value) || 0)} required className="h-11" placeholder="0.00" min={0} step="0.01" />
+                <Input type="number" value={price} onChange={(e) => setPrice(parseFloat(e.target.value) || 0)} required className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder="0.00" min={0} step="0.01" />
               </div>
             </div>
 
             {/* Totals (auto-calculated, read-only) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-1">
                 <Label className="text-sm font-medium text-gray-700">Total Cost (BDT)</Label>
                 <div className="h-11 px-3 rounded-md border border-gray-200 bg-gray-50 flex items-center font-medium">
@@ -312,10 +312,10 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
             )}
 
             <div className="flex gap-3 pt-6 border-t border-gray-200">
-              <Button type="button" variant="outline" onClick={handleClose} className="flex-1 h-11" disabled={isLoading}>
+              <Button type="button" variant="outline" onClick={handleClose} className="flex-1 h-11 border-gray-300 hover:bg-gray-50" disabled={isLoading}>
                 {t('cancel')}
               </Button>
-              <Button type="submit" className="flex-1 h-11 bg-linear-to-r from-blue-600 to-indigo-700 text-white" disabled={isLoading}>
+              <Button type="submit" className="flex-1 h-11 bg-linear-to-r from-purple-600 to-blue-600 text-white" disabled={isLoading}>
                 {isLoading ? (
                   <div className="flex items-center gap-2">
                     <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
