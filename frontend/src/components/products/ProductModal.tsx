@@ -87,9 +87,26 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
   const units = ['liter', 'feet', 'piece', 'ton', 'bag', 'cft', 'kg', 'meter', 'yard', 'gallon', 'cubicMeter']
 
   const handleClose = () => {
+    revokePreview(imagePreview)
     setImageFile(null)
     onClose()
   }
+
+  const revokePreview = React.useCallback((url?: string | null) => {
+    try {
+      if (url && url.startsWith('blob:')) URL.revokeObjectURL(url)
+    } catch {}
+  }, [])
+
+  const handlePickFile = React.useCallback((f: File | null | undefined) => {
+    const prev = imagePreview
+    if (f) {
+      const url = URL.createObjectURL(f)
+      setImageFile(f)
+      setImagePreview(url)
+      revokePreview(prev)
+    }
+  }, [imagePreview, revokePreview])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -151,7 +168,7 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
   }
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={handleClose} modal={false}>
       <DialogContent className="sm:max-w-2xl p-0 bg-white border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
         <div className="bg-linear-to-r from-purple-600 to-blue-600 px-8 py-6 text-white">
           <DialogHeader className="space-y-2">
@@ -171,39 +188,45 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
 
         <div className="px-8 py-6">
           <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-[150px,1fr]">
             {/* Image */}
             <div className="space-y-2">
               <Label className="text-sm font-medium text-gray-700">Product Image</Label>
               <div className="flex items-center gap-4">
-                <div className="h-24 w-24 rounded-lg border overflow-hidden bg-gray-50 flex items-center justify-center">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  onDragOver={(e) => { e.preventDefault(); e.stopPropagation() }}
+                  onDrop={(e) => { e.preventDefault(); handlePickFile(e.dataTransfer.files?.[0]) }}
+                  className="group relative h-[150px] w-[150px] rounded-xl border border-gray-300 overflow-hidden bg-gray-50 flex items-center justify-center shadow-sm hover:shadow-md transition cursor-pointer"
+                  aria-label="Upload product image"
+                >
                   {imagePreview ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={imagePreview} alt="Preview" className="h-full w-full object-cover" />
                   ) : (
-                    <span className="text-xs text-gray-400">No image</span>
+                    <span className="text-sm text-gray-400">No image</span>
                   )}
-                </div>
-                <div>
-                  <input
-                    ref={fileInputRef}
-                    id="product-image"
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => {
-                      const f = e.target.files?.[0] || null
-                      setImageFile(f)
-                      setImagePreview(f ? URL.createObjectURL(f) : product?.imageUrl || null)
-                    }}
-                  />
-                  <Button
+                  {/* subtle hover overlay without text for professionalism */}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition" />
+                </button>
+                {imagePreview && (
+                  <button
                     type="button"
-                    variant="outline"
-                    onClick={() => fileInputRef.current?.click()}
+                    onClick={() => { revokePreview(imagePreview); setImagePreview(null); setImageFile(null) }}
+                    className="text-xs text-red-600 hover:underline self-start"
                   >
-                    Upload
-                  </Button>
-                </div>
+                    Remove image
+                  </button>
+                )}
+                <input
+                  ref={fileInputRef}
+                  id="product-image"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => handlePickFile(e.target.files?.[0] || null)}
+                />
               </div>
             </div>
 
@@ -221,6 +244,7 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
                 <Label htmlFor="grade" className="text-sm font-medium text-gray-700">{t('productGrade')}</Label>
                 <Input id="grade" value={grade} onChange={(e) => setGrade(e.target.value)} className="h-11" placeholder={t('exampleProductGrade')} />
               </div>
+            </div>
             </div>
 
             {/* Unit / Stock */}
