@@ -2,20 +2,34 @@
 
 import * as React from 'react'
 import { useTranslations } from 'next-intl'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog'
 import { useStore } from '@/store/useStore'
+import { UserPlus, Edit3, Save, X } from 'lucide-react'
+import { toast } from 'sonner'
 import { normalizeCustomer } from '@/lib/api'
 import { createCustomer as apiCreateCustomer, updateCustomer as apiUpdateCustomer, uploadCustomerAvatar } from '@/lib/api/customer-api'
-import { toast } from 'sonner'
-import { UserPlus, Edit3, Save } from 'lucide-react'
 
 type Mode = 'create' | 'edit'
 
-export function CustomerModal({ open, mode, onClose, customer }: { open: boolean; mode: Mode; onClose: () => void; customer?: any | null }) {
+interface CustomerModalProps {
+  open: boolean
+  mode: Mode
+  onClose: () => void
+  customer?: any | null
+}
+
+export function CustomerModal({ open, mode, onClose, customer }: CustomerModalProps) {
   const t = useTranslations('customers')
+  const tCommon = useTranslations('common')
   const addCustomer = useStore((s) => s.addCustomer)
   const updateCustomerStore = useStore((s) => s.updateCustomer)
 
@@ -25,93 +39,117 @@ export function CustomerModal({ open, mode, onClose, customer }: { open: boolean
   const [phone, setPhone] = React.useState('')
   const [email, setEmail] = React.useState('')
   const [address, setAddress] = React.useState('')
-  const [loading, setLoading] = React.useState(false)
-
+  const [isLoading, setIsLoading] = React.useState(false)
   const [avatarFile, setAvatarFile] = React.useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = React.useState<string | null>(null)
-  const fileRef = React.useRef<HTMLInputElement | null>(null)
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null)
 
-  const revoke = React.useCallback((url?: string | null) => {
-    try { if (url && url.startsWith('blob:')) URL.revokeObjectURL(url) } catch {}
-  }, [])
-
+  // initialize/reset when opening or customer changes
   React.useEffect(() => {
-    if (!open) return
     if (isEdit && customer) {
       setName(customer.name || '')
       setPhone(customer.phone || '')
       setEmail(customer.email || '')
       setAddress(customer.address || '')
+      setAvatarPreview(customer.avatarUrl || null)
       setAvatarFile(null)
-      setAvatarPreview(null) // backend has no avatar field; preview is local only
+    } else if (!open) {
+      // noop when closed
     } else {
+      // create mode defaults
       setName('')
       setPhone('')
       setEmail('')
       setAddress('')
-      setAvatarFile(null)
       setAvatarPreview(null)
+      setAvatarFile(null)
     }
   }, [open, isEdit, customer])
 
-  const onPick = (file: File | null | undefined) => {
-    if (!file) return
-    const prev = avatarPreview
-    const url = URL.createObjectURL(file)
-    setAvatarFile(file)
-    setAvatarPreview(url)
-    revoke(prev)
+  const handleClose = () => {
+    revokePreview(avatarPreview)
+    setAvatarFile(null)
+    onClose()
   }
 
-  const submit = async (e: React.FormEvent) => {
+  const revokePreview = React.useCallback((url?: string | null) => {
+    try {
+      if (url && url.startsWith('blob:')) URL.revokeObjectURL(url)
+    } catch { }
+  }, [])
+
+  const handlePickFile = React.useCallback((f: File | null | undefined) => {
+    const prev = avatarPreview
+    if (f) {
+      const url = URL.createObjectURL(f)
+      setAvatarFile(f)
+      setAvatarPreview(url)
+      revokePreview(prev)
+    }
+  }, [avatarPreview, revokePreview])
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!name.trim() || !phone.trim() || !address.trim()) {
-      toast.error(t('validationRequired'))
+      toast.error('Please fill in required fields')
       return
     }
-    setLoading(true)
+    setIsLoading(true)
     try {
       if (isEdit && customer) {
-        const updated = await apiUpdateCustomer<any>(customer.id, { name, phone, email: email || undefined, address })
+        // update
+        const payload = {
+          name,
+          phone,
+          email: email || undefined,
+          address,
+        }
+        const updated = await apiUpdateCustomer<any>(customer.id, payload)
         let normalized = normalizeCustomer(updated)
         if (avatarFile) {
           try {
             const withAvatar = await uploadCustomerAvatar<any>(customer.id, avatarFile)
             normalized = normalizeCustomer(withAvatar)
-          } catch {}
+          } catch { }
         }
         updateCustomerStore(customer.id, normalized)
         toast.success('Customer updated')
+        handleClose()
       } else {
-        const created = await apiCreateCustomer<any>({ name: name.trim(), phone: phone.trim(), email: email.trim() || undefined, address: address.trim() })
+        // create
+        const created = await apiCreateCustomer<any>({
+          name: name.trim(),
+          phone: phone.trim(),
+          email: email.trim() || undefined,
+          address: address.trim(),
+        })
         let normalized = normalizeCustomer(created)
         if (avatarFile) {
           try {
             const withAvatar = await uploadCustomerAvatar<any>(normalized.id, avatarFile)
             normalized = normalizeCustomer(withAvatar)
-          } catch {}
+          } catch { }
         }
         addCustomer(normalized)
         toast.success(t('added'))
+        handleClose()
       }
-      onClose()
-    } catch {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (err) {
       toast.error(isEdit ? 'Failed to update customer' : t('addFailed'))
     } finally {
-      setLoading(false)
+      setIsLoading(false)
     }
   }
 
-  const TitleIcon = isEdit ? Edit3 : UserPlus
-
   return (
-    <Dialog open={open} onOpenChange={() => { revoke(avatarPreview); onClose() }}>
-      <DialogContent overlayClassName="bg-black/20 backdrop-blur-none" className="sm:max-w-2xl p-0 bg-white border-0 shadow-2xl overflow-hidden">
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent overlayClassName="bg-black/20 backdrop-blur-none" className="sm:max-w-2xl p-0 bg-white border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
         <div className="bg-linear-to-r from-purple-600 to-blue-600 px-8 py-6 text-white">
           <DialogHeader className="space-y-2">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
-                <TitleIcon className="h-5 w-5" />
+                {isEdit ? <Edit3 className="h-5 w-5" /> : <UserPlus className="h-5 w-5" />}
               </div>
               <DialogTitle className="text-2xl font-bold tracking-tight">
                 {isEdit ? 'Edit Customer' : t('addCustomer')}
@@ -124,46 +162,80 @@ export function CustomerModal({ open, mode, onClose, customer }: { open: boolean
         </div>
 
         <div className="px-8 py-6">
-          <form onSubmit={submit} className="space-y-5">
-            <div className="grid gap-6 md:grid-cols-[120px,1fr]">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="gap-6 md:flex md:items-start">
+              {/* Avatar */}
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">Photo</Label>
-                <button
-                  type="button"
-                  onClick={() => fileRef.current?.click()}
-                  onDragOver={(e) => { e.preventDefault(); e.stopPropagation() }}
-                  onDrop={(e) => { e.preventDefault(); onPick(e.dataTransfer.files?.[0]) }}
-                  className="group relative h-[120px] w-[120px] rounded-full border border-gray-300 overflow-hidden bg-gray-50 flex items-center justify-center shadow-sm hover:shadow-md transition cursor-pointer"
-                  aria-label="Upload avatar"
-                >
-                  {avatarPreview ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={avatarPreview} alt="Avatar" className="h-full w-full object-cover" />
-                  ) : (
-                    <span className="text-xs text-gray-400">No photo</span>
-                  )}
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition" />
-                </button>
-                {avatarPreview && (
-                  <button type="button" onClick={() => { revoke(avatarPreview); setAvatarPreview(null); setAvatarFile(null) }} className="text-xs text-red-600 hover:underline">
-                    Remove photo
+                <div className="flex items-center gap-4">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    onDragOver={(e) => { e.preventDefault(); e.stopPropagation() }}
+                    onDrop={(e) => { e.preventDefault(); handlePickFile(e.dataTransfer.files?.[0]) }}
+                    className="group relative h-40 w-[150px] rounded-xl border border-gray-300 overflow-hidden bg-gray-50 flex items-center justify-center shadow-sm hover:shadow-md transition cursor-pointer"
+                    aria-label="Upload customer photo"
+                  >
+                    {avatarPreview ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={avatarPreview} alt="Preview" className="h-full w-full object-cover" />
+                    ) : (
+                      <span className="text-sm text-gray-400">No photo</span>
+                    )}
+                    {/* subtle hover overlay without text */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition" />
+                    {avatarPreview && (
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); revokePreview(avatarPreview); setAvatarPreview(null); setAvatarFile(null) }}
+                        className="absolute top-1.5 right-1.5 inline-flex items-center justify-center h-6 w-6 rounded-full bg-white/95 border border-gray-300 shadow hover:bg-red-50"
+                        aria-label="Remove photo"
+                      >
+                        <X className="h-4 w-4 text-gray-700" />
+                      </button>
+                    )}
                   </button>
-                )}
-                <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => onPick(e.target.files?.[0] || null)} />
+                  <input
+                    ref={fileInputRef}
+                    id="customer-avatar"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => handlePickFile(e.target.files?.[0] || null)}
+                  />
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1"><Label>{t('fullName')}</Label><Input className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" value={name} onChange={(e) => setName(e.target.value)} required placeholder={t('enterName')} /></div>
-                <div className="space-y-1"><Label>{t('phone')}</Label><Input className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" value={phone} onChange={(e) => setPhone(e.target.value)} required placeholder={t('enterPhone')} /></div>
-                <div className="space-y-1"><Label>{t('emailOptional')}</Label><Input className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t('enterEmail')} /></div>
-                <div className="space-y-1 md:col-span-2"><Label>{t('address')}</Label><Input className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" value={address} onChange={(e) => setAddress(e.target.value)} required placeholder={t('enterAddress')} /></div>
+              {/* Right side: first row name, second row address */}
+              <div className="space-y-5 self-start min-w-0 md:flex-1">
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="text-sm font-medium text-gray-700">{t('fullName')}</Label>
+                  <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder={t('enterName')} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="address" className="text-sm font-medium text-gray-700">{t('address')}</Label>
+                  <Input id="address" value={address} onChange={(e) => setAddress(e.target.value)} required className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder={t('enterAddress')} />
+                </div>
               </div>
             </div>
 
-            <div className="flex gap-3 pt-1">
-              <Button variant="outline" type="button" onClick={onClose} disabled={loading} className="flex-1 h-11 border-gray-300 hover:bg-gray-50">Cancel</Button>
-              <Button type="submit" disabled={loading} className="flex-1 h-11 bg-linear-to-r from-purple-600 to-blue-600 text-white">
-                {loading ? (
+            {/* Phone and Email (below image) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="space-y-2">
+                <Label htmlFor="phone" className="text-sm font-medium text-gray-700">{t('phone')}</Label>
+                <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} required className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder={t('enterPhone')} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium text-gray-700">{t('emailOptional')}</Label>
+                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder={t('enterEmail')} />
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-6 border-t border-gray-200">
+              <Button type="button" variant="outline" onClick={handleClose} className="flex-1 h-11 border-gray-300 hover:bg-gray-50" disabled={isLoading}>
+                {tCommon('cancel')}
+              </Button>
+              <Button type="submit" className="flex-1 h-11 bg-linear-to-r from-purple-600 to-blue-600 text-white" disabled={isLoading}>
+                {isLoading ? (
                   <div className="flex items-center gap-2">
                     <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     {t('saving')}

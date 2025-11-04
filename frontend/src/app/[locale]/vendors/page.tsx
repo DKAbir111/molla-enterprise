@@ -7,9 +7,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { listBuys } from '@/lib/api/buy-api'
-import { listVendors, deleteVendor, updateVendor } from '@/lib/api/vendor-api'
-import { AddVendorModal } from '@/components/vendors/AddVendorModal'
-import { EditVendorModal } from '@/components/vendors/EditVendorModal'
+import { listVendors, deleteVendor } from '@/lib/api/vendor-api'
+import { VendorModal } from '@/components/vendors/VendorModal'
 import { DeleteConfirmationModal } from '@/components/shared/DeleteConfirmationModal'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { Search, Eye, Edit, Trash2, Phone, MapPin, Plus } from 'lucide-react'
@@ -22,9 +21,7 @@ export default function VendorsPage() {
   const locale = useLocale()
   const [buys, setBuys] = useState<any[]>([])
   const [vendorsState, setVendorsState] = useState<any[]>([])
-  const [addOpen, setAddOpen] = useState(false)
-  const [editOpen, setEditOpen] = useState(false)
-  const [vendorToEdit, setVendorToEdit] = useState<any | null>(null)
+  const [modal, setModal] = useState<{ open: boolean; mode: 'create' | 'edit'; vendor?: any | null }>({ open: false, mode: 'create', vendor: null })
   const [vendorToDelete, setVendorToDelete] = useState<any | null>(null)
   const [search, setSearch] = useState('')
   // details handled via dedicated route
@@ -86,7 +83,7 @@ export default function VendorsPage() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input placeholder="Search vendors..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
         </div>
-        <Button className="flex items-center gap-2" onClick={() => setAddOpen(true)}>
+        <Button className="flex items-center gap-2" onClick={() => setModal({ open: true, mode: 'create' })}>
           <Plus className="h-4 w-4" /> Add Vendor
         </Button>
       </div>
@@ -154,7 +151,7 @@ export default function VendorsPage() {
                         </a>
                         <Button variant="ghost" size="sm" title="Edit" onClick={() => {
                           const match = vendorsState.find(x => x.name === v.name && x.phone === v.phone)
-                          if (match) { setVendorToEdit(match); setEditOpen(true) }
+                          if (match) { setModal({ open: true, mode: 'edit', vendor: match }) }
                         }}>
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -173,12 +170,16 @@ export default function VendorsPage() {
           </CardContent>
         </Card>
       )}
-      <AddVendorModal isOpen={addOpen} onClose={() => { setAddOpen(false); listVendors<any[]>().then(setVendorsState).catch(() => { }) }} />
-      {editOpen && vendorToEdit && (
-        <EditVendorModal isOpen={editOpen} onClose={() => setEditOpen(false)} vendor={vendorToEdit} onSaved={(v) => {
-          setVendorsState(prev => prev.map(x => x.id === v.id ? v : x))
-        }} />
-      )}
+      <VendorModal
+        open={modal.open}
+        mode={modal.mode}
+        vendor={modal.vendor || null}
+        onClose={() => setModal(m => ({ ...m, open: false }))}
+        onSaved={(v) => {
+          if (modal.mode === 'edit') setVendorsState(prev => prev.map(x => x.id === v.id ? v : x))
+          else setVendorsState(prev => [...prev, v])
+        }}
+      />
       {vendorToDelete && (
         <DeleteConfirmationModal isOpen={!!vendorToDelete} onClose={() => setVendorToDelete(null)} onConfirm={async () => {
           try { await deleteVendor(vendorToDelete.id); setVendorsState(prev => prev.filter(x => x.id !== vendorToDelete.id)) } catch { }
