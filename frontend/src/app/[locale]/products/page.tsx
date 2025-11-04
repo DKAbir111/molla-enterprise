@@ -10,8 +10,7 @@ import { useStore } from '@/store/useStore'
 import { formatCurrency } from '@/lib/utils'
 import { useLocale } from 'next-intl'
 import { Plus, Search, Edit, Trash2 } from 'lucide-react'
-import { AddProductModal } from '@/components/products/AddProductModal'
-import { EditProductModal } from '@/components/products/EditProductModal'
+import { ProductModal } from '@/components/products/ProductModal'
 import { DeleteConfirmationModal } from '@/components/shared/DeleteConfirmationModal'
 import { Product } from '@/types'
 import { listProducts as fetchProducts, deleteProduct as apiDeleteProduct } from '@/lib/api'
@@ -26,9 +25,7 @@ export default function ProductsPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [filterGrade, setFilterGrade] = useState<string>('all')
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all')
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [modal, setModal] = useState<{ open: boolean; mode: 'create' | 'edit'; product?: Product | null }>({ open: false, mode: 'create', product: null })
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [productToDeleteId, setProductToDeleteId] = useState<string | null>(null)
   // restock handled inside Edit modal via stock field
@@ -68,10 +65,7 @@ export default function ProductsPage() {
     return gradients[type as keyof typeof gradients] || 'from-purple-400 to-pink-500'
   }
 
-  const handleEditClick = (product: Product) => {
-    setSelectedProduct(product)
-    setIsEditModalOpen(true)
-  }
+  const handleEditClick = (product: Product) => setModal({ open: true, mode: 'edit', product })
 
   const handleDeleteClick = (id: string) => {
     setProductToDeleteId(id)
@@ -132,25 +126,18 @@ export default function ProductsPage() {
             </Select>
           </div>
         </div>
-        <Button className="flex items-center gap-2" onClick={() => setIsAddModalOpen(true)}>
+        <Button className="flex items-center gap-2" onClick={() => setModal({ open: true, mode: 'create' })}>
           <Plus className="h-4 w-4" /> {t('addProduct')}
         </Button>
       </div>
 
-      {/* Add Product Modal */}
-      <AddProductModal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
+      {/* Product Modal (create/edit) */}
+      <ProductModal
+        open={modal.open}
+        mode={modal.mode}
+        product={modal.product || null}
+        onClose={() => setModal((m) => ({ ...m, open: false }))}
       />
-
-      {/* Edit Product Modal */}
-      {selectedProduct && (
-        <EditProductModal
-          isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
-          product={selectedProduct}
-        />
-      )}
 
       {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal
@@ -170,7 +157,7 @@ export default function ProductsPage() {
             <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-linear-to-r from-purple-600 to-blue-600 text-white flex items-center justify-center text-2xl">+</div>
             <h3 className="text-lg font-semibold mb-1">{t('emptyTitle')}</h3>
             <p className="text-gray-600 mb-4">{t('emptyDescription')}</p>
-            <Button onClick={() => setIsAddModalOpen(true)}>{t('addProduct')}</Button>
+            <Button onClick={() => setModal({ open: true, mode: 'create' })}>{t('addProduct')}</Button>
           </CardContent>
         </Card>
       ) : (
