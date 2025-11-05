@@ -328,6 +328,8 @@
     "expenseBreakdown": "খরচের বিভাজন",
     "fromLastMonth": "গত মাস থেকে",
     "transactions": "সাম্প্রতিক লেনদেন",
+    "addTransaction": "লেনদেন যোগ করুন",
+    "addTransactionDescription": "আপনার হিসাবের জন্য আয় বা খরচ লিখুন",
     "date": "তারিখ",
     "description": "বিবরণ",
     "type": "ধরন",

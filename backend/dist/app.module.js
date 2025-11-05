@@ -17,6 +17,7 @@ const buys_module_1 = require("./buys/buys.module");
 const transactions_module_1 = require("./transactions/transactions.module");
 const dashboard_module_1 = require("./dashboard/dashboard.module");
 const vendors_module_1 = require("./vendors/vendors.module");
+const accounts_module_1 = require("./accounts/accounts.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -45,6 +46,7 @@ exports.AppModule = AppModule = tslib_1.__decorate([
             transactions_module_1.TransactionsModule,
             dashboard_module_1.DashboardModule,
             vendors_module_1.VendorsModule,
+            accounts_module_1.AccountsModule,
         ],
     })
 ], AppModule);

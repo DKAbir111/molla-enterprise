@@ -12,7 +12,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { useStore } from '@/store/useStore'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { useLocale } from 'next-intl'
 import { TrendingUp, TrendingDown, DollarSign, Calculator, ArrowUpRight, ArrowDownRight } from 'lucide-react'
@@ -30,76 +29,52 @@ import {
   Pie,
   Cell,
 } from 'recharts'
-import { listTransactions as fetchTransactions } from '@/lib/api'
-import { normalizeTransaction } from '@/lib/api'
+import { getAccountsSummary } from '@/lib/api'
+// No manual add modal; stats derive from sells and buys
 
 export default function AccountsPage() {
   const t = useTranslations('accounts')
   const locale = useLocale()
-  const { transactions, addTransaction } = useStore()
+  const [summary, setSummary] = useState<{
+    totals: { income: number; expenses: number; net: number }
+    monthly: { month: string; income: number; expense: number }[]
+    recent: { id: string; type: 'income' | 'expense'; description: string; amount: number; date: string }[]
+  } | null>(null)
 
   // Load from API
   useEffect(() => {
     let mounted = true
-    if (transactions.length === 0) {
-      fetchTransactions<any[]>()
-        .then((res) => {
-          if (!mounted) return
-            ; (res || []).map(normalizeTransaction).forEach(addTransaction)
-        })
-        .catch(() => { })
-    }
+    getAccountsSummary<any>()
+      .then((res) => { if (!mounted) return; setSummary(res) })
+      .catch(() => { setSummary({ totals: { income: 0, expenses: 0, net: 0 }, monthly: [], recent: [] }) })
     return () => { mounted = false }
-  }, [transactions.length, addTransaction])
+  }, [])
 
-  // Calculate financial stats (live from transactions)
-  const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0)
-  const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0)
+  // Build a combined list from manual transactions + derived sells/buys
+  const combined = (summary?.recent || [])
+
+  // Calculate financial stats (from combined)
+  const totalIncome = summary?.totals.income || 0
+  const totalExpenses = summary?.totals.expenses || 0
   const netProfit = totalIncome - totalExpenses
 
   // Prepare chart data (last 6 months)
-  const now = new Date()
-  const months: { key: string; label: string }[] = []
-  for (let i = 5; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
-    months.push({ key: `${d.getFullYear()}-${d.getMonth()}`, label: d.toLocaleString(locale as any, { month: 'short' }) })
-  }
-  const sumsIncome: Record<string, number> = {}
-  const sumsExpense: Record<string, number> = {}
-  months.forEach(m => { sumsIncome[m.key] = 0; sumsExpense[m.key] = 0 })
-  transactions.forEach((tx) => {
-    const d = tx.date instanceof Date ? tx.date : new Date(tx.date)
-    const key = `${d.getFullYear()}-${d.getMonth()}`
-    if (!(key in sumsIncome)) return
-    if (tx.type === 'income') sumsIncome[key] += tx.amount
-    else if (tx.type === 'expense') sumsExpense[key] += tx.amount
-  })
-  const monthlyData = months.map(m => ({ month: m.label, income: sumsIncome[m.key] || 0, expense: sumsExpense[m.key] || 0 }))
+  const monthlyData = (summary?.monthly || []).map(m => ({ month: new Date(m.month + '-01').toLocaleString(locale as any, { month: 'short' }), income: m.income, expense: m.expense }))
 
   // Expense categories (last 90 days)
-  const cutoff = new Date()
-  cutoff.setDate(cutoff.getDate() - 90)
-  const catTotals: Record<string, number> = {}
-  transactions.forEach((tx) => {
-    const d = tx.date instanceof Date ? tx.date : new Date(tx.date)
-    if (tx.type !== 'expense' || d < cutoff) return
-    const cat = tx.category || 'Others'
-    catTotals[cat] = (catTotals[cat] || 0) + tx.amount
-  })
-  const sortedCats = Object.entries(catTotals).sort((a, b) => b[1] - a[1])
-  const topCats = sortedCats.slice(0, 4)
-  const othersValue = sortedCats.slice(4).reduce((sum, [, v]) => sum + v, 0)
-  const pieBase = [...topCats, ...(othersValue > 0 ? [['Others', othersValue] as const] : [])]
+  // We no longer compute categories (no manual categories).
+  const pieBase: [string, number][] = [['Purchases', totalExpenses]]
   const palette = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#6b7280']
   const expenseCategories = pieBase.map(([name, value], idx) => ({ name, value, color: palette[idx % palette.length] }))
 
   // Compute change vs previous month for KPI cards
-  const lastKey = months.at(-1)?.key
-  const prevKey = months.length > 1 ? months.at(-2)!.key : undefined
-  const lastIncome = lastKey ? sumsIncome[lastKey] : 0
-  const prevIncome = prevKey ? sumsIncome[prevKey!] : 0
-  const lastExpense = lastKey ? sumsExpense[lastKey] : 0
-  const prevExpense = prevKey ? sumsExpense[prevKey!] : 0
+  const monthlyRaw = summary?.monthly || []
+  const last = monthlyRaw.at(-1)
+  const prev = monthlyRaw.length > 1 ? monthlyRaw.at(-2) : undefined
+  const lastIncome = last?.income || 0
+  const prevIncome = prev?.income || 0
+  const lastExpense = last?.expense || 0
+  const prevExpense = prev?.expense || 0
   const lastProfit = lastIncome - lastExpense
   const prevProfit = prevIncome - prevExpense
   const pct = (cur: number, prev: number) => prev > 0 ? (((cur - prev) / prev) * 100) : 0
@@ -108,7 +83,7 @@ export default function AccountsPage() {
   const profitPct = pct(lastProfit, prevProfit)
 
   // Empty state when no transactions
-  if (transactions.length === 0) {
+  if ((summary?.monthly?.length || 0) === 0 && combined.length === 0) {
     return (
       <div className="space-y-6">
         <div>
@@ -280,10 +255,13 @@ export default function AccountsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {transactions.slice(0, 10).map((transaction, idx) => (
+              {[...combined]
+                .sort((a, b) => (new Date(b.date as any).getTime()) - (new Date(a.date as any).getTime()))
+                .slice(0, 10)
+                .map((transaction, idx) => (
                 <TableRow key={`${transaction.id}-${idx}`}>
                   <TableCell className="text-sm text-gray-600">
-                    {formatDate(transaction.date, locale)}
+                    {formatDate(transaction.date as any, locale)}
                   </TableCell>
                   <TableCell>{transaction.description}</TableCell>
                   <TableCell>
@@ -310,6 +288,7 @@ export default function AccountsPage() {
           </Table>
         </CardContent>
       </Card>
+      {/* No manual add modal; figures derive automatically from sells and buys */}
     </div>
   )
 }

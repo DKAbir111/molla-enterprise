@@ -330,6 +330,8 @@
     "expenseBreakdown": "Expense Breakdown",
     "fromLastMonth": "from last month",
     "transactions": "Recent Transactions",
+    "addTransaction": "Add Transaction",
+    "addTransactionDescription": "Record income or expense for your accounts",
     "date": "Date",
     "description": "Description",
     "type": "Type",

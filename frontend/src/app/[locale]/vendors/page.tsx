@@ -97,7 +97,14 @@ export default function VendorsPage() {
       </div>
 
       {filtered.length === 0 ? (
-        <Card className="border-dashed"><CardContent className="py-16 text-center"><div className="mx-auto mb-4 h-14 w-14 rounded-full bg-linear-to-r from-purple-600 to-blue-600 text-white flex items-center justify-center text-2xl">+</div><h3 className="text-lg font-semibold mb-1">No vendors yet</h3><p className="text-gray-600 mb-4">Record purchases to build your vendor directory.</p></CardContent></Card>
+        <Card className="border-dashed">
+          <CardContent className="py-16 text-center">
+            <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-linear-to-r from-purple-600 to-blue-600 text-white flex items-center justify-center text-2xl">+</div>
+            <h3 className="text-lg font-semibold mb-1">No vendors yet</h3>
+            <p className="text-gray-600 mb-4">Record purchases to build your vendor directory.</p>
+            <Button onClick={() => setModal({ open: true, mode: 'create' })}>Add Vendor</Button>
+          </CardContent>
+        </Card>
       ) : (
         <Card>
           <CardContent className="p-0">
