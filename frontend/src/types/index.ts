@@ -18,6 +18,7 @@ export interface Product {
   grade?: ProductGrade
   price: number
   buyPrice?: number
+  otherCostPerUnit?: number
   targetPrice?: number
   unit: string
   stock: number

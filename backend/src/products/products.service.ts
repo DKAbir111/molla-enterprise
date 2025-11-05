@@ -26,6 +26,7 @@ export class ProductsService {
       grade: dto.grade,
       price: dto.price,
       buyPrice: (dto as any).buyPrice ?? 0,
+      otherCostPerUnit: (dto as any).otherCostPerUnit ?? 0,
       targetPrice: (dto as any).targetPrice ?? dto.price,
       unit: dto.unit,
       stock: dto.stock,

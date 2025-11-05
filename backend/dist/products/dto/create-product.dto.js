@@ -36,6 +36,13 @@ tslib_1.__decorate([
     tslib_1.__metadata("design:type", Number)
 ], CreateProductDto.prototype, "buyPrice", void 0);
 tslib_1.__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Other cost per unit (packaging, handling, etc.)' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(0),
+    tslib_1.__metadata("design:type", Number)
+], CreateProductDto.prototype, "otherCostPerUnit", void 0);
+tslib_1.__decorate([
     (0, swagger_1.ApiPropertyOptional)({ description: 'Target sell price per unit' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsNumber)(),

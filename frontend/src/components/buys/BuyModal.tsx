@@ -47,8 +47,7 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
     const [paidAmount, setPaidAmount] = React.useState(0)
     const [transportPerTrip, setTransportPerTrip] = React.useState(0)
     const [transportTrips, setTransportTrips] = React.useState(0)
-    const [laborCost, setLaborCost] = React.useState(0)
-    const [otherCosts, setOtherCosts] = React.useState(0)
+    const [otherCost, setOtherCost] = React.useState(0)
     const [isLoading, setIsLoading] = React.useState(false)
     const [showProductDropdown, setShowProductDropdown] = React.useState(false)
     const [vendors, setVendors] = React.useState<any[]>([])
@@ -76,8 +75,7 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
             setPaidAmount(buy.paidAmount || 0)
             setTransportPerTrip(buy.transportPerTrip || 0)
             setTransportTrips(buy.transportTrips || 0)
-            setLaborCost(buy.laborCost || 0)
-            setOtherCosts(buy.otherCosts || 0)
+            setOtherCost(buy.otherCost || 0)
         } else if (!open) {
             // noop when closed
         } else {
@@ -89,8 +87,7 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
             setPaidAmount(0)
             setTransportPerTrip(0)
             setTransportTrips(0)
-            setLaborCost(0)
-            setOtherCosts(0)
+            setOtherCost(0)
         }
         setProductSearch('')
         setShowProductDropdown(false)
@@ -105,7 +102,7 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
 
     const subtotal = orderItems.reduce((sum, item) => sum + item.total, 0)
     const transportTotal = transportPerTrip * transportTrips
-    const additionalCosts = laborCost + otherCosts
+    const additionalCosts = otherCost
     const grandTotal = subtotal + transportTotal + additionalCosts
     const due = Math.max(0, grandTotal - paidAmount)
 
@@ -120,14 +117,22 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
         setVendorSearchOpen(false)
     }
 
+    const filteredVendors = React.useMemo(() => {
+        const q = vendorName.trim().toLowerCase()
+        const base = vendors || []
+        if (q === '') return base.slice(0, 8)
+        return base.filter((v: any) => v.name.toLowerCase().includes(q) || (v.phone || '').toLowerCase().includes(q)).slice(0, 8)
+    }, [vendors, vendorName])
+
     const addProductToOrder = (product: Product) => {
-        const price = product.buyPrice || product.price || 0
+        const price = (product.buyPrice || product.price || 0) + (product.otherCostPerUnit || 0)
+        const initialQty = Number(product.stock || 0) > 0 ? Number(product.stock) : 1
         const newItem: OrderItem = {
             productId: product.id,
             productName: product.name,
-            quantity: 1,
+            quantity: initialQty,
             price: price,
-            total: price
+            total: price * initialQty
         }
         setOrderItems(prev => [...prev, newItem])
         setProductSearch('')
@@ -166,8 +171,7 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                     paidAmount,
                     transportPerTrip,
                     transportTrips,
-                    laborCost,
-                    otherCosts
+                    // otherCost not persisted
                 })
                 const itemsPayload = {
                     items: orderItems.map(i => ({ productId: i.productId, quantity: i.quantity, price: i.price }))
@@ -182,8 +186,7 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                     transportPerTrip,
                     transportTrips,
                     transportTotal,
-                    laborCost,
-                    otherCosts,
+                    otherCost,
                     total: subtotal
                 }
                 updateBuyStore?.(buy.id, updatedLocal as any)
@@ -198,8 +201,7 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                     paidAmount,
                     transportPerTrip,
                     transportTrips,
-                    laborCost,
-                    otherCosts,
+                    // otherCost not persisted
                 }
                 const created = await apiCreateBuy<any>(payload)
                 const normalized = normalizeOrder(created)
@@ -253,22 +255,20 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                                             value={vendorName}
                                             onChange={(e) => { setVendorName(e.target.value); setVendorSearchOpen(true) }}
                                             onFocus={() => setVendorSearchOpen(true)}
+                                            onClick={() => setVendorSearchOpen(true)}
                                             onBlur={() => setTimeout(() => setVendorSearchOpen(false), 200)}
                                             className="pl-10 h-11 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500"
                                             required
                                         />
-                                        {vendorSearchOpen && vendorName.trim() !== '' && (
+                                        {vendorSearchOpen && (
                                             <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-20 max-h-60 overflow-y-auto">
-                                                {(vendors || [])
-                                                    .filter((v) => v.name.toLowerCase().includes(vendorName.toLowerCase()))
-                                                    .slice(0, 8)
-                                                    .map((v) => (
+                                                {filteredVendors.map((v: any) => (
                                                         <div key={v.id} className="p-3 hover:bg-emerald-50 cursor-pointer border-b border-gray-100 last:border-0" onClick={() => selectVendor(v)}>
                                                             <div className="font-semibold text-gray-900">{v.name}</div>
                                                             <div className="text-xs text-gray-500">{v.phone || ''}{v.address ? ` • ${v.address}` : ''}</div>
                                                         </div>
                                                     ))}
-                                                {(vendors || []).length === 0 && (
+                                                {filteredVendors.length === 0 && (
                                                     <div className="p-3 text-sm text-gray-500">No vendors found</div>
                                                 )}
                                             </div>
@@ -318,7 +318,7 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                                                     >
                                                         <div className="font-semibold text-gray-900">{p.name}</div>
                                                         <div className="text-xs text-gray-500">
-                                                            Buy: {formatCurrency(p.buyPrice || p.price || 0, locale)} per {p.unit}
+                                                            Buy: {formatCurrency((p.buyPrice || p.price || 0) + (p.otherCostPerUnit || 0), locale)} per {p.unit}
                                                         </div>
                                                     </div>
                                                 ))}
@@ -342,51 +342,61 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                                         </TableHeader>
                                         <TableBody>
                                             {orderItems.map(item => (
-                                                <TableRow key={item.productId}>
-                                                    <TableCell className="font-medium">{item.productName}</TableCell>
-                                                    <TableCell>
-                                                        <div className="flex items-center justify-center gap-2">
-                                                            <Button
-                                                                type="button"
-                                                                variant="outline"
-                                                                size="icon"
-                                                                className="h-8 w-8"
-                                                                onClick={() => updateItemQuantity(item.productId, item.quantity - 1)}
-                                                            >
-                                                                <Minus className="h-3 w-3" />
-                                                            </Button>
-                                                            <Input
-                                                                type="number"
-                                                                value={item.quantity}
-                                                                onChange={(e) => updateItemQuantity(item.productId, parseFloat(e.target.value) || 0)}
-                                                                className="w-20 text-center h-9"
-                                                                min="0.01"
-                                                                step="0.01"
-                                                            />
-                                                            <Button
-                                                                type="button"
-                                                                variant="outline"
-                                                                size="icon"
-                                                                className="h-8 w-8"
-                                                                onClick={() => updateItemQuantity(item.productId, item.quantity + 1)}
-                                                            >
-                                                                <Plus className="h-3 w-3" />
-                                                            </Button>
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell className="text-right">
+                                            <TableRow key={item.productId}>
+                                                <TableCell className="font-medium">{item.productName}</TableCell>
+                                                <TableCell>
+                                                    <div className="flex items-center justify-center gap-2">
+                                                        <Button
+                                                            type="button"
+                                                            variant="outline"
+                                                            size="icon"
+                                                            className="h-8 w-8"
+                                                            onClick={() => updateItemQuantity(item.productId, item.quantity - 1)}
+                                                        >
+                                                            <Minus className="h-3 w-3" />
+                                                        </Button>
                                                         <Input
                                                             type="number"
+                                                            value={item.quantity}
+                                                            onChange={(e) => updateItemQuantity(item.productId, parseFloat(e.target.value) || 0)}
+                                                            className="w-20 text-center h-9"
+                                                            min="0.01"
                                                             step="0.01"
-                                                            value={item.price}
-                                                            onChange={(e) => updateItemPrice(item.productId, parseFloat(e.target.value))}
-                                                            className="w-32 text-right h-9 ml-auto"
-                                                            min="0"
                                                         />
-                                                    </TableCell>
-                                                    <TableCell className="text-right font-semibold text-gray-900">
-                                                        {formatCurrency(item.total, locale)}
-                                                    </TableCell>
+                                                        <Button
+                                                            type="button"
+                                                            variant="outline"
+                                                            size="icon"
+                                                            className="h-8 w-8"
+                                                            onClick={() => updateItemQuantity(item.productId, item.quantity + 1)}
+                                                        >
+                                                            <Plus className="h-3 w-3" />
+                                                        </Button>
+                                                        {/* show unit to the right */}
+                                                        <span className="ml-2 text-xs text-gray-500 whitespace-nowrap">
+                                                            {(() => {
+                                                                const p = products.find(p => p.id === item.productId)
+                                                                return p?.unit ? p.unit : ''
+                                                            })()}
+                                                        </span>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <Input
+                                                        type="number"
+                                                        step="0.01"
+                                                        value={item.price}
+                                                        onChange={(e) => updateItemPrice(item.productId, parseFloat(e.target.value))}
+                                                        className="w-32 text-right h-9 ml-auto"
+                                                        min="0"
+                                                    />
+                                                </TableCell>
+                                                <TableCell className="text-right font-semibold text-gray-900">
+                                                    <div>{formatCurrency(item.total, locale)}</div>
+                                                    <div className="text-xs text-gray-500 font-normal">
+                                                        {formatCurrency(item.price, locale)} × {item.quantity}
+                                                    </div>
+                                                </TableCell>
                                                     <TableCell className="text-right">
                                                         <Button
                                                             type="button"
@@ -449,30 +459,20 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                                     </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-sm font-medium text-gray-700">Labor / Loading Cost</Label>
+                                    <Label className="text-sm font-medium text-gray-700">Other Cost</Label>
                                     <Input
                                         type="number"
-                                        value={laborCost}
-                                        onChange={(e) => setLaborCost(parseFloat(e.target.value) || 0)}
+                                        value={otherCost}
+                                        onChange={(e) => setOtherCost(parseFloat(e.target.value) || 0)}
                                         className="h-11 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500"
                                         placeholder="0.00"
                                         min="0"
                                         step="0.01"
                                     />
+                                    <div className="text-xs text-gray-500">Includes labor/loading, packaging, tips, etc.</div>
                                 </div>
                             </div>
-                            <div className="space-y-2">
-                                <Label className="text-sm font-medium text-gray-700">Other Costs (Packaging, Tips, etc.)</Label>
-                                <Input
-                                    type="number"
-                                    value={otherCosts}
-                                    onChange={(e) => setOtherCosts(parseFloat(e.target.value) || 0)}
-                                    className="h-11 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500"
-                                    placeholder="0.00"
-                                    min="0"
-                                    step="0.01"
-                                />
-                            </div>
+                            {/* removed separate other costs input */}
                         </div>
 
                         {/* Summary Section */}
@@ -487,12 +487,8 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                                     <span className="font-semibold text-gray-900">{formatCurrency(transportTotal, locale)}</span>
                                 </div>
                                 <div className="flex justify-between items-center text-sm">
-                                    <span className="text-gray-600">Labor Cost</span>
-                                    <span className="font-semibold text-gray-900">{formatCurrency(laborCost, locale)}</span>
-                                </div>
-                                <div className="flex justify-between items-center text-sm">
-                                    <span className="text-gray-600">Other Costs</span>
-                                    <span className="font-semibold text-gray-900">{formatCurrency(otherCosts, locale)}</span>
+                                    <span className="text-gray-600">Other Cost</span>
+                                    <span className="font-semibold text-gray-900">{formatCurrency(otherCost, locale)}</span>
                                 </div>
                                 <div className="border-t border-emerald-200 pt-3 flex justify-between items-center">
                                     <span className="text-lg font-bold text-gray-900">Total Purchase Cost</span>

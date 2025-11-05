@@ -25,6 +25,12 @@ export class CreateProductDto {
   @Min(0)
   buyPrice?: number;
 
+  @ApiPropertyOptional({ description: 'Other cost per unit (packaging, handling, etc.)' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  otherCostPerUnit?: number;
+
   @ApiPropertyOptional({ description: 'Target sell price per unit' })
   @IsOptional()
   @IsNumber()

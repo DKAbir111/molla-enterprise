@@ -43,6 +43,7 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
   const [grade, setGrade] = React.useState('')
   const [price, setPrice] = React.useState<number>(0)
   const [buyPrice, setBuyPrice] = React.useState<number>(0)
+  const [otherCostPerUnit, setOtherCostPerUnit] = React.useState<number>(0)
   const [unit, setUnit] = React.useState('')
   const [stock, setStock] = React.useState<number>(0)
   const [active, setActive] = React.useState<boolean>(true)
@@ -59,6 +60,7 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
       setGrade(product.grade || '')
       setPrice(product.price || 0)
       setBuyPrice(product.buyPrice || 0)
+      setOtherCostPerUnit((product as any).otherCostPerUnit || 0)
       setUnit(product.unit || '')
       setStock(product.stock || 0)
       setActive(product.active !== false)
@@ -73,6 +75,7 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
       setGrade('')
       setPrice(0)
       setBuyPrice(0)
+      setOtherCostPerUnit(0)
       setUnit('')
       setStock(0)
       setActive(true)
@@ -81,7 +84,7 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
     }
   }, [open, isEdit, product])
 
-  const totalCost = React.useMemo(() => (stock > 0 ? buyPrice * stock : 0), [stock, buyPrice])
+  const totalCost = React.useMemo(() => (stock > 0 ? (buyPrice + (otherCostPerUnit || 0)) * stock : 0), [stock, buyPrice, otherCostPerUnit])
   const totalSell = React.useMemo(() => (stock > 0 ? price * stock : 0), [stock, price])
 
   const units = ['liter', 'feet', 'piece', 'ton', 'bag', 'cft', 'kg', 'meter', 'yard', 'gallon', 'cubicMeter']
@@ -123,6 +126,7 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
           type,
           grade: grade || undefined,
           price: Number(price) || 0,
+          otherCostPerUnit: Number(otherCostPerUnit) || 0,
           unit,
           stock: Number(stock) || 0,
           active,
@@ -146,6 +150,7 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
           grade: grade.trim() || undefined,
           price,
           buyPrice,
+          otherCostPerUnit,
           unit,
           stock,
         })
@@ -272,10 +277,14 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
             </div>
 
             {/* Pricing */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700">Buy Price / Unit ({t('currencySymbol')})</Label>
                 <Input type="number" value={buyPrice} onChange={(e) => setBuyPrice(parseFloat(e.target.value) || 0)} className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder="0.00" min={0} step="0.01" />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">Other Cost / Unit ({t('currencySymbol')})</Label>
+                <Input type="number" value={otherCostPerUnit} onChange={(e) => setOtherCostPerUnit(parseFloat(e.target.value) || 0)} className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder="0.00" min={0} step="0.01" />
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700">Sell Price / Unit ({t('currencySymbol')})</Label>
@@ -290,7 +299,7 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
                 <div className="h-11 px-3 rounded-md border border-gray-200 bg-gray-50 flex items-center font-medium">
                   {formatCurrency(totalCost, locale)}
                 </div>
-                <div className="text-xs text-gray-500">Auto = unit × stock</div>
+                <div className="text-xs text-gray-500">Auto = (buy + other) × stock</div>
               </div>
               <div className="space-y-1">
                 <Label className="text-sm font-medium text-gray-700">Total Sell Value (BDT)</Label>

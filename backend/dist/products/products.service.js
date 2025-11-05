@@ -26,6 +26,7 @@ let ProductsService = class ProductsService {
                 grade: dto.grade,
                 price: dto.price,
                 buyPrice: dto.buyPrice ?? 0,
+                otherCostPerUnit: dto.otherCostPerUnit ?? 0,
                 targetPrice: dto.targetPrice ?? dto.price,
                 unit: dto.unit,
                 stock: dto.stock,

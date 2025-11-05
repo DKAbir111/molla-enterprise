@@ -6,6 +6,7 @@ export type CreateProductInput = {
   grade?: string
   price: number
   buyPrice?: number
+  otherCostPerUnit?: number
   targetPrice?: number
   unit: string
   stock: number

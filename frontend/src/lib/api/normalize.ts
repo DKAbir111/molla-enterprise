@@ -53,6 +53,7 @@ export function normalizeProduct(apiProduct: any): Product {
     grade: apiProduct.grade ? String(apiProduct.grade) : undefined,
     price: toNumber(apiProduct.price),
     buyPrice: toNumber((apiProduct as any).buyPrice ?? 0),
+    otherCostPerUnit: toNumber((apiProduct as any).otherCostPerUnit ?? 0),
     targetPrice: toNumber((apiProduct as any).targetPrice ?? apiProduct.price ?? 0),
     unit: String(apiProduct.unit ?? ''),
     stock: Number(apiProduct.stock ?? 0),
