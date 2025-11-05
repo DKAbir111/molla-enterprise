@@ -184,14 +184,16 @@ export function CustomerModal({ open, mode, onClose, customer }: CustomerModalPr
                     {/* subtle hover overlay without text */}
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition" />
                     {avatarPreview && (
-                      <button
-                        type="button"
+                      <span
+                        role="button"
+                        tabIndex={0}
                         onClick={(e) => { e.stopPropagation(); revokePreview(avatarPreview); setAvatarPreview(null); setAvatarFile(null) }}
-                        className="absolute top-1.5 right-1.5 inline-flex items-center justify-center h-6 w-6 rounded-full bg-white/95 border border-gray-300 shadow hover:bg-red-50"
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); revokePreview(avatarPreview); setAvatarPreview(null); setAvatarFile(null) } }}
+                        className="absolute top-1.5 right-1.5 inline-flex items-center justify-center h-6 w-6 rounded-full bg-white/95 border border-gray-300 shadow hover:bg-red-50 cursor-pointer"
                         aria-label="Remove photo"
                       >
                         <X className="h-4 w-4 text-gray-700" />
-                      </button>
+                      </span>
                     )}
                   </button>
                   <input

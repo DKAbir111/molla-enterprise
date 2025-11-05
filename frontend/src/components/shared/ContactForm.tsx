@@ -54,9 +54,9 @@ export function ContactForm({ values, onChange, showPhoto, photoUrl, onPickPhoto
                 )}
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition" />
                 {photoUrl && onRemovePhoto && (
-                  <button type="button" onClick={(e) => { e.stopPropagation(); onRemovePhoto() }} className="absolute top-1 right-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/95 border border-gray-300 shadow hover:bg-red-50" aria-label="Remove">
+                  <span role="button" tabIndex={0} onClick={(e) => { e.stopPropagation(); onRemovePhoto() }} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onRemovePhoto() } }} className="absolute top-1 right-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/95 border border-gray-300 shadow hover:bg-red-50 cursor-pointer" aria-label="Remove">
                     <X className="h-4 w-4 text-gray-700" />
-                  </button>
+                  </span>
                 )}
               </button>
               <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => onLocalPick(e.target.files?.[0] || null)} />
@@ -88,4 +88,3 @@ export function ContactForm({ values, onChange, showPhoto, photoUrl, onPickPhoto
     </div>
   )
 }
-
