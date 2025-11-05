@@ -8,15 +8,13 @@ import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { formatCurrency } from '@/lib/utils'
 import { Plus, Search, Eye, Edit, Printer } from 'lucide-react'
-import { listBuys, createBuy } from '@/lib/api/buy-api'
+import { listBuys } from '@/lib/api/buy-api'
 import { listProducts } from '@/lib/api/product-api'
 import { normalizeProduct } from '@/lib/api'
 import { useStore } from '@/store/useStore'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 // Details shown on dedicated page now
-import { EditBuyModal } from '@/components/buys/EditBuyModal'
+import { BuyModal } from '@/components/buys/BuyModal'
 
 export default function BuysPage() {
   const t = useTranslations('buys')
@@ -129,9 +127,13 @@ export default function BuysPage() {
         </Card>
       )}
 
-      {open && <CreateBuyModal isOpen={open} onClose={() => setOpen(false)} />}
+      {open && (
+        <BuyModal open={open} mode="create" onClose={() => setOpen(false)} onSaved={(b) => {
+          listBuys<any[]>().then(setBuys).catch(() => { })
+        }} />
+      )}
       {showEdit && selectedBuy && (
-        <EditBuyModal isOpen={showEdit} onClose={() => setShowEdit(false)} buy={selectedBuy} onUpdated={(b) => {
+        <BuyModal open={showEdit} mode="edit" onClose={() => setShowEdit(false)} buy={selectedBuy} onSaved={(b) => {
           setBuys(prev => prev.map(x => x.id === b.id ? b : x))
         }} />
       )}
@@ -139,7 +141,7 @@ export default function BuysPage() {
   )
 }
 
-function CreateBuyModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+/* function CreateBuyModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { products } = useStore()
   const locale = useLocale()
   const [vendorName, setVendorName] = useState('')
@@ -168,8 +170,9 @@ function CreateBuyModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
       onClose()
     } catch {
       toast.error('Failed to create buy')
-    }
-  }
+}
+*/
+  /* }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -197,9 +200,4 @@ function CreateBuyModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
             <div className="space-y-2"><Label>Transport (per trip × trips)</Label><div className="flex items-center gap-2"><Input type="number" value={transportPerTrip} onChange={(e) => setTransportPerTrip(parseFloat(e.target.value) || 0)} className="h-9 w-32 text-right" /><span>×</span><Input type="number" value={transportTrips} onChange={(e) => setTransportTrips(parseInt(e.target.value || '0', 10))} className="h-9 w-24 text-right" /><span className="ml-auto font-medium">= {formatCurrency(transportTotal, useLocale() as any)}</span></div></div>
           </div>
           <div className="p-4 rounded border"><div className="flex justify-between"><span className="font-semibold">Grand Total</span><span className="text-xl font-bold">{formatCurrency(grand, locale)}</span></div><div className="flex justify-between items-center gap-3 mt-2"><span className="text-sm text-gray-600">Paid</span><Input type="number" value={paidAmount} onChange={(e) => setPaidAmount(parseFloat(e.target.value) || 0)} className="h-10 w-32 text-right" /><span className="ml-auto font-semibold text-green-700">Due: {formatCurrency(Math.max(0, grand - paidAmount), locale)}</span></div></div>
-          <div className="flex gap-3 pt-4"><Button variant="outline" onClick={onClose} className="flex-1">Cancel</Button><Button onClick={submit} className="flex-1 bg-linear-to-r from-purple-600 to-purple-700 text-white">Save Buy</Button></div>
-        </div>
-      </DialogContent>
-    </Dialog>
-  )
-}
+*/
