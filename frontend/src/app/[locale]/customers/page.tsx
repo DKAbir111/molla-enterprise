@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -58,6 +58,16 @@ export default function CustomersPage() {
 
   // Backend now includes aggregates in /customers; no client aggregation needed
 
+  // Mini dashboard stats (always show, even if empty)
+  const stats = useMemo(() => {
+    const total = customers.length
+    const active = customers.filter(c => (c.totalOrders || 0) > 0).length
+    const totalRevenue = customers.reduce((sum, c) => sum + (c.totalSpent || 0), 0)
+    const totalOrders = customers.reduce((sum, c) => sum + (c.totalOrders || 0), 0)
+    const avgOrderValue = totalOrders > 0 ? (totalRevenue / totalOrders) : 0
+    return { total, active, totalRevenue, avgOrderValue }
+  }, [customers])
+
   const filteredCustomers = customers.filter(customer =>
     customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     customer.phone.includes(searchQuery)
@@ -82,6 +92,42 @@ export default function CustomersPage() {
         </Button>
       </div>
 
+      {/* Mini Dashboard */}
+      <div className="grid gap-4 md:grid-cols-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">Total Customers</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.total}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">Active Customers</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">{stats.active}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">Total Revenue</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600">{formatCurrency(stats.totalRevenue, locale)}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">Avg. Order Value</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatCurrency(stats.avgOrderValue, locale)}</div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Empty State */}
       {filteredCustomers.length === 0 ? (
         <Card className="border-dashed">
@@ -94,63 +140,6 @@ export default function CustomersPage() {
         </Card>
       ) : (
         <>
-          {/* Customer Stats */}
-          <div className="grid gap-4 md:grid-cols-4">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">
-                  Total Customers
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{customers.length}</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">
-                  Active Customers
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {customers.filter(c => c.totalOrders > 0).length}
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">
-                  Total Revenue
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {formatCurrency(
-                    customers.reduce((sum, c) => sum + c.totalSpent, 0),
-                    locale
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">
-                  Avg. Order Value
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {formatCurrency(
-                    customers.reduce((sum, c) => sum + c.totalSpent, 0) /
-                    customers.reduce((sum, c) => sum + c.totalOrders, 0) || 0,
-                    locale
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
           {/* Customers Table */}
           <Card>
             <CardContent className="p-0">

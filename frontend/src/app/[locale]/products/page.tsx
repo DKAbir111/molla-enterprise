@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -43,6 +43,15 @@ export default function ProductsPage() {
     }
     return () => { mounted = false }
   }, [products.length, addProduct])
+
+  // Mini dashboard stats
+  const stats = useMemo(() => {
+    const total = products.length
+    const active = products.filter(p => p.active !== false).length
+    const out = products.filter(p => Number(p.stock || 0) <= 0).length
+    const value = products.reduce((s, p) => s + (Number(p.price || 0) * Number(p.stock || 0)), 0)
+    return { total, active, out, value }
+  }, [products])
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -129,6 +138,42 @@ export default function ProductsPage() {
         <Button className="flex items-center gap-2" onClick={() => setModal({ open: true, mode: 'create' })}>
           <Plus className="h-4 w-4" /> {t('addProduct')}
         </Button>
+      </div>
+
+      {/* Mini Dashboard */}
+      <div className="grid gap-4 md:grid-cols-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-gray-600">Total Products</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.total}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-gray-600">Active Products</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">{stats.active}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-gray-600">Out of Stock</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-red-600">{stats.out}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-gray-600">Inventory Value</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600">{formatCurrency(stats.value, locale)}</div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Product Modal (create/edit) */}
