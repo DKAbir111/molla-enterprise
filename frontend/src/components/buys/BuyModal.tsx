@@ -102,7 +102,15 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
 
     const subtotal = orderItems.reduce((sum, item) => sum + item.total, 0)
     const transportTotal = transportPerTrip * transportTrips
-    const additionalCosts = otherCost
+    const computedOtherCost = React.useMemo(() => {
+        return orderItems.reduce((sum, item) => {
+            const p = products.find(p => p.id === item.productId)
+            return sum + ((p?.otherCostPerUnit || 0) * item.quantity)
+        }, 0)
+    }, [orderItems, products])
+    // keep state in sync for display if needed
+    React.useEffect(() => { setOtherCost(computedOtherCost) }, [computedOtherCost])
+    const additionalCosts = computedOtherCost
     const grandTotal = subtotal + transportTotal + additionalCosts
     const due = Math.max(0, grandTotal - paidAmount)
 
@@ -125,7 +133,7 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
     }, [vendors, vendorName])
 
     const addProductToOrder = (product: Product) => {
-        const price = (product.buyPrice || product.price || 0) + (product.otherCostPerUnit || 0)
+        const price = (product.buyPrice || product.price || 0)
         const initialQty = Number(product.stock || 0) > 0 ? Number(product.stock) : 1
         const newItem: OrderItem = {
             productId: product.id,
@@ -318,7 +326,7 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                                                     >
                                                         <div className="font-semibold text-gray-900">{p.name}</div>
                                                         <div className="text-xs text-gray-500">
-                                                            Buy: {formatCurrency((p.buyPrice || p.price || 0) + (p.otherCostPerUnit || 0), locale)} per {p.unit}
+                                                            Buy: {formatCurrency((p.buyPrice || p.price || 0), locale)} per {p.unit}
                                                         </div>
                                                     </div>
                                                 ))}
@@ -459,17 +467,15 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                                     </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-sm font-medium text-gray-700">Other Cost</Label>
+                                    <Label className="text-sm font-medium text-gray-700">Other Cost (auto)</Label>
                                     <Input
                                         type="number"
                                         value={otherCost}
-                                        onChange={(e) => setOtherCost(parseFloat(e.target.value) || 0)}
-                                        className="h-11 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500"
-                                        placeholder="0.00"
-                                        min="0"
-                                        step="0.01"
+                                        readOnly
+                                        disabled
+                                        className="h-11 border-gray-200 bg-gray-50 text-gray-700"
                                     />
-                                    <div className="text-xs text-gray-500">Includes labor/loading, packaging, tips, etc.</div>
+                                    <div className="text-xs text-gray-500">Auto = sum(product other cost × quantity)</div>
                                 </div>
                             </div>
                             {/* removed separate other costs input */}
