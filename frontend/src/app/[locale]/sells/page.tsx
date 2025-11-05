@@ -11,9 +11,8 @@ import { formatCurrency, formatDate, formatOrderCode } from '@/lib/utils'
 import { Plus, Search, Eye, Edit, Printer } from 'lucide-react'
 import { listSells } from '@/lib/api/sell-api'
 import { normalizeOrder } from '@/lib/api'
-import CreateSellForm from '@/components/sells/CreateSellForm'
+import { SellModal } from '@/components/sells/SellModal'
 // Details shown in dedicated page now
-import { EditSellModal } from '@/components/sells/EditSellModal'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { updateSell as apiUpdateSell } from '@/lib/api/sell-api'
 import { toast } from 'sonner'
@@ -184,13 +183,13 @@ export default function SellsPage() {
       )}
 
       {modalOpen && (
-        <CreateSellForm isOpen={modalOpen} onClose={() => setModalOpen(false)} />
+        <SellModal open={modalOpen} mode="create" onClose={() => setModalOpen(false)} />
       )}
 
       {/* Details modal removed in favor of dedicated page */}
 
       {showEdit && selectedSell && (
-        <EditSellModal isOpen={showEdit} onClose={() => setShowEdit(false)} sell={selectedSell} />
+        <SellModal open={showEdit} mode="edit" onClose={() => setShowEdit(false)} sell={selectedSell} />
       )}
     </div>
   )
