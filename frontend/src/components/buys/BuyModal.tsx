@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { useTranslations, useLocale } from 'next-intl'
+import { useLocale } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -19,6 +19,7 @@ import { ShoppingBag, Edit3, Save, Plus, Minus, X, Search, Building2, Package, D
 import { toast } from 'sonner'
 import { formatCurrency } from '@/lib/utils'
 import { listProducts as fetchProducts } from '@/lib/api'
+import { listVendors } from '@/lib/api/vendor-api'
 import { createBuy as apiCreateBuy, updateBuy as apiUpdateBuy, updateBuyItems } from '@/lib/api/buy-api'
 import { normalizeProduct, normalizeOrder } from '@/lib/api'
 
@@ -39,6 +40,8 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
     const isEdit = mode === 'edit' && !!buy
 
     const [vendorName, setVendorName] = React.useState('')
+    const [vendorPhone, setVendorPhone] = React.useState('')
+    const [vendorAddress, setVendorAddress] = React.useState('')
     const [orderItems, setOrderItems] = React.useState<OrderItem[]>([])
     const [productSearch, setProductSearch] = React.useState('')
     const [paidAmount, setPaidAmount] = React.useState(0)
@@ -48,8 +51,10 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
     const [otherCosts, setOtherCosts] = React.useState(0)
     const [isLoading, setIsLoading] = React.useState(false)
     const [showProductDropdown, setShowProductDropdown] = React.useState(false)
+    const [vendors, setVendors] = React.useState<any[]>([])
+    const [vendorSearchOpen, setVendorSearchOpen] = React.useState(false)
 
-    // Load products
+    // Load products and vendors
     React.useEffect(() => {
         let mounted = true
         if (products.length === 0) {
@@ -57,6 +62,7 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                 if (mounted) (res || []).map(normalizeProduct).forEach(addProduct)
             }).catch(() => { })
         }
+        listVendors<any[]>().then(res => { if (mounted) setVendors(res || []) }).catch(() => { })
         return () => { mounted = false }
     }, [products.length, addProduct])
 
@@ -64,6 +70,8 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
     React.useEffect(() => {
         if (isEdit && buy) {
             setVendorName(buy.vendorName || '')
+            setVendorPhone(buy.vendorPhone || '')
+            setVendorAddress('')
             setOrderItems(buy.items || [])
             setPaidAmount(buy.paidAmount || 0)
             setTransportPerTrip(buy.transportPerTrip || 0)
@@ -75,6 +83,8 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
         } else {
             // create mode defaults
             setVendorName('')
+            setVendorPhone('')
+            setVendorAddress('')
             setOrderItems([])
             setPaidAmount(0)
             setTransportPerTrip(0)
@@ -101,6 +111,13 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
 
     const handleClose = () => {
         onClose()
+    }
+
+    const selectVendor = (v: any) => {
+        setVendorName(v.name || '')
+        setVendorPhone(v.phone || '')
+        setVendorAddress(v.address || '')
+        setVendorSearchOpen(false)
     }
 
     const addProductToOrder = (product: Product) => {
@@ -145,6 +162,7 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                 // Update existing buy
                 await apiUpdateBuy(buy.id, {
                     vendorName,
+                    vendorPhone: vendorPhone || undefined,
                     paidAmount,
                     transportPerTrip,
                     transportTrips,
@@ -155,9 +173,10 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                     items: orderItems.map(i => ({ productId: i.productId, quantity: i.quantity, price: i.price }))
                 }
                 await updateBuyItems<any>(buy.id, itemsPayload)
-                updateBuyStore(buy.id, {
+                const updatedLocal = {
                     ...buy,
                     vendorName,
+                    vendorPhone,
                     items: orderItems,
                     paidAmount,
                     transportPerTrip,
@@ -166,12 +185,15 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                     laborCost,
                     otherCosts,
                     total: subtotal
-                })
+                }
+                updateBuyStore?.(buy.id, updatedLocal as any)
                 toast.success('Purchase updated successfully')
+                onSaved?.(updatedLocal)
             } else {
                 // Create new buy
                 const payload = {
                     vendorName: vendorName.trim(),
+                    vendorPhone: vendorPhone.trim() || undefined,
                     items: orderItems.map(i => ({ productId: i.productId, quantity: i.quantity, price: i.price })),
                     paidAmount,
                     transportPerTrip,
@@ -181,10 +203,10 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                 }
                 const created = await apiCreateBuy<any>(payload)
                 const normalized = normalizeOrder(created)
-                addBuy(normalized)
+                addBuy?.(normalized as any)
                 toast.success('Purchase created successfully')
+                onSaved?.(created)
             }
-            onSaved?.(buy)
             handleClose()
         } catch (err) {
             toast.error(isEdit ? 'Failed to update purchase' : 'Failed to create purchase')
@@ -220,21 +242,47 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                                 <Building2 className="h-5 w-5 text-emerald-600" />
                                 <span>Vendor Information</span>
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="vendor" className="text-sm font-medium text-gray-700">
-                                    <div className="flex items-center gap-2">
-                                        <Building2 className="h-4 w-4" />
-                                        Vendor Name
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                                <div className="space-y-2">
+                                    <Label htmlFor="vendor" className="text-sm font-medium text-gray-700">Vendor</Label>
+                                    <div className="relative">
+                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 z-10" />
+                                        <Input
+                                            id="vendor"
+                                            placeholder="Search vendor by name..."
+                                            value={vendorName}
+                                            onChange={(e) => { setVendorName(e.target.value); setVendorSearchOpen(true) }}
+                                            onFocus={() => setVendorSearchOpen(true)}
+                                            onBlur={() => setTimeout(() => setVendorSearchOpen(false), 200)}
+                                            className="pl-10 h-11 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500"
+                                            required
+                                        />
+                                        {vendorSearchOpen && vendorName.trim() !== '' && (
+                                            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-20 max-h-60 overflow-y-auto">
+                                                {(vendors || [])
+                                                    .filter((v) => v.name.toLowerCase().includes(vendorName.toLowerCase()))
+                                                    .slice(0, 8)
+                                                    .map((v) => (
+                                                        <div key={v.id} className="p-3 hover:bg-emerald-50 cursor-pointer border-b border-gray-100 last:border-0" onClick={() => selectVendor(v)}>
+                                                            <div className="font-semibold text-gray-900">{v.name}</div>
+                                                            <div className="text-xs text-gray-500">{v.phone || ''}{v.address ? ` • ${v.address}` : ''}</div>
+                                                        </div>
+                                                    ))}
+                                                {(vendors || []).length === 0 && (
+                                                    <div className="p-3 text-sm text-gray-500">No vendors found</div>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
-                                </Label>
-                                <Input
-                                    id="vendor"
-                                    placeholder="Enter vendor or supplier name"
-                                    value={vendorName}
-                                    onChange={(e) => setVendorName(e.target.value)}
-                                    className="h-11 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500"
-                                    required
-                                />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-medium text-gray-700">Phone</Label>
+                                    <Input value={vendorPhone} onChange={(e) => setVendorPhone(e.target.value)} className="h-11 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500" placeholder="e.g., +880 1XXXXXXXXX" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-medium text-gray-700">Address</Label>
+                                    <Input value={vendorAddress} onChange={(e) => setVendorAddress(e.target.value)} className="h-11 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500" placeholder="Street, City, Country" />
+                                </div>
                             </div>
                         </div>
 
