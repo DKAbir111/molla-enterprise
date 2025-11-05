@@ -14,7 +14,9 @@ import { formatCurrency, formatDate } from '@/lib/utils'
 import { Search, Eye, Edit, Trash2, Phone, MapPin, Plus } from 'lucide-react'
 // Dialog removed; dedicated details route used
 
-type VendorRow = { name: string; phone?: string; purchases: number; totalSpent: number; totalDue: number; since?: Date; lastPurchase?: Date; buys: any[] }
+type VendorRow = {
+  address: string; name: string; phone?: string; purchases: number; totalSpent: number; totalDue: number; since?: Date; lastPurchase?: Date; buys: any[]
+}
 
 export default function VendorsPage() {
   const t = useTranslations('vendors')
@@ -39,7 +41,7 @@ export default function VendorsPage() {
     // Initialize from vendor master
     for (const v of vendorsState) {
       const key = `${v.name}|${v.phone || ''}`
-      map.set(key, { name: v.name, phone: v.phone, purchases: 0, totalSpent: 0, totalDue: 0, since: v.createdAt ? new Date(v.createdAt) : undefined, lastPurchase: undefined, buys: [] } as VendorRow)
+      map.set(key, { name: v.name, address: v.address, phone: v.phone, purchases: 0, totalSpent: 0, totalDue: 0, since: v.createdAt ? new Date(v.createdAt) : undefined, lastPurchase: undefined, buys: [] } as unknown as VendorRow)
     }
     // Fold in buys
     for (const b of buys) {
@@ -144,7 +146,7 @@ export default function VendorsPage() {
                     <TableCell>
                       <div className="flex items-center gap-1 text-gray-600">
                         <MapPin className="h-3 w-3" />
-                        -
+                        {v.address || '-'}
                       </div>
                     </TableCell>
                     <TableCell className="text-center">
