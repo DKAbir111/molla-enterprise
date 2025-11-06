@@ -209,10 +209,13 @@ export default function ProductsPage() {
         /* Products Grid */
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filteredProducts.map((product, idx) => (
-            <Card key={`${product.id}-${idx}`} className="hover:shadow-lg transition-all group">
+            <Card key={`${product.id}-${idx}`} className={`hover:shadow-lg transition-all group ${product.awaitingPurchase !== false ? 'bg-yellow-50 border-yellow-200' : 'bg-white'}`}>
               <CardHeader className="pb-4 relative">
                 {!product.active && (
                   <span className="absolute top-2 right-2 text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">Inactive</span>
+                )}
+                {product.awaitingPurchase !== false && (
+                  <span className="absolute top-2 left-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">Awaiting Purchase</span>
                 )}
                 <div className={`h-32 rounded-lg mb-4 overflow-hidden ${product.imageUrl ? '' : `bg-linear-to-br ${getProductImage(product.type)} flex items-center justify-center text-white`}`}>
                   {product.imageUrl ? (

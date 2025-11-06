@@ -25,6 +25,7 @@ export interface Product {
   description?: string
   imageUrl?: string
   active?: boolean
+  awaitingPurchase?: boolean
 }
 
 export interface DryingGain {

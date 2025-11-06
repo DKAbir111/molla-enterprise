@@ -49,11 +49,9 @@ export class BuysService {
         include: { items: true },
       })
 
+      // mark products as purchased (awaitingPurchase -> false). No stock movement.
       for (const it of itemsData) {
-        const updated = await tx.product.update({ where: { id: it.productId }, data: { stock: { increment: it.quantity } } })
-        if ((updated as any).stock > 0) {
-          try { await tx.product.update({ where: { id: it.productId }, data: { active: true } }) } catch {}
-        }
+        try { await tx.product.update({ where: { id: it.productId }, data: { awaitingPurchase: false } }) } catch {}
       }
 
       if (paidAmount && paidAmount > 0) {
@@ -101,19 +99,13 @@ export class BuysService {
     const grand = rows.reduce((s, r) => s + r.total, 0)
 
     const result = await this.prisma.$transaction(async (tx) => {
-      // reverse previous stock increments
+      // remove previous items (no stock adjustments)
       const existing = await tx.buyItem.findMany({ where: { buyId: id } })
-      for (const it of existing) {
-        await tx.product.update({ where: { id: it.productId }, data: { stock: { decrement: it.quantity } } })
-      }
       await tx.buyItem.deleteMany({ where: { buyId: id } })
       await tx.buyItem.createMany({ data: rows.map(r => ({ buyId: id, ...r })) })
-      // apply new stock increments
+      // ensure purchased flag on referenced products
       for (const r of rows) {
-        const updated = await tx.product.update({ where: { id: r.productId }, data: { stock: { increment: r.quantity } } })
-        if ((updated as any).stock > 0) {
-          try { await tx.product.update({ where: { id: r.productId }, data: { active: true } }) } catch {}
-        }
+        try { await tx.product.update({ where: { id: r.productId }, data: { awaitingPurchase: false } }) } catch {}
       }
       try { await tx.buy.update({ where: { id }, data: { total: grand } as any }) } catch {}
       return tx.buy.findUnique({ where: { id }, include: { items: true } })

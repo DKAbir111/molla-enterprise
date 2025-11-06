@@ -35,7 +35,7 @@ interface BuyModalProps {
 
 export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
     const locale = useLocale()
-    const { products, addBuy, updateBuy: updateBuyStore, addProduct } = useStore()
+    const { products, addBuy, updateBuy: updateBuyStore, addProduct, updateProduct } = useStore()
 
     const isEdit = mode === 'edit' && !!buy
 
@@ -95,6 +95,7 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
 
     const filteredProducts = products
         .filter(p => p.active !== false)
+        .filter(p => p.awaitingPurchase !== false)
         .filter(p =>
             (productSearch === '' || p.name.toLowerCase().includes(productSearch.toLowerCase())) &&
             !orderItems.some(i => i.productId === p.id)
@@ -198,6 +199,8 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                     total: subtotal
                 }
                 updateBuyStore?.(buy.id, updatedLocal as any)
+                // mark purchased products locally
+                orderItems.forEach(i => updateProduct(i.productId, { awaitingPurchase: false }))
                 toast.success('Purchase updated successfully')
                 onSaved?.(updatedLocal)
             } else {
@@ -214,6 +217,8 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                 const created = await apiCreateBuy<any>(payload)
                 const normalized = normalizeOrder(created)
                 addBuy?.(normalized as any)
+                // mark purchased products locally
+                orderItems.forEach(i => updateProduct(i.productId, { awaitingPurchase: false }))
                 toast.success('Purchase created successfully')
                 onSaved?.(created)
             }

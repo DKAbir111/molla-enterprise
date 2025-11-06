@@ -60,6 +60,7 @@ export function normalizeProduct(apiProduct: any): Product {
     description: apiProduct.description ? String(apiProduct.description) : undefined,
     imageUrl: apiProduct.imageUrl ? String(apiProduct.imageUrl) : undefined,
     active: typeof apiProduct.active === 'boolean' ? apiProduct.active : true,
+    awaitingPurchase: typeof (apiProduct as any).awaitingPurchase === 'boolean' ? Boolean((apiProduct as any).awaitingPurchase) : true,
   }
 }
 
