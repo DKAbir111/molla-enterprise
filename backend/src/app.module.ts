@@ -15,6 +15,7 @@ import { TransactionsModule } from './transactions/transactions.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { VendorsModule } from './vendors/vendors.module';
 import { AccountsModule } from './accounts/accounts.module';
+import { DryingGainsModule } from './drying-gains/drying-gains.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { AccountsModule } from './accounts/accounts.module';
     DashboardModule,
     VendorsModule,
     AccountsModule,
+    DryingGainsModule,
   ],
 })
 export class AppModule {}

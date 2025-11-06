@@ -20,6 +20,9 @@ import { toast } from 'sonner'
 import { createProduct as apiCreateProduct, normalizeProduct } from '@/lib/api'
 import { updateProduct as apiUpdateProduct, uploadProductImage } from '@/lib/api/product-api'
 import { formatCurrency } from '@/lib/utils'
+import { listDryingGains, createDryingGain } from '@/lib/api/drying-gain-api'
+import { normalizeDryingGain } from '@/lib/api/normalize'
+import type { DryingGain } from '@/types'
 
 type Mode = 'create' | 'edit'
 
@@ -51,6 +54,9 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
   const [imageFile, setImageFile] = React.useState<File | null>(null)
   const [imagePreview, setImagePreview] = React.useState<string | null>(null)
   const fileInputRef = React.useRef<HTMLInputElement | null>(null)
+  const [dryingGains, setDryingGains] = React.useState<DryingGain[]>([])
+  const [dgQty, setDgQty] = React.useState<number>(0)
+  const [dgSaving, setDgSaving] = React.useState(false)
 
   // initialize/reset when opening or product changes
   React.useEffect(() => {
@@ -66,6 +72,8 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
       setActive(product.active !== false)
       setImagePreview(product.imageUrl || null)
       setImageFile(null)
+      // Load drying gains for this product (lightweight)
+      listDryingGains<any[]>(product.id).then((res) => setDryingGains((res || []).map(normalizeDryingGain))).catch(() => { })
     } else if (!open) {
       // noop when closed
     } else {
@@ -81,11 +89,16 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
       setActive(true)
       setImagePreview(null)
       setImageFile(null)
+      setDryingGains([])
+      setDgQty(0)
     }
   }, [open, isEdit, product])
 
-  const totalCost = React.useMemo(() => (stock > 0 ? (buyPrice + (otherCostPerUnit || 0)) * stock : 0), [stock, buyPrice, otherCostPerUnit])
+  const gainsQty = React.useMemo(() => (dryingGains || []).reduce((s, g) => s + Number(g.quantity || 0), 0), [dryingGains])
+  const costfulQty = React.useMemo(() => Math.max(0, Number(stock || 0) - Number(gainsQty || 0)), [stock, gainsQty])
+  const totalCost = React.useMemo(() => (costfulQty > 0 ? (buyPrice + (otherCostPerUnit || 0)) * costfulQty : 0), [costfulQty, buyPrice, otherCostPerUnit])
   const totalSell = React.useMemo(() => (stock > 0 ? price * stock : 0), [stock, price])
+  const afterDryUnitPrice = React.useMemo(() => (Number(stock || 0) > 0 ? (totalCost / Number(stock || 0)) : 0), [totalCost, stock])
 
   const units = ['liter', 'feet', 'piece', 'ton', 'bag', 'cft', 'kg', 'meter', 'yard', 'gallon', 'cubicMeter']
 
@@ -294,6 +307,58 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
               </div>
             </div>
 
+            {/* After-dry unit price moved next to Drying Gain input */}
+
+            {/* Drying Gain (edit mode) */}
+            {isEdit && (
+              <div className="space-y-3 pt-4 border-t border-gray-200">
+                <div className="text-base font-semibold text-gray-900">Drying Gain</div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-end">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700">Add Quantity ({product?.unit})</Label>
+                    <Input type="number" min={1} value={dgQty} onChange={(e) => setDgQty(parseInt(e.target.value || '0', 10) || 0)} className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder="0" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700">After-dry Unit Price (auto)</Label>
+                    <div className="h-11 px-3 rounded-md border border-gray-200 bg-gray-50 flex items-center font-medium">
+                      {formatCurrency(afterDryUnitPrice, locale)}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700 opacity-0 select-none">Action</Label>
+                    <Button type="button" className="h-11" disabled={dgSaving || dgQty <= 0} onClick={async () => {
+                      if (!product || dgQty <= 0) return
+                      setDgSaving(true)
+                      try {
+                        const created = await createDryingGain<any>({ productId: product.id, quantity: dgQty })
+                        setDryingGains((prev) => [normalizeDryingGain(created), ...prev])
+                        updateProduct(product.id, { stock: (product.stock || 0) + dgQty })
+                        setStock((s) => (Number(s || 0) + dgQty))
+                        setDgQty(0)
+                      } catch { }
+                      finally { setDgSaving(false) }
+                    }}>Add Gain</Button>
+                  </div>
+                </div>
+                {dryingGains.length > 0 && (
+                  <div className="border rounded-lg">
+                    <div className="px-3 py-2 text-sm text-gray-600 border-b bg-gray-50">Recent Gains</div>
+                    <div className="max-h-40 overflow-y-auto divide-y">
+                      {dryingGains.slice(0, 5).map((g) => (
+                        <div key={g.id} className="px-3 py-2 text-sm flex justify-between">
+                          <span>{new Date(g.createdAt).toLocaleDateString()}</span>
+                          <span className="font-medium">+{g.quantity} {product?.unit}</span>
+                        </div>
+                      ))}
+                      {dryingGains.length === 0 && (
+                        <div className="px-3 py-2 text-sm text-gray-500">No gains yet</div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Totals (auto-calculated, read-only) */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-1">
@@ -301,7 +366,7 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
                 <div className="h-11 px-3 rounded-md border border-gray-200 bg-gray-50 flex items-center font-medium">
                   {formatCurrency(totalCost, locale)}
                 </div>
-                <div className="text-xs text-gray-500">Auto = (buy + other) × stock</div>
+                <div className="text-xs text-gray-500">Auto = (buy + other) × (stock − drying gains)</div>
               </div>
               <div className="space-y-1">
                 <Label className="text-sm font-medium text-gray-700">Total Sell Value (BDT)</Label>

@@ -27,6 +27,15 @@ export interface Product {
   active?: boolean
 }
 
+export interface DryingGain {
+  id: string
+  productId: string
+  quantity: number
+  unitCost: number
+  note?: string
+  createdAt: Date
+}
+
 export interface Customer {
   id: string
   name: string

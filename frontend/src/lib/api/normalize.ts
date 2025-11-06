@@ -1,5 +1,5 @@
 import { toNumber } from './http'
-import type { Order, OrderItem, Customer, Product, Transaction, Buy, BuyItem } from '@/types'
+import type { Order, OrderItem, Customer, Product, Transaction, Buy, BuyItem, DryingGain } from '@/types'
 
 export function normalizeOrder(apiOrder: any): Order {
   const items: OrderItem[] = (apiOrder.items || []).map((i: any) => ({
@@ -94,5 +94,16 @@ export function normalizeBuy(apiBuy: any): Buy {
     transportTrips: Number(apiBuy.transportTrips ?? 0),
     transportTotal: toNumber(apiBuy.transportTotal ?? 0),
     createdAt: apiBuy.createdAt ? new Date(apiBuy.createdAt) : new Date(),
+  }
+}
+
+export function normalizeDryingGain(api: any): DryingGain {
+  return {
+    id: String(api.id),
+    productId: String(api.productId),
+    quantity: Number(api.quantity ?? 0),
+    unitCost: toNumber(api.unitCost ?? 0),
+    note: api.note ? String(api.note) : undefined,
+    createdAt: api.createdAt ? new Date(api.createdAt) : new Date(),
   }
 }

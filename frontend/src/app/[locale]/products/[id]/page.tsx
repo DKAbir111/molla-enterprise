@@ -16,14 +16,14 @@ import {
 import { useStore } from '@/store/useStore'
 import { formatCurrency, formatDate, formatOrderCode } from '@/lib/utils'
 import { useLocale } from 'next-intl'
-import { ChevronLeft, Package, TrendingUp, Layers, Tag } from 'lucide-react'
-import { listSells as fetchSells, listProducts as fetchProducts } from '@/lib/api'
-import { normalizeOrder, normalizeProduct } from '@/lib/api'
+import { ChevronLeft, Layers, Tag } from 'lucide-react'
+import { listSells as fetchSells, listProducts as fetchProducts, listDryingGains } from '@/lib/api'
+import { normalizeOrder, normalizeProduct, normalizeDryingGain } from '@/lib/api'
+import type { DryingGain } from '@/types'
 
 type SaleRow = { id: string; date: Date; orderId: string; quantity: number; price: number; total: number }
 
 export default function ProductDetailsPage() {
-  const tNav = useTranslations('nav')
   const locale = useLocale()
   const params = useParams()
   const router = useRouter()
@@ -34,6 +34,7 @@ export default function ProductDetailsPage() {
 
   const [sales, setSales] = useState<SaleRow[]>([])
   const [loading, setLoading] = useState(false)
+  const [gains, setGains] = useState<DryingGain[]>([])
 
   // Ensure product exists on direct visits
   useEffect(() => {
@@ -74,6 +75,16 @@ export default function ProductDetailsPage() {
         setSales(rows)
       })
       .finally(() => setLoading(false))
+  }, [productId])
+
+  // Load drying gains
+  useEffect(() => {
+    let mounted = true
+    if (!productId) return
+    listDryingGains<any[]>(productId)
+      .then(res => { if (!mounted) return; setGains((res || []).map(normalizeDryingGain)) })
+      .catch(() => { })
+    return () => { mounted = false }
   }, [productId])
 
   const summary = useMemo(() => {
@@ -157,6 +168,42 @@ export default function ProductDetailsPage() {
           <CardContent><div className="text-lg font-semibold">{product?.stock} {product?.unit}</div></CardContent>
         </Card>
       </div>
+
+      {/* Drying Gains */}
+      <Card>
+        <CardHeader className="flex-row items-center justify-between">
+          <CardTitle>Drying Gains</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Date</TableHead>
+                <TableHead className="text-center">Quantity</TableHead>
+                <TableHead className="text-right">Unit Cost</TableHead>
+                <TableHead>Note</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {gains.map((g) => (
+                <TableRow key={g.id}>
+                  <TableCell>{formatDate(g.createdAt, locale)}</TableCell>
+                  <TableCell className="text-center">{g.quantity} {product?.unit}</TableCell>
+                  <TableCell className="text-right">{formatCurrency(g.unitCost || 0, locale)}</TableCell>
+                  <TableCell className="max-w-[400px] truncate" title={g.note}>{g.note || ''}</TableCell>
+                </TableRow>
+              ))}
+              {gains.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center text-gray-500 py-10">No drying gains recorded.</TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      {/* Add Drying Gain from details removed; manage via Edit Product modal */}
 
       {/* Sales History */}
       <Card>

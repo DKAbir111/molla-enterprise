@@ -39,6 +39,7 @@ model Organization {
   buys         Buy[]
   transactions Transaction[]
   vendors      Vendor[]
+  dryingGains  DryingGain[]
 }
 
 model Product {
@@ -61,6 +62,7 @@ model Product {
   updatedAt      DateTime      @updatedAt
   sellItems      SellItem[]
   buyItems       BuyItem[]
+  dryingGains    DryingGain[]
 
   @@index([organizationId])
 }
@@ -181,6 +183,21 @@ model Transaction {
   organizationId String
   organization   Organization  @relation(fields: [organizationId], references: [id])
   createdAt      DateTime      @default(now())
+}
+
+model DryingGain {
+  id             String        @id @default(uuid())
+  productId      String
+  product        Product       @relation(fields: [productId], references: [id])
+  organizationId String
+  organization   Organization  @relation(fields: [organizationId], references: [id])
+  quantity       Int
+  unitCost       Decimal       @db.Decimal(12,2) @default(0)
+  note           String?
+  createdAt      DateTime      @default(now())
+
+  @@index([productId])
+  @@index([organizationId])
 }
 
 model PasswordResetToken {
