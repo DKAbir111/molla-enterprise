@@ -19,6 +19,7 @@ const dashboard_module_1 = require("./dashboard/dashboard.module");
 const vendors_module_1 = require("./vendors/vendors.module");
 const accounts_module_1 = require("./accounts/accounts.module");
 const drying_gains_module_1 = require("./drying-gains/drying-gains.module");
+const alerts_module_1 = require("./alerts/alerts.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -49,6 +50,7 @@ exports.AppModule = AppModule = tslib_1.__decorate([
             vendors_module_1.VendorsModule,
             accounts_module_1.AccountsModule,
             drying_gains_module_1.DryingGainsModule,
+            alerts_module_1.AlertsModule,
         ],
     })
 ], AppModule);

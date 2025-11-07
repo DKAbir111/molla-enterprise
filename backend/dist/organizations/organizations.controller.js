@@ -55,9 +55,15 @@ let OrganizationsController = class OrganizationsController {
     me(req) {
         return this.orgs.findMine(req.user.userId).then((org) => (org ? withPublicLogo(org) : org));
     }
+    settingsMe(req) {
+        return this.orgs.getSettings(req.user.userId);
+    }
     update(req, id, dto, file) {
         const logoPath = file ? '/uploads/' + path.basename(file.path) : undefined;
         return this.orgs.update(req.user.userId, id, dto, logoPath).then(withPublicLogo);
+    }
+    updateSettings(req, id, dto) {
+        return this.orgs.updateSettings(req.user.userId, id, dto);
     }
 };
 exports.OrganizationsController = OrganizationsController;
@@ -81,6 +87,13 @@ tslib_1.__decorate([
     tslib_1.__metadata("design:returntype", void 0)
 ], OrganizationsController.prototype, "me", null);
 tslib_1.__decorate([
+    (0, common_1.Get)('me/settings'),
+    tslib_1.__param(0, (0, common_2.Req)()),
+    tslib_1.__metadata("design:type", Function),
+    tslib_1.__metadata("design:paramtypes", [Object]),
+    tslib_1.__metadata("design:returntype", void 0)
+], OrganizationsController.prototype, "settingsMe", null);
+tslib_1.__decorate([
     (0, common_1.Patch)(':id'),
     (0, swagger_1.ApiConsumes)('multipart/form-data'),
     (0, swagger_1.ApiBody)({ type: update_organization_dto_1.UpdateOrganizationDto }),
@@ -93,6 +106,15 @@ tslib_1.__decorate([
     tslib_1.__metadata("design:paramtypes", [Object, String, update_organization_dto_1.UpdateOrganizationDto, Object]),
     tslib_1.__metadata("design:returntype", void 0)
 ], OrganizationsController.prototype, "update", null);
+tslib_1.__decorate([
+    (0, common_1.Patch)(':id/settings'),
+    tslib_1.__param(0, (0, common_2.Req)()),
+    tslib_1.__param(1, (0, common_1.Param)('id')),
+    tslib_1.__param(2, (0, common_1.Body)()),
+    tslib_1.__metadata("design:type", Function),
+    tslib_1.__metadata("design:paramtypes", [Object, String, Object]),
+    tslib_1.__metadata("design:returntype", void 0)
+], OrganizationsController.prototype, "updateSettings", null);
 exports.OrganizationsController = OrganizationsController = tslib_1.__decorate([
     (0, swagger_1.ApiTags)('organizations'),
     (0, swagger_1.ApiBearerAuth)(),

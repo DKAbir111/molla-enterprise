@@ -40,6 +40,9 @@ model Organization {
   transactions Transaction[]
   vendors      Vendor[]
   dryingGains  DryingGain[]
+
+  // One-to-one settings
+  settings     OrganizationSettings?
 }
 
 model Product {
@@ -184,6 +187,8 @@ model Transaction {
   organizationId String
   organization   Organization  @relation(fields: [organizationId], references: [id])
   createdAt      DateTime      @default(now())
+
+  @@index([organizationId])
 }
 
 model DryingGain {
@@ -199,6 +204,29 @@ model DryingGain {
 
   @@index([productId])
   @@index([organizationId])
+}
+
+model OrganizationSettings {
+  id                     String   @id @default(uuid())
+  organizationId         String   @unique
+  organization           Organization @relation(fields: [organizationId], references: [id])
+
+  // Notification toggles
+  notifyLowStock         Boolean  @default(true)
+  notifyOrderUpdates     Boolean  @default(true)
+  notifyReceivables      Boolean  @default(true)
+  notifyPayables         Boolean  @default(true)
+  emailAlerts            Boolean  @default(false)
+  smsAlerts              Boolean  @default(false)
+
+  // Thresholds & aging
+  lowStockThreshold      Int      @default(5)
+  pendingOrderAgingHours Int      @default(24)
+  receivableReminderDays Int      @default(3)
+  payableReminderDays    Int      @default(3)
+
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
 }
 
 model PasswordResetToken {

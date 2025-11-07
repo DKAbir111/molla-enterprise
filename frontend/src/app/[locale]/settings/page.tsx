@@ -20,6 +20,7 @@ import {
   Camera
 } from 'lucide-react'
 import { getMyOrganization, updateOrganization } from '@/lib/api'
+import { getMyOrganizationSettings, updateOrganizationSettings } from '@/lib/api/organization-api'
 import { useTheme } from '@/store/useTheme'
 import { toast } from 'sonner'
 
@@ -108,12 +109,46 @@ export default function SettingsPage() {
   }
 
   const [notifications, setNotifications] = useState({
-    emailAlerts: true,
+    notifyLowStock: true,
+    notifyOrderUpdates: true,
+    notifyReceivables: true,
+    notifyPayables: true,
+    emailAlerts: false,
     smsAlerts: false,
-    orderUpdates: true,
-    lowStock: true,
-    paymentReminders: true,
   })
+  const [thresholds, setThresholds] = useState({
+    lowStockThreshold: 5,
+    pendingOrderAgingHours: 24,
+    receivableReminderDays: 3,
+    payableReminderDays: 3,
+  })
+
+  // Load org settings
+  useEffect(() => {
+    let mounted = true
+    getMyOrganizationSettings<any>()
+      .then((s) => {
+        if (!mounted || !s) return
+        setNotifications((prev) => ({
+          ...prev,
+          notifyLowStock: s.notifyLowStock ?? prev.notifyLowStock,
+          notifyOrderUpdates: s.notifyOrderUpdates ?? prev.notifyOrderUpdates,
+          notifyReceivables: s.notifyReceivables ?? prev.notifyReceivables,
+          notifyPayables: s.notifyPayables ?? prev.notifyPayables,
+          emailAlerts: s.emailAlerts ?? prev.emailAlerts,
+          smsAlerts: s.smsAlerts ?? prev.smsAlerts,
+        }))
+        setThresholds((prev) => ({
+          ...prev,
+          lowStockThreshold: s.lowStockThreshold ?? prev.lowStockThreshold,
+          pendingOrderAgingHours: s.pendingOrderAgingHours ?? prev.pendingOrderAgingHours,
+          receivableReminderDays: s.receivableReminderDays ?? prev.receivableReminderDays,
+          payableReminderDays: s.payableReminderDays ?? prev.payableReminderDays,
+        }))
+      })
+      .catch(() => {})
+    return () => { mounted = false }
+  }, [])
 
   const { theme, setTheme } = useTheme()
 
@@ -221,24 +256,63 @@ export default function SettingsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {Object.entries(notifications).map(([key, value]) => (
+            {(
+              [
+                ['notifyLowStock', 'Low Stock'],
+                ['notifyOrderUpdates', 'Order Updates'],
+                ['notifyReceivables', 'Receivables'],
+                ['notifyPayables', 'Payables'],
+                ['emailAlerts', 'Email Alerts'],
+                ['smsAlerts', 'SMS Alerts (disabled)'],
+              ] as const
+            ).map(([key, label]) => (
               <div key={key} className="flex items-center justify-between p-3 rounded-lg border">
-                <span className="text-sm font-medium text-gray-700">
-                  {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                </span>
+                <span className="text-sm font-medium text-gray-700">{label}</span>
                 <button
-                  onClick={() => setNotifications({ ...notifications, [key]: !value })}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${value ? 'bg-purple-600' : 'bg-gray-200'
-                    }`}
+                  onClick={() => setNotifications({ ...notifications, [key]: !(notifications as any)[key] })}
+                  disabled={key === 'smsAlerts'}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${(notifications as any)[key] ? 'bg-purple-600' : 'bg-gray-200'} ${(key === 'smsAlerts') ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${value ? 'translate-x-6' : 'translate-x-1'
-                      }`}
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${(notifications as any)[key] ? 'translate-x-6' : 'translate-x-1'}`}
                   />
                 </button>
               </div>
             ))}
-            <Button className="w-full">
+
+            {/* Thresholds */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-sm font-medium text-gray-700">Low Stock Threshold</label>
+                <Input type="number" min={0} className="mt-1" value={thresholds.lowStockThreshold}
+                  onChange={(e) => setThresholds({ ...thresholds, lowStockThreshold: Number(e.target.value || 0) })} />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">Pending Order Aging (hours)</label>
+                <Input type="number" min={0} className="mt-1" value={thresholds.pendingOrderAgingHours}
+                  onChange={(e) => setThresholds({ ...thresholds, pendingOrderAgingHours: Number(e.target.value || 0) })} />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">Receivable Reminder (days)</label>
+                <Input type="number" min={0} className="mt-1" value={thresholds.receivableReminderDays}
+                  onChange={(e) => setThresholds({ ...thresholds, receivableReminderDays: Number(e.target.value || 0) })} />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">Payable Reminder (days)</label>
+                <Input type="number" min={0} className="mt-1" value={thresholds.payableReminderDays}
+                  onChange={(e) => setThresholds({ ...thresholds, payableReminderDays: Number(e.target.value || 0) })} />
+              </div>
+            </div>
+
+            <Button className="w-full" onClick={async () => {
+              if (!orgId) return
+              try {
+                await updateOrganizationSettings(orgId, { ...notifications, ...thresholds })
+                toast.success('Notification settings saved')
+              } catch {
+                toast.error('Failed to save notification settings')
+              }
+            }}>
               <Save className="h-4 w-4 mr-2" />
               Save Notification Settings
             </Button>

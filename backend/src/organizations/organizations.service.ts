@@ -31,6 +31,14 @@ export class OrganizationsService {
       },
     });
     await this.prisma.user.update({ where: { id: userId }, data: { organizationId: org.id } });
+    // Ensure default settings for this organization
+    try {
+      await (this.prisma as any).organizationSettings.create({
+        data: {
+          organizationId: org.id,
+        },
+      });
+    } catch {}
     return org;
   }
 
@@ -57,6 +65,44 @@ export class OrganizationsService {
         phone: dto.phone,
         address: dto.address,
         ...(nextLogo ? { logoUrl: nextLogo } : {}),
+      },
+    });
+  }
+
+  async getSettings(userId: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user?.organizationId) return null;
+    let settings = await (this.prisma as any).organizationSettings.findUnique({ where: { organizationId: user.organizationId } });
+    if (!settings) {
+      try {
+        settings = await (this.prisma as any).organizationSettings.create({ data: { organizationId: user.organizationId } });
+      } catch {
+        settings = await (this.prisma as any).organizationSettings.findUnique({ where: { organizationId: user.organizationId } });
+      }
+    }
+    return settings;
+  }
+
+  async updateSettings(userId: string, id: string, dto: any) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user?.organizationId || user.organizationId !== id) throw new ForbiddenException('Not your organization');
+    let existing = await (this.prisma as any).organizationSettings.findUnique({ where: { organizationId: id } });
+    if (!existing) {
+      existing = await (this.prisma as any).organizationSettings.create({ data: { organizationId: id } });
+    }
+    return (this.prisma as any).organizationSettings.update({
+      where: { organizationId: id },
+      data: {
+        notifyLowStock: dto.notifyLowStock,
+        notifyOrderUpdates: dto.notifyOrderUpdates,
+        notifyReceivables: dto.notifyReceivables,
+        notifyPayables: dto.notifyPayables,
+        emailAlerts: dto.emailAlerts,
+        smsAlerts: dto.smsAlerts,
+        lowStockThreshold: dto.lowStockThreshold,
+        pendingOrderAgingHours: dto.pendingOrderAgingHours,
+        receivableReminderDays: dto.receivableReminderDays,
+        payableReminderDays: dto.payableReminderDays,
       },
     });
   }

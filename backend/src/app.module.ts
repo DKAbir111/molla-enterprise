@@ -16,6 +16,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { VendorsModule } from './vendors/vendors.module';
 import { AccountsModule } from './accounts/accounts.module';
 import { DryingGainsModule } from './drying-gains/drying-gains.module';
+import { AlertsModule } from './alerts/alerts.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { DryingGainsModule } from './drying-gains/drying-gains.module';
     VendorsModule,
     AccountsModule,
     DryingGainsModule,
+    AlertsModule,
   ],
 })
 export class AppModule {}

@@ -60,6 +60,11 @@ export class OrganizationsController {
     return this.orgs.findMine(req.user.userId).then((org) => (org ? withPublicLogo(org) : org));
   }
 
+  @Get('me/settings')
+  settingsMe(@Req() req: any) {
+    return this.orgs.getSettings(req.user.userId)
+  }
+
   @Patch(':id')
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: UpdateOrganizationDto })
@@ -72,5 +77,14 @@ export class OrganizationsController {
   ) {
     const logoPath = file ? '/uploads/' + path.basename(file.path) : undefined;
     return this.orgs.update(req.user.userId, id, dto, logoPath).then(withPublicLogo);
+  }
+
+  @Patch(':id/settings')
+  updateSettings(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Body() dto: any,
+  ) {
+    return this.orgs.updateSettings(req.user.userId, id, dto)
   }
 }

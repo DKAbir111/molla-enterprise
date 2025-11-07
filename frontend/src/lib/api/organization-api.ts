@@ -40,3 +40,25 @@ export async function updateOrganization<T = any>(id: string, data: UpdateOrgani
   return res.data
 }
 
+export async function getMyOrganizationSettings<T = any>(): Promise<T> {
+  const res = await api.get<T>('/organizations/me/settings')
+  return res.data
+}
+
+export type UpdateOrganizationSettingsInput = Partial<{
+  notifyLowStock: boolean
+  notifyOrderUpdates: boolean
+  notifyReceivables: boolean
+  notifyPayables: boolean
+  emailAlerts: boolean
+  smsAlerts: boolean
+  lowStockThreshold: number
+  pendingOrderAgingHours: number
+  receivableReminderDays: number
+  payableReminderDays: number
+}>
+
+export async function updateOrganizationSettings<T = any>(id: string, data: UpdateOrganizationSettingsInput): Promise<T> {
+  const res = await api.patch<T>(`/organizations/${id}/settings`, data)
+  return res.data
+}

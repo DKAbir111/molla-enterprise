@@ -31,6 +31,14 @@ let OrganizationsService = class OrganizationsService {
             },
         });
         await this.prisma.user.update({ where: { id: userId }, data: { organizationId: org.id } });
+        try {
+            await this.prisma.organizationSettings.create({
+                data: {
+                    organizationId: org.id,
+                },
+            });
+        }
+        catch { }
         return org;
     }
     async findMine(userId) {
@@ -55,6 +63,45 @@ let OrganizationsService = class OrganizationsService {
                 phone: dto.phone,
                 address: dto.address,
                 ...(nextLogo ? { logoUrl: nextLogo } : {}),
+            },
+        });
+    }
+    async getSettings(userId) {
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        if (!user?.organizationId)
+            return null;
+        let settings = await this.prisma.organizationSettings.findUnique({ where: { organizationId: user.organizationId } });
+        if (!settings) {
+            try {
+                settings = await this.prisma.organizationSettings.create({ data: { organizationId: user.organizationId } });
+            }
+            catch {
+                settings = await this.prisma.organizationSettings.findUnique({ where: { organizationId: user.organizationId } });
+            }
+        }
+        return settings;
+    }
+    async updateSettings(userId, id, dto) {
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        if (!user?.organizationId || user.organizationId !== id)
+            throw new common_1.ForbiddenException('Not your organization');
+        let existing = await this.prisma.organizationSettings.findUnique({ where: { organizationId: id } });
+        if (!existing) {
+            existing = await this.prisma.organizationSettings.create({ data: { organizationId: id } });
+        }
+        return this.prisma.organizationSettings.update({
+            where: { organizationId: id },
+            data: {
+                notifyLowStock: dto.notifyLowStock,
+                notifyOrderUpdates: dto.notifyOrderUpdates,
+                notifyReceivables: dto.notifyReceivables,
+                notifyPayables: dto.notifyPayables,
+                emailAlerts: dto.emailAlerts,
+                smsAlerts: dto.smsAlerts,
+                lowStockThreshold: dto.lowStockThreshold,
+                pendingOrderAgingHours: dto.pendingOrderAgingHours,
+                receivableReminderDays: dto.receivableReminderDays,
+                payableReminderDays: dto.payableReminderDays,
             },
         });
     }
