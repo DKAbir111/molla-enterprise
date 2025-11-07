@@ -43,6 +43,9 @@ model Organization {
 
   // One-to-one settings
   settings     OrganizationSettings?
+
+  // Alert snoozes
+  alertSnoozes OrganizationAlertSnooze[]
 }
 
 model Product {
@@ -227,6 +230,19 @@ model OrganizationSettings {
 
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
+}
+
+model OrganizationAlertSnooze {
+  id              String   @id @default(uuid())
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id])
+  type            String   // 'lowStock' | 'pendingOrder' | 'receivable' | 'payable'
+  refId           String
+  until           DateTime?
+  permanent       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+
+  @@index([organizationId, type, refId])
 }
 
 model PasswordResetToken {

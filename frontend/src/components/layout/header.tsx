@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Languages, Bell, User, LogOut, TriangleAlert, Clock, CircleDollarSign, Receipt } from 'lucide-react'
 import { logout } from '@/lib/api'
 import React from 'react'
-import { getAlerts } from '@/lib/api/alerts-api'
+import { getAlerts, snoozeAlert } from '@/lib/api/alerts-api'
 import { getAuthToken } from '@/lib/api/http'
 import { formatCurrency } from '@/lib/utils'
 
@@ -41,6 +41,19 @@ export function Header() {
       }
       prevScoreRef.current = score
       return data
+    })
+  }, [])
+
+  // Optimistic item removal after snooze
+  const removeItem = React.useCallback((type: 'lowStock'|'pendingOrder'|'receivable'|'payable', id: string) => {
+    setAlerts((prev: any) => {
+      if (!prev) return prev
+      const next = { ...prev }
+      if (type === 'lowStock') next.lowStock = { ...next.lowStock, count: Math.max(0, (next.lowStock?.count || 0) - 1), items: (next.lowStock?.items || []).filter((x: any) => x.id !== id) }
+      if (type === 'pendingOrder') next.pendingOrders = { ...next.pendingOrders, agingCount: Math.max(0, (next.pendingOrders?.agingCount || 0) - 1), count: Math.max(0, (next.pendingOrders?.count || 0) - 1), items: (next.pendingOrders?.items || []).filter((x: any) => x.id !== id) }
+      if (type === 'receivable') next.receivables = { ...next.receivables, count: Math.max(0, (next.receivables?.count || 0) - 1), items: (next.receivables?.items || []).filter((x: any) => x.id !== id) }
+      if (type === 'payable') next.payables = { ...next.payables, count: Math.max(0, (next.payables?.count || 0) - 1), items: (next.payables?.items || []).filter((x: any) => x.id !== id) }
+      return next
     })
   }, [])
 
@@ -109,7 +122,7 @@ export function Header() {
     } catch { }
   }
 
-  const NotificationItem = ({ icon, title, count, items, link, color }: any) => (
+  const NotificationItem = ({ icon, title, count, items, link, color, type }: any) => (
     <div className="group p-3 rounded-lg border border-gray-100 hover:border-gray-200 bg-white hover:shadow-sm transition-all">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
@@ -120,9 +133,23 @@ export function Header() {
       </div>
       <div className="space-y-1.5">
         {items.map((item: any, i: number) => (
-          <div key={i} className="flex justify-between text-xs text-gray-600">
+          <div key={i} className="flex items-center justify-between gap-2 text-xs text-gray-600">
             <span className="truncate mr-2">{item.label}</span>
-            <span className="font-medium whitespace-nowrap">{item.value}</span>
+            <div className="flex items-center gap-2">
+              <span className="font-medium whitespace-nowrap">{item.value}</span>
+              {item.id && (
+                <>
+                  <button
+                    className="text-[11px] text-blue-600 hover:underline"
+                    onClick={async () => { try { await snoozeAlert({ type, refId: item.id, days: 7 }); removeItem(type, item.id) } catch {} }}
+                  >Snooze 7d</button>
+                  <button
+                    className="text-[11px] text-gray-500 hover:underline"
+                    onClick={async () => { try { await snoozeAlert({ type, refId: item.id, forever: true }); removeItem(type, item.id) } catch {} }}
+                  >Don't remind</button>
+                </>
+              )}
+            </div>
           </div>
         ))}
       </div>
@@ -165,10 +192,8 @@ export function Header() {
                         icon={<TriangleAlert className="h-4 w-4 text-amber-500" />}
                         title="Low Stock"
                         count={alerts.lowStock.count}
-                        items={alerts.lowStock.items.map((p: any) => ({
-                          label: p.name,
-                          value: `${p.stock} left`
-                        }))}
+                        type="lowStock"
+                        items={alerts.lowStock.items.map((p: any) => ({ id: p.id, label: p.name, value: `${p.stock} left` }))}
                         link={`/${locale}/products`}
                         color="bg-amber-50 text-amber-700"
                       />
@@ -179,10 +204,8 @@ export function Header() {
                         icon={<Clock className="h-4 w-4 text-blue-500" />}
                         title="Aging Orders"
                         count={alerts.pendingOrders.agingCount}
-                        items={alerts.pendingOrders.items.filter((o: any) => o.ageHours >= 24).map((o: any) => ({
-                          label: `#${o.id.slice(0, 6)} - ${o.customerName}`,
-                          value: `${o.ageHours}h`
-                        }))}
+                        type="pendingOrder"
+                        items={alerts.pendingOrders.items.map((o: any) => ({ id: o.id, label: `#${o.id.slice(0, 6)} - ${o.customerName}`, value: `${o.ageHours}h` }))}
                         link={`/${locale}/sells`}
                         color="bg-blue-50 text-blue-700"
                       />
@@ -193,10 +216,8 @@ export function Header() {
                         icon={<CircleDollarSign className="h-4 w-4 text-emerald-500" />}
                         title="Receivables"
                         count={alerts.receivables.count}
-                        items={alerts.receivables.items.map((r: any) => ({
-                          label: r.customerName,
-                          value: formatCurrency(Number(r.due || 0), String(locale))
-                        }))}
+                        type="receivable"
+                        items={alerts.receivables.items.map((r: any) => ({ id: r.id, label: r.customerName, value: formatCurrency(Number(r.due || 0), String(locale)) }))}
                         link={`/${locale}/sells`}
                         color="bg-emerald-50 text-emerald-700"
                       />
@@ -207,10 +228,8 @@ export function Header() {
                         icon={<Receipt className="h-4 w-4 text-rose-500" />}
                         title="Payables"
                         count={alerts.payables.count}
-                        items={alerts.payables.items.map((r: any) => ({
-                          label: r.vendorName,
-                          value: formatCurrency(Number(r.due || 0), String(locale))
-                        }))}
+                        type="payable"
+                        items={alerts.payables.items.map((r: any) => ({ id: r.id, label: r.vendorName, value: formatCurrency(Number(r.due || 0), String(locale)) }))}
                         link={`/${locale}/buys`}
                         color="bg-rose-50 text-rose-700"
                       />
