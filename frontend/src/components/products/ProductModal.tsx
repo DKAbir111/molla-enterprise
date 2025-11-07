@@ -316,7 +316,18 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-end">
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-gray-700">Add Quantity ({product?.unit})</Label>
-                    <Input type="number" min={1} value={dgQty} onChange={(e) => setDgQty(parseInt(e.target.value || '0', 10) || 0)} className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder="0" />
+                    <Input
+                      type="number"
+                      min={0}
+                      step={1}
+                      value={dgQty}
+                      onChange={(e) => {
+                        const n = Math.max(0, parseInt(e.target.value || '0', 10) || 0)
+                        setDgQty(n)
+                      }}
+                      className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                      placeholder="0"
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-gray-700">After-dry Unit Price (auto)</Label>
