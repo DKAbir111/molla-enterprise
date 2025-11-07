@@ -170,8 +170,7 @@ export default function SettingsPage() {
     { id: 'business', label: 'Business Info', icon: Building },
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'appearance', label: 'Appearance', icon: Palette },
-    { id: 'language', label: 'Language', icon: Globe },
-    { id: 'security', label: 'Security', icon: Shield },
+    { id: 'other', label: 'Other', icon: Globe },
   ]
 
   return (
@@ -199,6 +198,7 @@ export default function SettingsPage() {
       <div className="space-y-6">
         {/* Business Information */}
         {activeTab === 'business' && (
+          <div className="grid gap-6 md:grid-cols-2">
           <Card>
             <CardHeader>
               <CardTitle>Business Information</CardTitle>
@@ -304,11 +304,35 @@ export default function SettingsPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Additional business info (future) */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Additional Info</CardTitle>
+              <CardDescription>Website and registration details (optional)</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <label className="text-sm font-semibold text-gray-700 mb-2 block">Website</label>
+                <Input placeholder="https://example.com" />
+              </div>
+              <div>
+                <label className="text-sm font-semibold text-gray-700 mb-2 block">VAT/GST Number</label>
+                <Input placeholder="e.g., 123456789" />
+              </div>
+              <div>
+                <label className="text-sm font-semibold text-gray-700 mb-2 block">Trade License / Registration No.</label>
+                <Input placeholder="e.g., ABC-2024-001" />
+              </div>
+              <p className="text-xs text-gray-500">These fields will be saved in a future update.</p>
+            </CardContent>
+          </Card>
+          </div>
         )}
 
         {/* Notifications */}
         {activeTab === 'notifications' && (
-          <div className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-2">
             <Card>
               <CardHeader>
                 <CardTitle>Alert Preferences</CardTitle>
@@ -407,7 +431,7 @@ export default function SettingsPage() {
             </Card>
 
             {/* Snoozed Alerts */}
-            <Card>
+            <Card className="md:col-span-2">
               <CardHeader>
                 <CardTitle>Snoozed Alerts</CardTitle>
                 <CardDescription>Manage alerts you've temporarily muted</CardDescription>
@@ -460,13 +484,14 @@ export default function SettingsPage() {
 
         {/* Appearance */}
         {activeTab === 'appearance' && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Theme Preferences</CardTitle>
-              <CardDescription>Customize how your dashboard looks</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Theme Preferences</CardTitle>
+                <CardDescription>Customize how your dashboard looks</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4 md:grid-cols-3">
                 {[
                   { id: 'default', name: 'Default', desc: 'Light theme with purple accents', colors: ['bg-purple-600', 'bg-blue-600', 'bg-gray-200'] },
                   { id: 'dark', name: 'Dark Mode', desc: 'Easy on the eyes', colors: ['bg-gray-900', 'bg-gray-800', 'bg-gray-700'] },
@@ -493,66 +518,82 @@ export default function SettingsPage() {
                     </div>
                   </button>
                 ))}
-              </div>
-            </CardContent>
-          </Card>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Invoice Preferences</CardTitle>
+                <CardDescription>Select template and defaults (coming soon)</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="grid grid-cols-3 gap-3 text-sm">
+                  {['Classic','Compact','Modern'].map((tpl) => (
+                    <label key={tpl} className="border rounded-lg p-3 flex items-center gap-2 cursor-not-allowed opacity-60">
+                      <input type="radio" name="invTpl" disabled />
+                      <span>{tpl}</span>
+                    </label>
+                  ))}
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Invoice Prefix</label>
+                    <Input placeholder="INV" disabled className="mt-1" />
+                  </div>
+                  <label className="flex items-center gap-2 text-sm text-gray-700">
+                    <input type="checkbox" disabled className="h-4 w-4" />
+                    Show logo on invoice
+                  </label>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         )}
 
-        {/* Language */}
-        {activeTab === 'language' && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Language & Region</CardTitle>
-              <CardDescription>Configure language, currency, and regional preferences</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid gap-6 md:grid-cols-2">
-                <div>
-                  <label className="text-sm font-semibold text-gray-700 mb-2 block">Display Language</label>
-                  <select className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
-                    <option value="en">English</option>
-                    <option value="bn">বাংলা (Bengali)</option>
-                  </select>
+        {/* Other (Language + Security) */}
+        {activeTab === 'other' && (
+          <div className="grid gap-6 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Language & Region</CardTitle>
+                <CardDescription>Configure language, currency, and regional preferences</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid gap-6">
+                  <div>
+                    <label className="text-sm font-semibold text-gray-700 mb-2 block">Display Language</label>
+                    <select className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                      <option value="en">English</option>
+                      <option value="bn">বাংলা (Bengali)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-semibold text-gray-700 mb-2 block">Currency</label>
+                    <select className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                      <option value="BDT">BDT (৳)</option>
+                      <option value="USD">USD ($)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-semibold text-gray-700 mb-2 block">Date Format</label>
+                    <select className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                      <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                      <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                      <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                    </select>
+                  </div>
                 </div>
-                <div>
-                  <label className="text-sm font-semibold text-gray-700 mb-2 block">Currency</label>
-                  <select className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
-                    <option value="BDT">BDT (৳) - Bangladeshi Taka</option>
-                    <option value="USD">USD ($) - US Dollar</option>
-                    <option value="EUR">EUR (€) - Euro</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="text-sm font-semibold text-gray-700 mb-2 block">Date Format</label>
-                  <select className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
-                    <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-                    <option value="MM/DD/YYYY">MM/DD/YYYY</option>
-                    <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="text-sm font-semibold text-gray-700 mb-2 block">Time Zone</label>
-                  <select className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
-                    <option value="Asia/Dhaka">Asia/Dhaka (GMT+6)</option>
-                    <option value="Asia/Kolkata">Asia/Kolkata (GMT+5:30)</option>
-                    <option value="UTC">UTC (GMT+0)</option>
-                  </select>
-                </div>
-              </div>
 
-              <div className="flex justify-end pt-4 border-t">
-                <Button className="px-6">
-                  <Save className="h-4 w-4 mr-2" />
-                  Save Preferences
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+                <div className="flex justify-end pt-4 border-t">
+                  <Button className="px-6">
+                    <Save className="h-4 w-4 mr-2" />
+                    Save Preferences
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
 
-        {/* Security */}
-        {activeTab === 'security' && (
-          <div className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle>Account Security</CardTitle>
@@ -608,7 +649,7 @@ export default function SettingsPage() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="md:col-span-2">
               <CardHeader>
                 <CardTitle>Login Activity</CardTitle>
                 <CardDescription>Recent access to your account</CardDescription>

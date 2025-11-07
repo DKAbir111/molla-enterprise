@@ -3,7 +3,7 @@
 import { useLocale, useTranslations } from 'next-intl'
 import { usePathname, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Languages, Bell, User, LogOut, TriangleAlert, Clock, CircleDollarSign, Receipt } from 'lucide-react'
+import { Languages, Bell, User, LogOut, TriangleAlert, Clock, CircleDollarSign, Receipt, Trash2 } from 'lucide-react'
 import { logout } from '@/lib/api'
 import React from 'react'
 import { getAlerts, snoozeAlert } from '@/lib/api/alerts-api'
@@ -45,7 +45,7 @@ export function Header() {
   }, [])
 
   // Optimistic item removal after snooze
-  const removeItem = React.useCallback((type: 'lowStock'|'pendingOrder'|'receivable'|'payable', id: string) => {
+  const removeItem = React.useCallback((type: 'lowStock' | 'pendingOrder' | 'receivable' | 'payable', id: string) => {
     setAlerts((prev: any) => {
       if (!prev) return prev
       const next = { ...prev }
@@ -141,11 +141,11 @@ export function Header() {
                 <>
                   <button
                     className="text-[11px] text-blue-600 hover:underline"
-                    onClick={async () => { try { await snoozeAlert({ type, refId: item.id, days: 7 }); removeItem(type, item.id) } catch {} }}
+                    onClick={async () => { try { await snoozeAlert({ type, refId: item.id, days: 7 }); removeItem(type, item.id) } catch { } }}
                   >Snooze 7d</button>
                   <button
                     className="text-[11px] text-gray-500 hover:underline"
-                    onClick={async () => { try { await snoozeAlert({ type, refId: item.id, forever: true }); removeItem(type, item.id) } catch {} }}
+                    onClick={async () => { try { await snoozeAlert({ type, refId: item.id, forever: true }); removeItem(type, item.id) } catch { } }}
                   >Don't remind</button>
                 </>
               )}
@@ -170,73 +170,173 @@ export function Header() {
         </Button>
 
         <div className="relative" ref={containerRef}>
-          <Button variant="ghost" size="sm" onClick={() => setNotifOpen(!notifOpen)} className="relative">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setNotifOpen(!notifOpen)}
+            className="relative hover:bg-gray-100 transition-colors"
+          >
             <Bell className="h-4 w-4" />
             {badgeCount > 0 && (
-              <span className="absolute -top-1 -right-1 h-4 min-w-4 px-1 rounded-full bg-red-500 text-white text-[10px] font-semibold leading-4">{badgeCount > 9 ? '9+' : badgeCount}</span>
+              <span className="absolute -top-1 -right-1 h-5 min-w-5 px-1.5 rounded-full bg-red-500 text-white text-[10px] font-semibold flex items-center justify-center shadow-sm">
+                {badgeCount > 9 ? '9+' : badgeCount}
+              </span>
             )}
           </Button>
 
           {notifOpen && (
-            <div className="absolute right-0 mt-2 w-80 rounded-lg border border-gray-200 bg-white shadow-xl z-[9999]">
-              <div className="px-4 py-3 border-b border-gray-100">
-                <div className="font-semibold text-gray-900">Notifications</div>
+            <div className="absolute right-0 mt-2 w-96 rounded-xl border border-gray-200 bg-white shadow-2xl z-[9999] overflow-hidden">
+              {/* Header */}
+              <div className="px-5 py-4 border-b border-gray-100 bg-linear-to-r from-gray-50 to-white">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold text-gray-900 text-base">Notifications</h3>
+                  {badgeCount > 0 && (
+                    <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
+                      {badgeCount} active
+                    </span>
+                  )}
+                </div>
               </div>
-              <div className="max-h-96 overflow-y-auto p-3 space-y-2">
-                {!alerts && <div className="text-xs text-gray-500 text-center py-4">Loading...</div>}
+
+              {/* Content */}
+              <div className="max-h-[32rem] overflow-y-auto p-3 space-y-2">
+                {!alerts && (
+                  <div className="flex flex-col items-center justify-center py-12">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                    <p className="text-sm text-gray-500 mt-3">Loading notifications...</p>
+                  </div>
+                )}
 
                 {alerts && (
                   <>
-                    {alerts.lowStock?.count > 0 && (
-                      <NotificationItem
-                        icon={<TriangleAlert className="h-4 w-4 text-amber-500" />}
-                        title="Low Stock"
-                        count={alerts.lowStock.count}
-                        type="lowStock"
-                        items={alerts.lowStock.items.map((p: any) => ({ id: p.id, label: p.name, value: `${p.stock} left` }))}
-                        link={`/${locale}/products`}
-                        color="bg-amber-50 text-amber-700"
-                      />
-                    )}
+                    {/* Low Stock Items */}
+                    {alerts.lowStock?.items.map((p: any) => (
+                      <div key={p.id} className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2 flex-1 min-w-0">
+                            <div className="p-1.5 rounded-lg bg-amber-50 flex-shrink-0">
+                              <TriangleAlert className="h-4 w-4 text-amber-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold text-gray-900 text-sm truncate">{p.name}</h3>
+                              <p className="text-xs text-gray-600">Running low on inventory</p>
+                            </div>
+                          </div>
+                          <span className="font-bold text-base text-amber-600 ml-2 flex-shrink-0">{p.stock} left</span>
+                        </div>
 
-                    {alerts.pendingOrders?.agingCount > 0 && (
-                      <NotificationItem
-                        icon={<Clock className="h-4 w-4 text-blue-500" />}
-                        title="Aging Orders"
-                        count={alerts.pendingOrders.agingCount}
-                        type="pendingOrder"
-                        items={alerts.pendingOrders.items.map((o: any) => ({ id: o.id, label: `#${o.id.slice(0, 6)} - ${o.customerName}`, value: `${o.ageHours}h` }))}
-                        link={`/${locale}/sells`}
-                        color="bg-blue-50 text-blue-700"
-                      />
-                    )}
+                        <div className="flex items-center gap-2">
+                          <button className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                            <Clock className="h-3 w-3" />
+                            Snooze 7d
+                          </button>
+                          <button className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                            <Trash2 className="h-3 w-3" />
+                            Dismiss
+                          </button>
+                        </div>
+                      </div>
+                    ))}
 
-                    {alerts.receivables?.count > 0 && (
-                      <NotificationItem
-                        icon={<CircleDollarSign className="h-4 w-4 text-emerald-500" />}
-                        title="Receivables"
-                        count={alerts.receivables.count}
-                        type="receivable"
-                        items={alerts.receivables.items.map((r: any) => ({ id: r.id, label: r.customerName, value: formatCurrency(Number(r.due || 0), String(locale)) }))}
-                        link={`/${locale}/sells`}
-                        color="bg-emerald-50 text-emerald-700"
-                      />
-                    )}
+                    {/* Pending Orders */}
+                    {alerts.pendingOrders?.items.map((o: any) => (
+                      <div key={o.id} className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2 flex-1 min-w-0">
+                            <div className="p-1.5 rounded-lg bg-blue-50 flex-shrink-0">
+                              <Clock className="h-4 w-4 text-blue-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold text-gray-900 text-sm truncate">Order #{o.id.slice(0, 6)}</h3>
+                              <p className="text-xs text-gray-600 truncate">{o.customerName}</p>
+                            </div>
+                          </div>
+                          <span className="font-bold text-base text-blue-600 ml-2 flex-shrink-0">{o.ageHours}h</span>
+                        </div>
 
-                    {alerts.payables?.count > 0 && (
-                      <NotificationItem
-                        icon={<Receipt className="h-4 w-4 text-rose-500" />}
-                        title="Payables"
-                        count={alerts.payables.count}
-                        type="payable"
-                        items={alerts.payables.items.map((r: any) => ({ id: r.id, label: r.vendorName, value: formatCurrency(Number(r.due || 0), String(locale)) }))}
-                        link={`/${locale}/buys`}
-                        color="bg-rose-50 text-rose-700"
-                      />
-                    )}
+                        <div className="flex items-center gap-2">
+                          <button className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                            <Clock className="h-3 w-3" />
+                            Snooze 7d
+                          </button>
+                          <button className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                            <Trash2 className="h-3 w-3" />
+                            Dismiss
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Receivables */}
+                    {alerts.receivables?.items.map((r: any) => (
+                      <div key={r.id} className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2 flex-1 min-w-0">
+                            <div className="p-1.5 rounded-lg bg-emerald-50 flex-shrink-0">
+                              <CircleDollarSign className="h-4 w-4 text-emerald-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold text-gray-900 text-sm truncate">{r.customerName}</h3>
+                              <p className="text-xs text-gray-600">Outstanding receivable</p>
+                            </div>
+                          </div>
+                          <span className="font-bold text-base text-emerald-600 ml-2 flex-shrink-0">
+                            {formatCurrency(Number(r.due || 0), String(locale))}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                            <Clock className="h-3 w-3" />
+                            Snooze 7d
+                          </button>
+                          <button className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                            <Trash2 className="h-3 w-3" />
+                            Dismiss
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Payables */}
+                    {alerts.payables?.items.map((r: any) => (
+                      <div key={r.id} className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2 flex-1 min-w-0">
+                            <div className="p-1.5 rounded-lg bg-rose-50 flex-shrink-0">
+                              <Receipt className="h-4 w-4 text-rose-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold text-gray-900 text-sm truncate">{r.vendorName}</h3>
+                              <p className="text-xs text-gray-600">Outstanding payable</p>
+                            </div>
+                          </div>
+                          <span className="font-bold text-base text-rose-600 ml-2 flex-shrink-0">
+                            {formatCurrency(Number(r.due || 0), String(locale))}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                            <Clock className="h-3 w-3" />
+                            Snooze 7d
+                          </button>
+                          <button className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                            <Trash2 className="h-3 w-3" />
+                            Dismiss
+                          </button>
+                        </div>
+                      </div>
+                    ))}
 
                     {badgeCount === 0 && (
-                      <div className="text-xs text-gray-500 text-center py-8">All clear! 🎉</div>
+                      <div className="flex flex-col items-center justify-center py-16">
+                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-100 to-emerald-50 flex items-center justify-center mb-4">
+                          <span className="text-3xl">✓</span>
+                        </div>
+                        <p className="text-sm font-medium text-gray-900">All Caught Up!</p>
+                        <p className="text-xs text-gray-500 mt-1">No pending notifications</p>
+                      </div>
                     )}
                   </>
                 )}
@@ -244,7 +344,6 @@ export function Header() {
             </div>
           )}
         </div>
-
         <Button variant="ghost" size="sm" onClick={() => router.push(`/${locale}/organization`)}>
           <User className="h-4 w-4" />
         </Button>
