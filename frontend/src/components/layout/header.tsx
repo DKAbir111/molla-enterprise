@@ -7,6 +7,7 @@ import { Languages, Bell, User, LogOut, TriangleAlert, Clock, CircleDollarSign, 
 import { logout } from '@/lib/api'
 import React from 'react'
 import { getAlerts, snoozeAlert } from '@/lib/api/alerts-api'
+import { toast } from 'sonner'
 import { getAuthToken } from '@/lib/api/http'
 import { formatCurrency } from '@/lib/utils'
 
@@ -141,11 +142,23 @@ export function Header() {
                 <>
                   <button
                     className="text-[11px] text-blue-600 hover:underline"
-                    onClick={async () => { try { await snoozeAlert({ type, refId: item.id, days: 7 }); removeItem(type, item.id) } catch { } }}
+                    onClick={() => {
+                      const snapshot = alerts
+                      removeItem(type, item.id)
+                      snoozeAlert({ type, refId: item.id, days: 7 })
+                        .then(() => toast.success('Snoozed for 7 days'))
+                        .catch(() => { setAlerts(snapshot); toast.error('Failed to snooze') })
+                    }}
                   >Snooze 7d</button>
                   <button
                     className="text-[11px] text-gray-500 hover:underline"
-                    onClick={async () => { try { await snoozeAlert({ type, refId: item.id, forever: true }); removeItem(type, item.id) } catch { } }}
+                    onClick={() => {
+                      const snapshot = alerts
+                      removeItem(type, item.id)
+                      snoozeAlert({ type, refId: item.id, forever: true })
+                        .then(() => toast.success("Won't remind"))
+                        .catch(() => { setAlerts(snapshot); toast.error('Failed to mute') })
+                    }}
                   >Don't remind</button>
                 </>
               )}
@@ -199,7 +212,7 @@ export function Header() {
               </div>
 
               {/* Content */}
-              <div className="max-h-[32rem] overflow-y-auto p-3 space-y-2">
+              <div className="max-h-128 overflow-y-auto p-3 space-y-2">
                 {!alerts && (
                   <div className="flex flex-col items-center justify-center py-12">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
@@ -226,11 +239,31 @@ export function Header() {
                         </div>
 
                         <div className="flex items-center gap-2">
-                          <button className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                          <button
+                            type="button"
+                            className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                            onClick={() => {
+                              const snapshot = JSON.stringify(alerts)
+                              removeItem('lowStock', p.id)
+                              snoozeAlert({ type: 'lowStock', refId: p.id, days: 7 })
+                                .then(() => toast.success('Snoozed for 7 days'))
+                                .catch(() => { try { setAlerts(JSON.parse(snapshot)) } catch { }; toast.error('Failed to snooze') })
+                            }}
+                          >
                             <Clock className="h-3 w-3" />
                             Snooze 7d
                           </button>
-                          <button className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                          <button
+                            type="button"
+                            className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                            onClick={() => {
+                              const snapshot = JSON.stringify(alerts)
+                              removeItem('lowStock', p.id)
+                              snoozeAlert({ type: 'lowStock', refId: p.id, forever: true })
+                                .then(() => toast.success("Won't remind"))
+                                .catch(() => { try { setAlerts(JSON.parse(snapshot)) } catch { }; toast.error('Failed to mute') })
+                            }}
+                          >
                             <Trash2 className="h-3 w-3" />
                             Dismiss
                           </button>
@@ -255,11 +288,31 @@ export function Header() {
                         </div>
 
                         <div className="flex items-center gap-2">
-                          <button className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                          <button
+                            type="button"
+                            className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                            onClick={() => {
+                              const snapshot = JSON.stringify(alerts)
+                              removeItem('pendingOrder', o.id)
+                              snoozeAlert({ type: 'pendingOrder', refId: o.id, days: 7 })
+                                .then(() => toast.success('Snoozed for 7 days'))
+                                .catch(() => { try { setAlerts(JSON.parse(snapshot)) } catch { }; toast.error('Failed to snooze') })
+                            }}
+                          >
                             <Clock className="h-3 w-3" />
                             Snooze 7d
                           </button>
-                          <button className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                          <button
+                            type="button"
+                            className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                            onClick={() => {
+                              const snapshot = JSON.stringify(alerts)
+                              removeItem('pendingOrder', o.id)
+                              snoozeAlert({ type: 'pendingOrder', refId: o.id, forever: true })
+                                .then(() => toast.success("Won't remind"))
+                                .catch(() => { try { setAlerts(JSON.parse(snapshot)) } catch { }; toast.error('Failed to mute') })
+                            }}
+                          >
                             <Trash2 className="h-3 w-3" />
                             Dismiss
                           </button>
@@ -286,11 +339,31 @@ export function Header() {
                         </div>
 
                         <div className="flex items-center gap-2">
-                          <button className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                          <button
+                            type="button"
+                            className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                            onClick={() => {
+                              const snapshot = JSON.stringify(alerts)
+                              removeItem('receivable', r.id)
+                              snoozeAlert({ type: 'receivable', refId: r.id, days: 7 })
+                                .then(() => toast.success('Snoozed for 7 days'))
+                                .catch(() => { try { setAlerts(JSON.parse(snapshot)) } catch { }; toast.error('Failed to snooze') })
+                            }}
+                          >
                             <Clock className="h-3 w-3" />
                             Snooze 7d
                           </button>
-                          <button className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                          <button
+                            type="button"
+                            className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                            onClick={() => {
+                              const snapshot = JSON.stringify(alerts)
+                              removeItem('receivable', r.id)
+                              snoozeAlert({ type: 'receivable', refId: r.id, forever: true })
+                                .then(() => toast.success("Won't remind"))
+                                .catch(() => { try { setAlerts(JSON.parse(snapshot)) } catch { }; toast.error('Failed to mute') })
+                            }}
+                          >
                             <Trash2 className="h-3 w-3" />
                             Dismiss
                           </button>
@@ -317,11 +390,31 @@ export function Header() {
                         </div>
 
                         <div className="flex items-center gap-2">
-                          <button className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                          <button
+                            type="button"
+                            className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                            onClick={() => {
+                              const snapshot = JSON.stringify(alerts)
+                              removeItem('payable', r.id)
+                              snoozeAlert({ type: 'payable', refId: r.id, days: 7 })
+                                .then(() => toast.success('Snoozed for 7 days'))
+                                .catch(() => { try { setAlerts(JSON.parse(snapshot)) } catch { }; toast.error('Failed to snooze') })
+                            }}
+                          >
                             <Clock className="h-3 w-3" />
                             Snooze 7d
                           </button>
-                          <button className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                          <button
+                            type="button"
+                            className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                            onClick={() => {
+                              const snapshot = JSON.stringify(alerts)
+                              removeItem('payable', r.id)
+                              snoozeAlert({ type: 'payable', refId: r.id, forever: true })
+                                .then(() => toast.success("Won't remind"))
+                                .catch(() => { try { setAlerts(JSON.parse(snapshot)) } catch { }; toast.error('Failed to mute') })
+                            }}
+                          >
                             <Trash2 className="h-3 w-3" />
                             Dismiss
                           </button>

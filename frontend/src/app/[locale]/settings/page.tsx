@@ -1,7 +1,6 @@
 'use client'
-
 import { useEffect, useRef, useState } from 'react'
-import { useTranslations } from 'next-intl'
+// import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -19,7 +18,6 @@ import {
   Palette,
   Camera,
   Check,
-  X
 } from 'lucide-react'
 import { getMyOrganization, updateOrganization } from '@/lib/api'
 import { getMyOrganizationSettings, updateOrganizationSettings } from '@/lib/api/organization-api'
@@ -28,7 +26,7 @@ import { useTheme } from '@/store/useTheme'
 import { toast } from 'sonner'
 
 export default function SettingsPage() {
-  const t = useTranslations('settings')
+  // const t = useTranslations('settings')
   const [activeTab, setActiveTab] = useState('business')
   const [orgId, setOrgId] = useState<string | null>(null)
   const [businessInfo, setBusinessInfo] = useState({
@@ -90,6 +88,7 @@ export default function SettingsPage() {
       setLogoFile(null)
     } catch (e) {
       toast.error('Failed to save business information')
+      console.log(e)
     } finally {
       setSaving(false)
     }
@@ -199,134 +198,134 @@ export default function SettingsPage() {
         {/* Business Information */}
         {activeTab === 'business' && (
           <div className="grid gap-6 md:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Business Information</CardTitle>
-              <CardDescription>Update your business details and branding</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Logo Section */}
-              <div className="flex items-start gap-6 p-4 bg-gray-50 rounded-lg">
-                <button
-                  type="button"
-                  aria-label="Upload logo"
-                  onClick={onPickLogo}
-                  className="relative h-32 w-32 rounded-xl border-2 border-dashed border-gray-300 bg-white overflow-hidden hover:border-purple-400 transition-colors group"
-                >
-                  {logoPreview ? (
-                    <>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={logoPreview} alt="Logo" className="h-full w-full object-cover" />
-                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Camera className="h-8 w-8 text-white" />
+            <Card>
+              <CardHeader>
+                <CardTitle>Business Information</CardTitle>
+                <CardDescription>Update your business details and branding</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Logo Section */}
+                <div className="flex items-start gap-6 p-4 bg-gray-50 rounded-lg">
+                  <button
+                    type="button"
+                    aria-label="Upload logo"
+                    onClick={onPickLogo}
+                    className="relative h-32 w-32 rounded-xl border-2 border-dashed border-gray-300 bg-white overflow-hidden hover:border-purple-400 transition-colors group"
+                  >
+                    {logoPreview ? (
+                      <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={logoPreview} alt="Logo" className="h-full w-full object-cover" />
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Camera className="h-8 w-8 text-white" />
+                        </div>
+                      </>
+                    ) : (
+                      <div className="h-full w-full flex flex-col items-center justify-center text-gray-400">
+                        <Camera className="h-8 w-8 mb-2" />
+                        <span className="text-xs">Upload Logo</span>
                       </div>
-                    </>
-                  ) : (
-                    <div className="h-full w-full flex flex-col items-center justify-center text-gray-400">
-                      <Camera className="h-8 w-8 mb-2" />
-                      <span className="text-xs">Upload Logo</span>
+                    )}
+                  </button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={onLogoSelected}
+                  />
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-gray-900 mb-1">Organization Logo</h4>
+                    <p className="text-sm text-gray-600 mb-3">
+                      Upload your business logo. Recommended size: 512x512px. Max file size: 2MB.
+                    </p>
+                    <Button variant="outline" size="sm" onClick={onPickLogo}>
+                      <Camera className="h-4 w-4 mr-2" />
+                      Change Logo
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Form Fields */}
+                <div className="grid gap-6">
+                  <div>
+                    <label className="text-sm font-semibold text-gray-700 mb-2 block">Business Name *</label>
+                    <Input
+                      value={businessInfo.name}
+                      onChange={(e) => setBusinessInfo({ ...businessInfo, name: e.target.value })}
+                      placeholder="Enter business name"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-semibold text-gray-700 mb-2 block">Email Address</label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        value={businessInfo.email}
+                        onChange={(e) => setBusinessInfo({ ...businessInfo, email: e.target.value })}
+                        className="pl-10"
+                        type="email"
+                        placeholder="business@example.com"
+                      />
                     </div>
-                  )}
-                </button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={onLogoSelected}
-                />
-                <div className="flex-1">
-                  <h4 className="font-semibold text-gray-900 mb-1">Organization Logo</h4>
-                  <p className="text-sm text-gray-600 mb-3">
-                    Upload your business logo. Recommended size: 512x512px. Max file size: 2MB.
-                  </p>
-                  <Button variant="outline" size="sm" onClick={onPickLogo}>
-                    <Camera className="h-4 w-4 mr-2" />
-                    Change Logo
+                  </div>
+                  <div>
+                    <label className="text-sm font-semibold text-gray-700 mb-2 block">Phone Number</label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        value={businessInfo.phone}
+                        onChange={(e) => setBusinessInfo({ ...businessInfo, phone: e.target.value })}
+                        className="pl-10"
+                        placeholder="+880 1XXX-XXXXXX"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-semibold text-gray-700 mb-2 block">Business Address</label>
+                    <div className="relative">
+                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        value={businessInfo.address}
+                        onChange={(e) => setBusinessInfo({ ...businessInfo, address: e.target.value })}
+                        className="pl-10"
+                        placeholder="Street, City, Country"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end pt-4 border-t">
+                  <Button onClick={onSaveBusinessInfo} disabled={saving || !orgId} className="px-6">
+                    <Save className="h-4 w-4 mr-2" />
+                    {saving ? 'Saving...' : 'Save Changes'}
                   </Button>
                 </div>
-              </div>
+              </CardContent>
+            </Card>
 
-              {/* Form Fields */}
-              <div className="grid gap-6 md:grid-cols-2">
+            {/* Additional business info (future) */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Additional Info</CardTitle>
+                <CardDescription>Website and registration details (optional)</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div>
-                  <label className="text-sm font-semibold text-gray-700 mb-2 block">Business Name *</label>
-                  <Input
-                    value={businessInfo.name}
-                    onChange={(e) => setBusinessInfo({ ...businessInfo, name: e.target.value })}
-                    placeholder="Enter business name"
-                  />
+                  <label className="text-sm font-semibold text-gray-700 mb-2 block">Website</label>
+                  <Input placeholder="https://example.com" />
                 </div>
                 <div>
-                  <label className="text-sm font-semibold text-gray-700 mb-2 block">Email Address</label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <Input
-                      value={businessInfo.email}
-                      onChange={(e) => setBusinessInfo({ ...businessInfo, email: e.target.value })}
-                      className="pl-10"
-                      type="email"
-                      placeholder="business@example.com"
-                    />
-                  </div>
+                  <label className="text-sm font-semibold text-gray-700 mb-2 block">VAT/GST Number</label>
+                  <Input placeholder="e.g., 123456789" />
                 </div>
                 <div>
-                  <label className="text-sm font-semibold text-gray-700 mb-2 block">Phone Number</label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <Input
-                      value={businessInfo.phone}
-                      onChange={(e) => setBusinessInfo({ ...businessInfo, phone: e.target.value })}
-                      className="pl-10"
-                      placeholder="+880 1XXX-XXXXXX"
-                    />
-                  </div>
+                  <label className="text-sm font-semibold text-gray-700 mb-2 block">Trade License / Registration No.</label>
+                  <Input placeholder="e.g., ABC-2024-001" />
                 </div>
-                <div>
-                  <label className="text-sm font-semibold text-gray-700 mb-2 block">Business Address</label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <Input
-                      value={businessInfo.address}
-                      onChange={(e) => setBusinessInfo({ ...businessInfo, address: e.target.value })}
-                      className="pl-10"
-                      placeholder="Street, City, Country"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-end pt-4 border-t">
-                <Button onClick={onSaveBusinessInfo} disabled={saving || !orgId} className="px-6">
-                  <Save className="h-4 w-4 mr-2" />
-                  {saving ? 'Saving...' : 'Save Changes'}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Additional business info (future) */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Additional Info</CardTitle>
-              <CardDescription>Website and registration details (optional)</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="text-sm font-semibold text-gray-700 mb-2 block">Website</label>
-                <Input placeholder="https://example.com" />
-              </div>
-              <div>
-                <label className="text-sm font-semibold text-gray-700 mb-2 block">VAT/GST Number</label>
-                <Input placeholder="e.g., 123456789" />
-              </div>
-              <div>
-                <label className="text-sm font-semibold text-gray-700 mb-2 block">Trade License / Registration No.</label>
-                <Input placeholder="e.g., ABC-2024-001" />
-              </div>
-              <p className="text-xs text-gray-500">These fields will be saved in a future update.</p>
-            </CardContent>
-          </Card>
+                <p className="text-xs text-gray-500">These fields will be saved in a future update.</p>
+              </CardContent>
+            </Card>
           </div>
         )}
 
@@ -370,7 +369,7 @@ export default function SettingsPage() {
                 <CardDescription>Configure when alerts should be triggered</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid gap-6 md:grid-cols-2">
+                <div className="grid gap-6">
                   <div>
                     <label className="text-sm font-semibold text-gray-700 mb-2 block">Low Stock Threshold</label>
                     <Input
@@ -434,7 +433,7 @@ export default function SettingsPage() {
             <Card className="md:col-span-2">
               <CardHeader>
                 <CardTitle>Snoozed Alerts</CardTitle>
-                <CardDescription>Manage alerts you've temporarily muted</CardDescription>
+                <CardDescription>Manage alerts you&apos;ve temporarily muted</CardDescription>
               </CardHeader>
               <CardContent>
                 {snoozeLoading && <div className="text-sm text-gray-500 py-8 text-center">Loading...</div>}
@@ -491,33 +490,33 @@ export default function SettingsPage() {
                 <CardDescription>Customize how your dashboard looks</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid gap-4 md:grid-cols-3">
-                {[
-                  { id: 'default', name: 'Default', desc: 'Light theme with purple accents', colors: ['bg-purple-600', 'bg-blue-600', 'bg-gray-200'] },
-                  { id: 'dark', name: 'Dark Mode', desc: 'Easy on the eyes', colors: ['bg-gray-900', 'bg-gray-800', 'bg-gray-700'] },
-                  { id: 'contrast', name: 'High Contrast', desc: 'Enhanced visibility', colors: ['bg-black', 'bg-white', 'bg-yellow-400'] },
-                ].map((t) => (
-                  <button
-                    key={t.id}
-                    type="button"
-                    onClick={() => setTheme(t.id as any)}
-                    className={`p-6 rounded-xl border-2 text-left transition-all ${theme === t.id
-                      ? 'border-purple-600 bg-purple-50 shadow-md'
-                      : 'border-gray-200 hover:border-gray-300 hover:shadow'
-                      }`}
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="font-semibold text-gray-900">{t.name}</h4>
-                      {theme === t.id && <Check className="h-5 w-5 text-purple-600" />}
-                    </div>
-                    <p className="text-sm text-gray-600 mb-4">{t.desc}</p>
-                    <div className="flex gap-2">
-                      {t.colors.map((color, i) => (
-                        <div key={i} className={`h-8 w-8 rounded ${color} ${color === 'bg-white' ? 'border-2 border-gray-300' : ''}`}></div>
-                      ))}
-                    </div>
-                  </button>
-                ))}
+                <div className="grid gap-4">
+                  {[
+                    { id: 'default', name: 'Default', desc: 'Light theme with purple accents', colors: ['bg-purple-600', 'bg-blue-600', 'bg-gray-200'] },
+                    { id: 'dark', name: 'Dark Mode', desc: 'Easy on the eyes', colors: ['bg-gray-900', 'bg-gray-800', 'bg-gray-700'] },
+                    { id: 'contrast', name: 'High Contrast', desc: 'Enhanced visibility', colors: ['bg-black', 'bg-white', 'bg-yellow-400'] },
+                  ].map((t) => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => setTheme(t.id as any)}
+                      className={`p-4 rounded-xl border-2 text-left transition-all ${theme === t.id
+                        ? 'border-purple-600 bg-purple-50 shadow-md'
+                        : 'border-gray-200 hover:border-gray-300 hover:shadow'
+                        }`}
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="font-semibold text-gray-900">{t.name}</h4>
+                        {theme === t.id && <Check className="h-5 w-5 text-purple-600" />}
+                      </div>
+                      <p className="text-sm text-gray-600 mb-4">{t.desc}</p>
+                      <div className="flex gap-2">
+                        {t.colors.map((color, i) => (
+                          <div key={i} className={`h-8 w-8 rounded ${color} ${color === 'bg-white' ? 'border-2 border-gray-300' : ''}`}></div>
+                        ))}
+                      </div>
+                    </button>
+                  ))}
                 </div>
               </CardContent>
             </Card>
@@ -529,7 +528,7 @@ export default function SettingsPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="grid grid-cols-3 gap-3 text-sm">
-                  {['Classic','Compact','Modern'].map((tpl) => (
+                  {['Classic', 'Compact', 'Modern'].map((tpl) => (
                     <label key={tpl} className="border rounded-lg p-3 flex items-center gap-2 cursor-not-allowed opacity-60">
                       <input type="radio" name="invTpl" disabled />
                       <span>{tpl}</span>
