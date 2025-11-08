@@ -7,12 +7,27 @@ import { AppModule } from './app.module';
 // Use a variable to hold the initialized server instance (for caching/warm starts)
 let cachedServer;
 
+// --- Define the allowed origin based on environment ---
+// Use APP_PUBLIC_URL from Vercel environment variables for production.
+const FRONTEND_URL = process.env.APP_PUBLIC_URL || 'http://localhost:3000';
+// Strip trailing slash if present for cleaner origin matching.
+const ALLOWED_ORIGIN = FRONTEND_URL.endsWith('/') ? FRONTEND_URL.slice(0, -1) : FRONTEND_URL;
+
+
 // Function to create and initialize the NestJS application
 async function createExpressApp(express) {
+  // 1. Remove CORS config from NestFactory.create()
   const app = await NestFactory.create(AppModule, {
-    cors: true,
-    // Pass the express instance if needed, though often NestFactory handles it
-    // if using Express under the hood (which is the default).
+    // ❌ REMOVED: cors: true,
+  });
+
+  // 2. Add app.enableCors() explicitly for reliable header setting
+  app.enableCors({
+    origin: ALLOWED_ORIGIN, // Only allows your Vercel frontend domain
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+    // VITAL: Explicitly allow headers used for JSON and Authentication
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   });
 
   app.setGlobalPrefix('api');
@@ -46,14 +61,25 @@ module.exports = async (req, res) => {
   cachedServer(req, res);
 };
 
-// You can optionally keep the local bootstrap function outside the module.exports 
-// block for local testing, but make sure it only runs if the file is executed directly.
+// Local bootstrap function (modified to use explicit enableCors for consistency)
 if (require.main === module) {
   (async () => {
-    const app = await NestFactory.create(AppModule, { cors: true });
+    // 1. Remove CORS config from NestFactory.create()
+    const app = await NestFactory.create(AppModule, {
+      // ❌ REMOVED: cors: true
+    });
+
+    // 2. Add app.enableCors() for local development
+    app.enableCors({
+      origin: 'http://localhost:3000', // Default local dev URL
+      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+      credentials: true,
+      allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    });
+
     app.setGlobalPrefix('api');
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-    // ... Swagger setup again if needed for local development ...
+    // ... Swagger setup remains the same ...
 
     const port = process.env.PORT ? Number(process.env.PORT) : 4000;
     await app.listen(port);
