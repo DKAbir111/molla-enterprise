@@ -11,7 +11,9 @@
     "start:prod": "node dist/main.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "postinstall": "prisma generate",
+    "vercel-deploy": "npm run postinstall && prisma migrate deploy && npm run build"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
