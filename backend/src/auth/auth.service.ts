@@ -6,10 +6,11 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService, private jwt: JwtService) {}
+  constructor(private prisma: PrismaService, private jwt: JwtService, private mail: MailService) {}
 
   async register(dto: RegisterDto) {
     const exists = await this.prisma.user.findUnique({ where: { email: dto.email } });
@@ -35,8 +36,10 @@ export class AuthService {
     const token = cryptoRandom();
     const expiresAt = new Date(Date.now() + 1000 * 60 * 30); // 30m
     await this.prisma.passwordResetToken.create({ data: { token, userId: user.id, expiresAt } });
-    // In real app, email the token link to user.email
-    return { ok: true, token }; // return token for dev/testing
+    // Send email (best-effort)
+    try { await this.mail.sendPasswordReset(user.email, token); } catch {}
+    // Keep returning token for dev/testing convenience
+    return { ok: true, token };
   }
 
   async resetPassword(dto: ResetPasswordDto) {
@@ -65,4 +68,3 @@ function cryptoRandom(len = 40) {
   for (let i = 0; i < len; i++) out += alphabet[Math.floor(Math.random() * alphabet.length)];
   return out;
 }
-

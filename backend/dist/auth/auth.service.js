@@ -6,10 +6,12 @@ const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const jwt_1 = require("@nestjs/jwt");
 const bcrypt = require("bcrypt");
+const mail_service_1 = require("../mail/mail.service");
 let AuthService = class AuthService {
-    constructor(prisma, jwt) {
+    constructor(prisma, jwt, mail) {
         this.prisma = prisma;
         this.jwt = jwt;
+        this.mail = mail;
     }
     async register(dto) {
         const exists = await this.prisma.user.findUnique({ where: { email: dto.email } });
@@ -37,6 +39,10 @@ let AuthService = class AuthService {
         const token = cryptoRandom();
         const expiresAt = new Date(Date.now() + 1000 * 60 * 30);
         await this.prisma.passwordResetToken.create({ data: { token, userId: user.id, expiresAt } });
+        try {
+            await this.mail.sendPasswordReset(user.email, token);
+        }
+        catch { }
         return { ok: true, token };
     }
     async resetPassword(dto) {
@@ -59,7 +65,7 @@ let AuthService = class AuthService {
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = tslib_1.__decorate([
     (0, common_1.Injectable)(),
-    tslib_1.__metadata("design:paramtypes", [prisma_service_1.PrismaService, jwt_1.JwtService])
+    tslib_1.__metadata("design:paramtypes", [prisma_service_1.PrismaService, jwt_1.JwtService, mail_service_1.MailService])
 ], AuthService);
 function cryptoRandom(len = 40) {
     const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

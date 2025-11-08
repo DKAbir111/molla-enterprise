@@ -17,6 +17,7 @@ import { VendorsModule } from './vendors/vendors.module';
 import { AccountsModule } from './accounts/accounts.module';
 import { DryingGainsModule } from './drying-gains/drying-gains.module';
 import { AlertsModule } from './alerts/alerts.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { AlertsModule } from './alerts/alerts.module';
     AccountsModule,
     DryingGainsModule,
     AlertsModule,
+    MailModule,
   ],
 })
 export class AppModule {}
