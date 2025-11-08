@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 // import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -26,7 +27,9 @@ import { useTheme } from '@/store/useTheme'
 import { toast } from 'sonner'
 
 export default function SettingsPage() {
-  // const t = useTranslations('settings')
+  const router = useRouter()
+  const pathname = usePathname()
+  const search = useSearchParams()
   const [activeTab, setActiveTab] = useState('business')
   const [orgId, setOrgId] = useState<string | null>(null)
   const [businessInfo, setBusinessInfo] = useState({
@@ -172,6 +175,24 @@ export default function SettingsPage() {
     { id: 'other', label: 'Other', icon: Globe },
   ]
 
+  // Initialize tab from ?tab=notification (or other) and keep URL in sync on change
+  useEffect(() => {
+    const q = search?.get('tab') || ''
+    const norm = q === 'notification' ? 'notifications' : q
+    if (['business','notifications','appearance','other'].includes(norm)) {
+      setActiveTab(norm)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const switchTab = (key: string) => {
+    setActiveTab(key)
+    const params = new URLSearchParams(search?.toString())
+    params.set('tab', key === 'notifications' ? 'notification' : key)
+    const qs = params.toString()
+    router.replace(qs ? `${pathname}?${qs}` : pathname)
+  }
+
   return (
     <div className="max-w-6xl mx-auto">
       {/* Tab Navigation */}
@@ -180,7 +201,7 @@ export default function SettingsPage() {
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => switchTab(tab.id)}
               className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${activeTab === tab.id
                 ? 'border-purple-600 text-purple-600'
                 : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
@@ -338,6 +359,7 @@ export default function SettingsPage() {
                 <CardDescription>Choose which notifications you want to receive</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
+                {/* Toggle items save immediately when switched */}
                 {[
                   { key: 'notifyLowStock', label: 'Low Stock Alerts', desc: 'Get notified when products are running low' },
                   { key: 'notifyOrderUpdates', label: 'Order Updates', desc: 'Receive updates on pending and aging orders' },
@@ -352,7 +374,21 @@ export default function SettingsPage() {
                       <div className="text-sm text-gray-600">{desc}</div>
                     </div>
                     <button
-                      onClick={() => !disabled && setNotifications({ ...notifications, [key]: !(notifications as any)[key] })}
+                      onClick={async () => {
+                        if (disabled) return
+                        const next = !(notifications as any)[key]
+                        const prevState = notifications
+                        setNotifications({ ...notifications, [key]: next } as any)
+                        if (!orgId) return
+                        try {
+                          await updateOrganizationSettings(orgId, { [key]: next } as any)
+                          toast.success(`${label} ${next ? 'enabled' : 'disabled'}`)
+                        } catch {
+                          // revert on failure
+                          setNotifications(prevState)
+                          toast.error('Failed to update setting')
+                        }
+                      }}
                       disabled={disabled}
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${(notifications as any)[key] ? 'bg-purple-600' : 'bg-gray-300'} ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                     >
