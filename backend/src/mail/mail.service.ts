@@ -50,7 +50,7 @@ export class MailService {
     const resetUrl = `${appUrl}/en/reset-password?token=${encodeURIComponent(token)}`;
 
     const subject = 'Password reset request';
-    const text = `We received a password reset request. Reset your password: ${resetUrl}`;
+    const text = `We received a password reset request. Click the button in this email to reset your password.`;
     const html = `
       <div style="font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; font-size:14px; color:#111;">
         <p>Hello,</p>
@@ -58,7 +58,6 @@ export class MailService {
         <p style="margin:20px 0;">
           <a href="${resetUrl}" style="display:inline-block;background:#6d28d9;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none;">Reset Password</a>
         </p>
-        <p>Or open this link: <a href="${resetUrl}">${resetUrl}</a></p>
       </div>
     `;
 

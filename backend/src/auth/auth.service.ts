@@ -34,7 +34,7 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
     if (!user) return { ok: true }; // Do not leak existence
     const token = cryptoRandom();
-    const expiresAt = new Date(Date.now() + 1000 * 60 * 30); // 30m
+    const expiresAt = new Date(Date.now() + 1000 * 60 * 5); // 5 minutes
     await this.prisma.passwordResetToken.create({ data: { token, userId: user.id, expiresAt } });
     // Send email (best-effort)
     try { await this.mail.sendPasswordReset(user.email, token); } catch {}

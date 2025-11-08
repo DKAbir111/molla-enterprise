@@ -37,7 +37,7 @@ let AuthService = class AuthService {
         if (!user)
             return { ok: true };
         const token = cryptoRandom();
-        const expiresAt = new Date(Date.now() + 1000 * 60 * 30);
+        const expiresAt = new Date(Date.now() + 1000 * 60 * 5);
         await this.prisma.passwordResetToken.create({ data: { token, userId: user.id, expiresAt } });
         try {
             await this.mail.sendPasswordReset(user.email, token);
