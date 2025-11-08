@@ -21,6 +21,7 @@ const accounts_module_1 = require("./accounts/accounts.module");
 const drying_gains_module_1 = require("./drying-gains/drying-gains.module");
 const alerts_module_1 = require("./alerts/alerts.module");
 const mail_module_1 = require("./mail/mail.module");
+const schedule_1 = require("@nestjs/schedule");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -28,6 +29,7 @@ exports.AppModule = AppModule = tslib_1.__decorate([
     (0, common_1.Module)({
         imports: [
             config_1.ConfigModule.forRoot({ isGlobal: true }),
+            schedule_1.ScheduleModule.forRoot(),
             serve_static_1.ServeStaticModule.forRoot({
                 rootPath: (() => {
                     const parent = path.resolve(__dirname, '..');

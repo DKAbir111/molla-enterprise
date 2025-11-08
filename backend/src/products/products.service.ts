@@ -3,10 +3,11 @@ import { Prisma } from '@prisma/client'
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { AlertsService } from '../alerts/alerts.service';
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private alertsSvc: AlertsService) {}
 
   private ensureOrg(orgId?: string | null) {
     if (!orgId) throw new ForbiddenException('Organization required');
@@ -49,7 +50,16 @@ export class ProductsService {
     if (typeof dto.active === 'undefined' && typeof (dto as any).stock === 'number' && (dto as any).stock <= 0) {
       data.active = false
     }
-    return this.prisma.product.update({ where: { id }, data });
+    const updated = await this.prisma.product.update({ where: { id }, data });
+    try {
+      const settings = await (this.prisma as any).organizationSettings.findUnique({ where: { organizationId } }).catch(() => null) as any
+      const threshold = settings?.lowStockThreshold ?? 5
+      const nextStock = typeof (data as any).stock === 'number' ? Number((data as any).stock) : Number((updated as any).stock || 0)
+      if (typeof (found as any).stock === 'number' && Number((found as any).stock) > threshold && nextStock <= threshold) {
+        await this.alertsSvc.notifyLowStockIfNeeded(organizationId, [id])
+      }
+    } catch {}
+    return updated;
   }
 
   async remove(orgId: string | null | undefined, id: string) {

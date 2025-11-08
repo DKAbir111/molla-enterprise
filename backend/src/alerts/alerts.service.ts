@@ -1,5 +1,6 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { MailService } from '../mail/mail.service';
 
 function toNumber(x: any): number {
   if (x == null) return 0;
@@ -9,7 +10,7 @@ function toNumber(x: any): number {
 
 @Injectable()
 export class AlertsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private mail: MailService) {}
 
   private ensureOrg(orgId?: string | null) {
     if (!orgId) throw new ForbiddenException('Organization required');
@@ -180,5 +181,29 @@ export class AlertsService {
       return r
     })
     return list
+  }
+
+  async notifyLowStockIfNeeded(orgId: string, productIds: string[]) {
+    const organizationId = this.ensureOrg(orgId)
+    const settings = await (this.prisma as any).organizationSettings.findUnique({ where: { organizationId } }).catch(() => null) as any
+    if (!settings?.emailAlerts || !settings?.notifyLowStock) return
+    const threshold = settings.lowStockThreshold ?? 5
+    const now = new Date()
+    const snoozed = await (this.prisma as any).organizationAlertSnooze.findMany({
+      where: { organizationId, type: 'lowStock', OR: [{ permanent: true }, { until: { gte: now } }] }, select: { refId: true }
+    }).catch(() => []) as any[]
+    const muted = new Set(snoozed.map(s => s.refId))
+    const prods = await this.prisma.product.findMany({ where: { id: { in: productIds }, organizationId, active: true }, select: { id: true, name: true, stock: true } })
+    const toSend = prods.filter(p => !muted.has(p.id) && Number(p.stock || 0) <= threshold)
+    if (toSend.length === 0) return
+    const org = await this.prisma.organization.findUnique({ where: { id: organizationId }, select: { email: true, name: true } })
+    if (!org?.email) return
+    const lis = toSend.map(p => `<li>${p.name} — ${p.stock} left</li>`).join('')
+    const html = `<div style="font-family:Arial,Helvetica,sans-serif;color:#111;font-size:14px;">
+      <p>Low stock alert for ${org.name}:</p>
+      <ul>${lis}</ul>
+      <p style="font-size:12px;color:#555;">You can snooze specific items from the app.</p>
+    </div>`
+    await this.mail.sendGeneric(org.email, `Low stock alert (${toSend.length})`, html)
   }
 }

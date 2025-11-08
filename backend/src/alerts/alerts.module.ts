@@ -3,10 +3,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { AlertsService } from './alerts.service';
 import { AlertsController } from './alerts.controller';
 import { PrismaModule } from '../prisma/prisma.module';
+import { AlertsEmailer } from './alerts.emailer';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
   imports: [
     PrismaModule,
+    MailModule,
     JwtModule.registerAsync({
       useFactory: () => ({
         secret: process.env.JWT_SECRET || 'change-me',
@@ -15,6 +18,7 @@ import { PrismaModule } from '../prisma/prisma.module';
     }),
   ],
   controllers: [AlertsController],
-  providers: [AlertsService],
+  providers: [AlertsService, AlertsEmailer],
+  exports: [AlertsService],
 })
 export class AlertsModule {}

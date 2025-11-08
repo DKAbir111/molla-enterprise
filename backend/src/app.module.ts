@@ -18,10 +18,12 @@ import { AccountsModule } from './accounts/accounts.module';
 import { DryingGainsModule } from './drying-gains/drying-gains.module';
 import { AlertsModule } from './alerts/alerts.module';
 import { MailModule } from './mail/mail.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ScheduleModule.forRoot(),
     // Serve uploads from backend/uploads in both dev (src) and prod (dist/src)
     ServeStaticModule.forRoot({
       rootPath: (() => {

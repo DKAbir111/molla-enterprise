@@ -5,9 +5,11 @@ const tslib_1 = require("tslib");
 const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
 const prisma_service_1 = require("../prisma/prisma.service");
+const alerts_service_1 = require("../alerts/alerts.service");
 let ProductsService = class ProductsService {
-    constructor(prisma) {
+    constructor(prisma, alertsSvc) {
         this.prisma = prisma;
+        this.alertsSvc = alertsSvc;
     }
     ensureOrg(orgId) {
         if (!orgId)
@@ -48,7 +50,17 @@ let ProductsService = class ProductsService {
         if (typeof dto.active === 'undefined' && typeof dto.stock === 'number' && dto.stock <= 0) {
             data.active = false;
         }
-        return this.prisma.product.update({ where: { id }, data });
+        const updated = await this.prisma.product.update({ where: { id }, data });
+        try {
+            const settings = await this.prisma.organizationSettings.findUnique({ where: { organizationId } }).catch(() => null);
+            const threshold = settings?.lowStockThreshold ?? 5;
+            const nextStock = typeof data.stock === 'number' ? Number(data.stock) : Number(updated.stock || 0);
+            if (typeof found.stock === 'number' && Number(found.stock) > threshold && nextStock <= threshold) {
+                await this.alertsSvc.notifyLowStockIfNeeded(organizationId, [id]);
+            }
+        }
+        catch { }
+        return updated;
     }
     async remove(orgId, id) {
         const organizationId = this.ensureOrg(orgId);
@@ -70,5 +82,5 @@ let ProductsService = class ProductsService {
 exports.ProductsService = ProductsService;
 exports.ProductsService = ProductsService = tslib_1.__decorate([
     (0, common_1.Injectable)(),
-    tslib_1.__metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    tslib_1.__metadata("design:paramtypes", [prisma_service_1.PrismaService, alerts_service_1.AlertsService])
 ], ProductsService);

@@ -28,6 +28,8 @@
     "class-validator": "^0.14.0",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.10.1",
+    "@nestjs/schedule": "^4.1.0",
+    "cron": "^3.1.7",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "prisma": "^5.18.0",

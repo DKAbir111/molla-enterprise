@@ -85,4 +85,17 @@ export class MailService {
       }
     }
   }
+
+  async sendGeneric(to: string, subject: string, html: string) {
+    const tx = this.getTransport();
+    if (!tx) return false;
+    const from = this.config.get<string>('SMTP_FROM') || 'no-reply@localhost';
+    try {
+      await tx.sendMail({ from, to, subject, html });
+      return true;
+    } catch (err: any) {
+      this.logger.error(`Failed to send email to ${to}: ${err?.message || err}`);
+      return false;
+    }
+  }
 }

@@ -1,5 +1,6 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { AlertsService } from '../alerts/alerts.service';
 import { CreateSellDto } from './dto/create-sell.dto';
 import { UpdateSellDto } from './dto/update-sell.dto';
 import { UpdateSellItemsDto } from './dto/update-sell-items.dto';
@@ -8,7 +9,7 @@ type ProductLite = { id: string; name: string; price: any; stock: number; target
 
 @Injectable()
 export class SellsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private alertsSvc: AlertsService) {}
 
   private ensureOrg(orgId?: string | null) {
     if (!orgId) throw new ForbiddenException('Organization required');
@@ -84,8 +85,17 @@ export class SellsService {
         ;(sell as any).shortCode = code
       } catch {}
 
+      const crossed: string[] = []
       for (const it of itemsData) {
         const updated = await tx.product.update({ where: { id: it.productId }, data: { stock: { decrement: it.quantity } } });
+        try {
+          const prev = productMap.get(it.productId) as any
+          const settings = await (this.prisma as any).organizationSettings.findUnique({ where: { organizationId } }).catch(() => null) as any
+          const threshold = settings?.lowStockThreshold ?? 5
+          if (prev && Number(prev.stock || 0) > threshold && Number((updated as any).stock || 0) <= threshold) {
+            crossed.push(it.productId)
+          }
+        } catch {}
         if ((updated as any).stock <= 0) {
           try { await tx.product.update({ where: { id: it.productId }, data: { active: false } }); } catch {}
         }
@@ -104,6 +114,8 @@ export class SellsService {
         });
       }
 
+      // Notify low stock for any crossing products (fire & forget)
+      try { if (crossed.length > 0) await this.alertsSvc.notifyLowStockIfNeeded(organizationId, crossed) } catch {}
       return sell;
     });
 
