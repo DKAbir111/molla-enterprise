@@ -13,7 +13,7 @@ export function getAuthToken(): string | null {
       const match = document.cookie.match(new RegExp('(^| )' + TOKEN_KEY + '=([^;]+)'))
       return match ? decodeURIComponent(match[2]) : null
     }
-  } catch {}
+  } catch { }
   return null
 }
 
@@ -27,14 +27,14 @@ export function setAuthToken(token: string | null) {
       window.localStorage?.removeItem(TOKEN_KEY)
       document.cookie = `${TOKEN_KEY}=; path=/; max-age=0`
     }
-  } catch {}
+  } catch { }
 }
 
 export function clearAuthToken() {
   setAuthToken(null)
 }
 
-const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
+const baseURL = process.env.NEXT_PUBLIC_API_URL
 
 export const api = axios.create({
   baseURL,

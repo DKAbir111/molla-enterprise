@@ -15,7 +15,7 @@ export function Header() {
   const locale = useLocale()
   const pathname = usePathname()
   const router = useRouter()
-  const t = useTranslations()
+  // const t = useTranslations()
 
   const toggleLocale = () => {
     const newLocale = locale === 'en' ? 'bn' : 'en'
@@ -35,7 +35,7 @@ export function Header() {
   const audioRef = React.useRef<AudioContext | null>(null)
 
   const applyIncoming = React.useCallback((data: any) => {
-    setAlerts((prev: any) => {
+    setAlerts(() => {
       const score = (data?.lowStock?.count || 0) + (data?.pendingOrders?.agingCount || 0) + (data?.receivables?.count || 0) + (data?.payables?.count || 0)
       if (score > prevScoreRef.current) {
         playNotificationSound()
@@ -73,7 +73,9 @@ export function Header() {
 
   React.useEffect(() => {
     try {
-      const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
+      const envBase = process.env.NEXT_PUBLIC_API_URL
+      const base = envBase ?? (typeof window !== 'undefined' ? window.location.origin : undefined)
+      if (!base) return
       const token = getAuthToken()
       const url = `${base.replace(/\/$/, '')}/alerts/stream?limit=5${token ? `&token=${encodeURIComponent(token)}` : ''}`
       const es = new EventSource(url)
@@ -103,17 +105,25 @@ export function Header() {
   function playNotificationSound() {
     try {
       const AC: any = (window as any).AudioContext || (window as any).webkitAudioContext
-      if (!AC || !audioRef.current) {
+      // If the browser doesn't support AudioContext, bail out.
+      if (!AC) return
+      // Create the AudioContext if we don't have one yet.
+      if (!audioRef.current) {
         audioRef.current = new AC()
       }
       const ctx = audioRef.current
-      if (ctx.state === 'suspended') ctx.resume().catch(() => { })
-      const now = ctx.currentTime
-      const g = ctx.createGain()
-      g.connect(ctx.destination)
+      // Safety: ensure ctx is non-null before accessing properties.
+      if (!ctx) return
+      // resume() may not exist in some environments; guard it.
+      if ((ctx as any).state === 'suspended') {
+        (ctx as any).resume?.().catch(() => { })
+      }
+      const now = (ctx as any).currentTime ?? 0
+      const g = (ctx as any).createGain()
+      g.connect((ctx as any).destination)
       g.gain.setValueAtTime(0.0001, now)
       g.gain.exponentialRampToValueAtTime(0.08, now + 0.01)
-      const o = ctx.createOscillator()
+      const o = (ctx as any).createOscillator()
       o.type = 'sine'
       o.frequency.setValueAtTime(880, now)
       o.connect(g)
@@ -123,57 +133,11 @@ export function Header() {
     } catch { }
   }
 
-  const NotificationItem = ({ icon, title, count, items, link, color, type }: any) => (
-    <div className="group p-3 rounded-lg border border-gray-100 hover:border-gray-200 bg-white hover:shadow-sm transition-all">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          {icon}
-          <span className="text-sm font-medium text-gray-900">{title}</span>
-        </div>
-        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${color}`}>{count}</span>
-      </div>
-      <div className="space-y-1.5">
-        {items.map((item: any, i: number) => (
-          <div key={i} className="flex items-center justify-between gap-2 text-xs text-gray-600">
-            <span className="truncate mr-2">{item.label}</span>
-            <div className="flex items-center gap-2">
-              <span className="font-medium whitespace-nowrap">{item.value}</span>
-              {item.id && (
-                <>
-                  <button
-                    className="text-[11px] text-blue-600 hover:underline"
-                    onClick={() => {
-                      const snapshot = alerts
-                      removeItem(type, item.id)
-                      snoozeAlert({ type, refId: item.id, days: 7 })
-                        .then(() => toast.success('Snoozed for 7 days'))
-                        .catch(() => { setAlerts(snapshot); toast.error('Failed to snooze') })
-                    }}
-                  >Snooze 7d</button>
-                  <button
-                    className="text-[11px] text-gray-500 hover:underline"
-                    onClick={() => {
-                      const snapshot = alerts
-                      removeItem(type, item.id)
-                      snoozeAlert({ type, refId: item.id, forever: true })
-                        .then(() => toast.success("Won't remind"))
-                        .catch(() => { setAlerts(snapshot); toast.error('Failed to mute') })
-                    }}
-                  >Don't remind</button>
-                </>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-      <a href={link} className="text-xs text-blue-600 hover:text-blue-700 font-medium mt-2 inline-block">View all →</a>
-    </div>
-  )
 
   return (
-    <header className="relative z-[100] h-16 px-6 flex items-center justify-between border-b border-[color:var(--card-border)] bg-[var(--card-bg)]/90 backdrop-blur-md">
+    <header className="relative z-100 h-16 px-6 flex items-center justify-between border-b border-(--card-border) bg-(--card-bg)/90 backdrop-blur-md">
       <div className="flex items-center gap-3">
-        <h1 className="text-lg font-semibold text-[color:var(--text)]">{pageTitle}</h1>
+        <h1 className="text-lg font-semibold text-(--text)">{pageTitle}</h1>
       </div>
 
       <div className="flex items-center gap-3">
@@ -198,7 +162,7 @@ export function Header() {
           </Button>
 
           {notifOpen && (
-            <div className="absolute right-0 mt-2 w-96 rounded-xl border border-gray-200 bg-white shadow-2xl z-[9999] overflow-hidden">
+            <div className="absolute right-0 mt-2 w-96 rounded-xl border border-gray-200 bg-white shadow-2xl z-9999 overflow-hidden">
               {/* Header */}
               <div className="px-5 py-4 border-b border-gray-100 bg-linear-to-r from-gray-50 to-white">
                 <div className="flex items-center justify-between">
@@ -227,7 +191,7 @@ export function Header() {
                       <div key={p.id} className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2 flex-1 min-w-0">
-                            <div className="p-1.5 rounded-lg bg-amber-50 flex-shrink-0">
+                            <div className="p-1.5 rounded-lg bg-amber-50 shrink-0">
                               <TriangleAlert className="h-4 w-4 text-amber-600" />
                             </div>
                             <div className="flex-1 min-w-0">
@@ -235,7 +199,7 @@ export function Header() {
                               <p className="text-xs text-gray-600">Running low on inventory</p>
                             </div>
                           </div>
-                          <span className="font-bold text-base text-amber-600 ml-2 flex-shrink-0">{p.stock} left</span>
+                          <span className="font-bold text-base text-amber-600 ml-2 shrink-0">{p.stock} left</span>
                         </div>
 
                         <div className="flex items-center gap-2">
@@ -276,7 +240,7 @@ export function Header() {
                       <div key={o.id} className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2 flex-1 min-w-0">
-                            <div className="p-1.5 rounded-lg bg-blue-50 flex-shrink-0">
+                            <div className="p-1.5 rounded-lg bg-blue-50 shrink-0">
                               <Clock className="h-4 w-4 text-blue-600" />
                             </div>
                             <div className="flex-1 min-w-0">
@@ -284,7 +248,7 @@ export function Header() {
                               <p className="text-xs text-gray-600 truncate">{o.customerName}</p>
                             </div>
                           </div>
-                          <span className="font-bold text-base text-blue-600 ml-2 flex-shrink-0">{o.ageHours}h</span>
+                          <span className="font-bold text-base text-blue-600 ml-2 shrink-0">{o.ageHours}h</span>
                         </div>
 
                         <div className="flex items-center gap-2">
@@ -325,7 +289,7 @@ export function Header() {
                       <div key={r.id} className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2 flex-1 min-w-0">
-                            <div className="p-1.5 rounded-lg bg-emerald-50 flex-shrink-0">
+                            <div className="p-1.5 rounded-lg bg-emerald-50 shrink-0">
                               <CircleDollarSign className="h-4 w-4 text-emerald-600" />
                             </div>
                             <div className="flex-1 min-w-0">
@@ -333,7 +297,7 @@ export function Header() {
                               <p className="text-xs text-gray-600">Outstanding receivable</p>
                             </div>
                           </div>
-                          <span className="font-bold text-base text-emerald-600 ml-2 flex-shrink-0">
+                          <span className="font-bold text-base text-emerald-600 ml-2 shrink-0">
                             {formatCurrency(Number(r.due || 0), String(locale))}
                           </span>
                         </div>
@@ -376,7 +340,7 @@ export function Header() {
                       <div key={r.id} className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2 flex-1 min-w-0">
-                            <div className="p-1.5 rounded-lg bg-rose-50 flex-shrink-0">
+                            <div className="p-1.5 rounded-lg bg-rose-50 shrink-0">
                               <Receipt className="h-4 w-4 text-rose-600" />
                             </div>
                             <div className="flex-1 min-w-0">
@@ -384,7 +348,7 @@ export function Header() {
                               <p className="text-xs text-gray-600">Outstanding payable</p>
                             </div>
                           </div>
-                          <span className="font-bold text-base text-rose-600 ml-2 flex-shrink-0">
+                          <span className="font-bold text-base text-rose-600 ml-2 shrink-0">
                             {formatCurrency(Number(r.due || 0), String(locale))}
                           </span>
                         </div>
@@ -424,7 +388,7 @@ export function Header() {
 
                     {badgeCount === 0 && (
                       <div className="flex flex-col items-center justify-center py-16">
-                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-100 to-emerald-50 flex items-center justify-center mb-4">
+                        <div className="w-16 h-16 rounded-full bg-linear-to-br from-emerald-100 to-emerald-50 flex items-center justify-center mb-4">
                           <span className="text-3xl">✓</span>
                         </div>
                         <p className="text-sm font-medium text-gray-900">All Caught Up!</p>
