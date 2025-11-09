@@ -2,18 +2,16 @@
   "name": "business-man-backend",
   "version": "0.1.0",
   "private": true,
-  "description": "Minimal NestJS + Prisma API for Business Management",
   "scripts": {
-    "build": "nest build -p tsconfig.build.json",
+    "build": "nest build",
     "start": "node dist/main.js",
-    "start:dev": "nest start --watch",
     "dev": "nest start --watch",
-    "start:prod": "node dist/main.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
+    "prisma:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
     "postinstall": "prisma generate",
-    "vercel-deploy": "npm run postinstall && prisma migrate deploy && npm run build"
+    "vercel-build": "prisma generate && prisma migrate deploy && nest build"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -22,32 +20,28 @@
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/passport": "^10.0.1",
     "@nestjs/platform-express": "^10.0.0",
-    "@nestjs/serve-static": "^4.0.0",
     "@nestjs/swagger": "^7.4.0",
-    "@prisma/client": "^5.18.0",
+    "@nestjs/schedule": "^4.1.0",
+    "@prisma/client": "^5.21.1",
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
+    "cron": "^3.1.7",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.10.1",
-    "@nestjs/schedule": "^4.1.0",
-    "cron": "^3.1.7",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
-    "prisma": "^5.18.0",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.0",
-    "swagger-ui-express": "^5.0.1",
-    "tslib": "^2.6.2"
+    "rxjs": "^7.8.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
-    "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^10.0.0",
     "@types/express": "^4.17.21",
     "@types/multer": "^1.4.11",
     "@types/node": "^20.11.30",
-    "@types/nodemailer": "^7.0.3",
+    "@types/nodemailer": "^6.4.14",
+    "prisma": "^5.21.1",
     "typescript": "^5.4.0"
   }
 }
