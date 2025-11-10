@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import {
   Table,
   TableBody,
@@ -14,10 +13,8 @@ import {
 } from '@/components/ui/table'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { useLocale } from 'next-intl'
-import { TrendingUp, TrendingDown, DollarSign, Calculator, ArrowUpRight, ArrowDownRight } from 'lucide-react'
+import { TrendingUp, TrendingDown, DollarSign, ArrowUpRight, ArrowDownRight } from 'lucide-react'
 import {
-  LineChart,
-  Line,
   AreaChart,
   Area,
   XAxis,
@@ -81,29 +78,10 @@ export default function AccountsPage() {
   const incomePct = pct(lastIncome, prevIncome)
   const expensePct = pct(lastExpense, prevExpense)
   const profitPct = pct(lastProfit, prevProfit)
-
-  // Empty state when no transactions
-  if ((summary?.monthly?.length || 0) === 0 && combined.length === 0) {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">{t('title')}</h1>
-        </div>
-        <Card className="border-dashed">
-          <CardContent className="py-16 text-center">
-            <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-linear-to-r from-purple-600 to-blue-600 text-white flex items-center justify-center text-2xl">+</div>
-            <h3 className="text-lg font-semibold mb-1">{t('emptyTitle') || 'No transactions yet'}</h3>
-            <p className="text-gray-600">{t('emptyDescription') || 'As you add sells and record payments/expenses, analytics will appear here.'}</p>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">{t('title')}</h1>
+        {/* <h1 className="text-3xl font-bold text-gray-900">{t('title')}</h1> */}
       </div>
 
       {/* Financial Overview */}
@@ -259,31 +237,31 @@ export default function AccountsPage() {
                 .sort((a, b) => (new Date(b.date as any).getTime()) - (new Date(a.date as any).getTime()))
                 .slice(0, 10)
                 .map((transaction, idx) => (
-                <TableRow key={`${transaction.id}-${idx}`}>
-                  <TableCell className="text-sm text-gray-600">
-                    {formatDate(transaction.date as any, locale)}
-                  </TableCell>
-                  <TableCell>{transaction.description}</TableCell>
-                  <TableCell>
-                    <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full ${transaction.type === 'income'
-                      ? 'bg-green-100 text-green-700'
-                      : 'bg-red-100 text-red-700'
+                  <TableRow key={`${transaction.id}-${idx}`}>
+                    <TableCell className="text-sm text-gray-600">
+                      {formatDate(transaction.date as any, locale)}
+                    </TableCell>
+                    <TableCell>{transaction.description}</TableCell>
+                    <TableCell>
+                      <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full ${transaction.type === 'income'
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-red-100 text-red-700'
+                        }`}>
+                        {transaction.type === 'income' ? (
+                          <ArrowUpRight className="h-3 w-3" />
+                        ) : (
+                          <ArrowDownRight className="h-3 w-3" />
+                        )}
+                        {t(transaction.type)}
+                      </span>
+                    </TableCell>
+                    <TableCell className={`text-right font-medium ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
                       }`}>
-                      {transaction.type === 'income' ? (
-                        <ArrowUpRight className="h-3 w-3" />
-                      ) : (
-                        <ArrowDownRight className="h-3 w-3" />
-                      )}
-                      {t(transaction.type)}
-                    </span>
-                  </TableCell>
-                  <TableCell className={`text-right font-medium ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
-                    }`}>
-                    {transaction.type === 'income' ? '+' : '-'}
-                    {formatCurrency(transaction.amount, locale)}
-                  </TableCell>
-                </TableRow>
-              ))}
+                      {transaction.type === 'income' ? '+' : '-'}
+                      {formatCurrency(transaction.amount, locale)}
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </CardContent>
