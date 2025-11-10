@@ -3,6 +3,8 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import * as path from 'path';
 
 // Cache the server instance for warm starts
 let cachedServer;
@@ -12,8 +14,20 @@ const FRONTEND_URL = process.env.FRONTEND_ORIGIN || process.env.APP_PUBLIC_URL |
 const ALLOWED_ORIGIN = FRONTEND_URL.endsWith('/') ? FRONTEND_URL.slice(0, -1) : FRONTEND_URL;
 
 // Function to create and initialize the NestJS application
+function resolveUploadsDir() {
+  const parent = path.resolve(__dirname, '..'); // src in dev, dist in prod
+  const isDist = path.basename(parent) === 'dist';
+  const backendRoot = isDist ? path.resolve(parent, '..') : parent;
+  return path.resolve(backendRoot, 'uploads');
+}
+
+function mountUploads(app: NestExpressApplication) {
+  const uploadsDir = resolveUploadsDir();
+  app.useStaticAssets(uploadsDir, { prefix: '/uploads/' });
+}
+
 async function createExpressApp() {
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: ['error', 'warn', 'log'],
   });
 
@@ -32,6 +46,8 @@ async function createExpressApp() {
     transform: true,
     forbidNonWhitelisted: false
   }));
+
+  mountUploads(app);
 
   // Swagger setup
   const config = new DocumentBuilder()
@@ -61,7 +77,7 @@ module.exports = async (req, res) => {
 // Local development bootstrap
 if (require.main === module) {
   (async () => {
-    const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
     app.enableCors({
       origin: 'http://localhost:3000',
@@ -72,6 +88,8 @@ if (require.main === module) {
 
     app.setGlobalPrefix('api');
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+
+    mountUploads(app);
 
     const config = new DocumentBuilder()
       .setTitle('Business Man API')

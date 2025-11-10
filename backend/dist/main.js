@@ -5,9 +5,20 @@ const core_1 = require("@nestjs/core");
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const app_module_1 = require("./app.module");
+const path = require("path");
 let cachedServer;
 const FRONTEND_URL = process.env.FRONTEND_ORIGIN || process.env.APP_PUBLIC_URL || 'http://localhost:3000';
 const ALLOWED_ORIGIN = FRONTEND_URL.endsWith('/') ? FRONTEND_URL.slice(0, -1) : FRONTEND_URL;
+function resolveUploadsDir() {
+    const parent = path.resolve(__dirname, '..');
+    const isDist = path.basename(parent) === 'dist';
+    const backendRoot = isDist ? path.resolve(parent, '..') : parent;
+    return path.resolve(backendRoot, 'uploads');
+}
+function mountUploads(app) {
+    const uploadsDir = resolveUploadsDir();
+    app.useStaticAssets(uploadsDir, { prefix: '/uploads/' });
+}
 async function createExpressApp() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule, {
         logger: ['error', 'warn', 'log'],
@@ -24,6 +35,7 @@ async function createExpressApp() {
         transform: true,
         forbidNonWhitelisted: false
     }));
+    mountUploads(app);
     const config = new swagger_1.DocumentBuilder()
         .setTitle('Business Man API')
         .setDescription('API for Business Management')
@@ -52,6 +64,7 @@ if (require.main === module) {
         });
         app.setGlobalPrefix('api');
         app.useGlobalPipes(new common_1.ValidationPipe({ whitelist: true, transform: true }));
+        mountUploads(app);
         const config = new swagger_1.DocumentBuilder()
             .setTitle('Business Man API')
             .setDescription('API for Business Management')
