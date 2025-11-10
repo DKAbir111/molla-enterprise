@@ -28,7 +28,19 @@ export function Header() {
 
   const segments = pathname.split('/')
   const routeKey = segments[2] ? segments[2] as any : 'dashboard'
-  const pageTitle = tNav(routeKey as any)
+  const staticTitles: Record<string, string> = {
+    'quick-entries': 'Quick Entries',
+  }
+  let pageTitle: string
+  if (staticTitles[routeKey]) {
+    pageTitle = staticTitles[routeKey]
+  } else {
+    try {
+      pageTitle = tNav(routeKey as any)
+    } catch {
+      pageTitle = 'Dashboard'
+    }
+  }
 
   const [notifOpen, setNotifOpen] = React.useState(false)
   const [alerts, setAlerts] = React.useState<any | null>(null)

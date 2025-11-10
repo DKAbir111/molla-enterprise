@@ -28,6 +28,7 @@ const navigation = [
   { name: 'vendors', href: '/vendors', icon: Building2 },
   { name: 'sells', href: '/sells', icon: ShoppingCart },
   { name: 'buys', href: '/buys', icon: Package },
+  { name: 'quickEntries', label: 'Quick Entries', href: '/quick-entries', icon: Calculator },
   { name: 'accounts', href: '/accounts', icon: Calculator },
   { name: 'reports', href: '/reports', icon: BarChart3 },
   { name: 'settings', href: '/settings', icon: Settings },
@@ -70,6 +71,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
           {navigation.map((item) => {
             const href = `/${locale}${item.href}`
             const isActive = pathname === href || (item.href !== '/' && pathname.startsWith(href))
+            const label = item.label || t(item.name)
 
             return (
               <Link
@@ -88,7 +90,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
                 )}
               >
                 <item.icon className="h-5 w-5" />
-                {t(item.name)}
+                {label}
               </Link>
             )
           })}

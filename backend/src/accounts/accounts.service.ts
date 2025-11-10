@@ -19,13 +19,21 @@ export class AccountsService {
   async getSummary(orgId?: string | null) {
     const organizationId = this.ensureOrg(orgId)
 
-    const [sells, buys] = await Promise.all([
+    const [sells, buys, transactions] = await Promise.all([
       this.prisma.sell.findMany({ where: { organizationId }, orderBy: { createdAt: 'desc' }, select: { id: true, customerId: true, createdAt: true, total: true, discount: true, transportTotal: true, customer: { select: { name: true } } } }),
       this.prisma.buy.findMany({ where: { organizationId }, orderBy: { createdAt: 'desc' }, select: { id: true, vendorName: true, createdAt: true, total: true, discount: true, transportTotal: true } }),
+      this.prisma.transaction.findMany({ where: { organizationId }, orderBy: { date: 'desc' } }),
     ])
 
-    const income = sells.reduce((sum, s) => sum + Math.max(0, toNumber(s.total) + toNumber(s.transportTotal) - toNumber(s.discount)), 0)
-    const expenses = buys.reduce((sum, b) => sum + Math.max(0, toNumber(b.total) + toNumber(b.transportTotal) - toNumber(b.discount)), 0)
+    const manualIncome = transactions
+      .filter((t) => t.type === 'income')
+      .reduce((sum, t) => sum + Math.max(0, toNumber(t.amount)), 0)
+    const manualExpense = transactions
+      .filter((t) => t.type === 'expense')
+      .reduce((sum, t) => sum + Math.max(0, toNumber(t.amount)), 0)
+
+    const income = sells.reduce((sum, s) => sum + Math.max(0, toNumber(s.total) + toNumber(s.transportTotal) - toNumber(s.discount)), 0) + manualIncome
+    const expenses = buys.reduce((sum, b) => sum + Math.max(0, toNumber(b.total) + toNumber(b.transportTotal) - toNumber(b.discount)), 0) + manualExpense
     const net = income - expenses
 
     // Last 6 months buckets
@@ -49,6 +57,15 @@ export class AccountsService {
       const b = bucketMap.get(key)
       if (b) b.expense += Math.max(0, toNumber(bBuy.total) + toNumber(bBuy.transportTotal) - toNumber(bBuy.discount))
     }
+    for (const txn of transactions) {
+      const d = new Date(txn.date)
+      const key = `${d.getFullYear()}-${d.getMonth()}`
+      const bucket = bucketMap.get(key)
+      if (!bucket) continue
+      const amt = Math.max(0, toNumber(txn.amount))
+      if (txn.type === 'income') bucket.income += amt
+      else bucket.expense += amt
+    }
 
     // Recent combined
     const recent = [
@@ -66,6 +83,13 @@ export class AccountsService {
         amount: Math.max(0, toNumber(b.total) + toNumber(b.transportTotal) - toNumber(b.discount)),
         date: b.createdAt,
       })),
+      ...transactions.map((t) => ({
+        id: `txn-${t.id}`,
+        type: (t.type === 'income' ? 'income' : 'expense') as const,
+        description: t.description,
+        amount: Math.max(0, toNumber(t.amount)),
+        date: t.date,
+      })),
     ]
       .sort((a, b) => new Date(b.date as any).getTime() - new Date(a.date as any).getTime())
       .slice(0, 10)
@@ -77,4 +101,3 @@ export class AccountsService {
     }
   }
 }
-
