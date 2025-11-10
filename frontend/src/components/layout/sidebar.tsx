@@ -33,7 +33,11 @@ const navigation = [
   { name: 'settings', href: '/settings', icon: Settings },
 ]
 
-export function Sidebar() {
+type SidebarProps = {
+  onNavigate?: () => void
+}
+
+export function Sidebar({ onNavigate }: SidebarProps) {
   const pathname = usePathname()
   const t = useTranslations('nav')
   const locale = pathname.split('/')[1]
@@ -42,7 +46,7 @@ export function Sidebar() {
 
   React.useEffect(() => {
     if (organization === undefined) {
-      fetchOrganization().catch(() => {})
+      fetchOrganization().catch(() => { })
     }
   }, [organization, fetchOrganization])
 
@@ -50,7 +54,7 @@ export function Sidebar() {
   const logoUrl = organization?.logoUrl || null
 
   return (
-    <aside className="w-64 border-r border-[color:var(--card-border)] bg-[var(--card-bg)]/90 backdrop-blur-md">
+    <aside className="w-64 border-r border-[color:var(--card-border)] bg-[var(--card-bg)]/90 backdrop-blur-md min-h-screen">
       <div className="flex h-full flex-col">
         <div className="flex h-16 items-center gap-2 px-4 border-b border-[color:var(--card-border)]">
           {logoUrl ? (
@@ -71,6 +75,7 @@ export function Sidebar() {
               <Link
                 key={item.name}
                 href={href}
+                onClick={onNavigate}
                 className={cn(
                   'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                   isActive

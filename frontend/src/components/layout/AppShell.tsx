@@ -9,6 +9,8 @@ import { getAuthToken, logout } from '@/lib/api'
 import { useTheme } from '@/store/useTheme'
 import { Toaster } from 'sonner'
 import { useOrganizationStore } from '@/store/useOrganization'
+import { useUI } from '@/store/useUI'
+import { cn } from '@/lib/utils'
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -16,6 +18,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const { theme } = useTheme()
   const { organization, fetchOrganization } = useOrganizationStore()
+  const { sidebarOpen, closeSidebar } = useUI()
 
   const base = `/${locale}`
   const authRoutes = new Set([
@@ -74,7 +77,25 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex h-screen overflow-hidden app-bg">
-      <Sidebar />
+      <div className="hidden md:block">
+        <Sidebar />
+      </div>
+      <div
+        className={cn(
+          'fixed inset-y-0 left-0 z-50 w-64 bg-[var(--card-bg)] shadow-lg transition-transform duration-200 md:hidden',
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        )}
+      >
+        <Sidebar onNavigate={closeSidebar} />
+      </div>
+      {sidebarOpen && (
+        <button
+          type="button"
+          aria-label="Close navigation"
+          className="fixed inset-0 z-40 bg-black/40 md:hidden"
+          onClick={closeSidebar}
+        />
+      )}
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         <main className="flex-1 overflow-y-auto p-6">

@@ -5,6 +5,11 @@ type UIStore = {
   setCustomerSearch: (q: string) => void
   addCustomerOpen: boolean
   setAddCustomerOpen: (v: boolean) => void
+  sidebarOpen: boolean
+  setSidebarOpen: (v: boolean) => void
+  openSidebar: () => void
+  closeSidebar: () => void
+  toggleSidebar: () => void
 }
 
 export const useUI = create<UIStore>((set) => ({
@@ -12,5 +17,9 @@ export const useUI = create<UIStore>((set) => ({
   setCustomerSearch: (q) => set({ customerSearch: q }),
   addCustomerOpen: false,
   setAddCustomerOpen: (v) => set({ addCustomerOpen: v }),
+  sidebarOpen: false,
+  setSidebarOpen: (v) => set({ sidebarOpen: v }),
+  openSidebar: () => set({ sidebarOpen: true }),
+  closeSidebar: () => set({ sidebarOpen: false }),
+  toggleSidebar: () => set((prev) => ({ sidebarOpen: !prev.sidebarOpen })),
 }))
-

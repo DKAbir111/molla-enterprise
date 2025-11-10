@@ -3,13 +3,14 @@
 import { useLocale, useTranslations } from 'next-intl'
 import { usePathname, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Languages, Bell, User, LogOut, TriangleAlert, Clock, CircleDollarSign, Receipt, Trash2 } from 'lucide-react'
+import { Languages, Bell, User, LogOut, TriangleAlert, Clock, CircleDollarSign, Receipt, Trash2, Menu } from 'lucide-react'
 import { logout } from '@/lib/api'
 import React from 'react'
 import { getAlerts, snoozeAlert } from '@/lib/api/alerts-api'
 import { toast } from 'sonner'
 import { getAuthToken } from '@/lib/api/http'
 import { formatCurrency } from '@/lib/utils'
+import { useUI } from '@/store/useUI'
 
 export function Header() {
   const locale = useLocale()
@@ -33,6 +34,7 @@ export function Header() {
   const [alerts, setAlerts] = React.useState<any | null>(null)
   const prevScoreRef = React.useRef<number>(0)
   const audioRef = React.useRef<AudioContext | null>(null)
+  const { toggleSidebar } = useUI()
 
   const applyIncoming = React.useCallback((data: any) => {
     setAlerts(() => {
@@ -137,6 +139,15 @@ export function Header() {
   return (
     <header className="relative z-100 h-16 px-6 flex items-center justify-between border-b border-(--card-border) bg-(--card-bg)/90 backdrop-blur-md">
       <div className="flex items-center gap-3">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="md:hidden"
+          onClick={toggleSidebar}
+          aria-label="Toggle navigation"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
         <h1 className="text-lg font-semibold text-(--text)">{pageTitle}</h1>
       </div>
 
