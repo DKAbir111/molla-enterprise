@@ -4,9 +4,16 @@ import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import * as fs from 'fs';
 import * as path from 'path';
+import { Organization } from '@prisma/client';
 
 @Injectable()
 export class OrganizationsService {
+  private orgCache = new Map<string, { org: Organization | null; expiresAt: number }>();
+  private readonly orgCacheTtlMs = Math.max(
+    Number(process.env.ORG_CACHE_TTL_MS ?? 60_000),
+    0,
+  );
+
   constructor(private prisma: PrismaService) {}
 
   async create(userId: string, dto: CreateOrganizationDto, logoPath?: string) {
@@ -39,13 +46,22 @@ export class OrganizationsService {
         },
       });
     } catch {}
+    this.setCachedOrg(userId, org);
     return org;
   }
 
   async findMine(userId: string) {
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!user?.organizationId) return null;
-    return this.prisma.organization.findUnique({ where: { id: user.organizationId } });
+    const cached = this.getCachedOrg(userId);
+    if (cached !== undefined) {
+      return cached;
+    }
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { organization: true },
+    });
+    const org = user?.organization ?? null;
+    this.setCachedOrg(userId, org);
+    return org;
   }
 
   async update(userId: string, id: string, dto: UpdateOrganizationDto, logoPath?: string) {
@@ -57,7 +73,7 @@ export class OrganizationsService {
       nextLogo = await this.saveBase64(dto.logoBase64, `org-${id}-logo`);
     }
 
-    return this.prisma.organization.update({
+    const updated = await this.prisma.organization.update({
       where: { id },
       data: {
         name: dto.name,
@@ -67,6 +83,8 @@ export class OrganizationsService {
         ...(nextLogo ? { logoUrl: nextLogo } : {}),
       },
     });
+    this.setCachedOrg(userId, updated);
+    return updated;
   }
 
   async getSettings(userId: string) {
@@ -120,4 +138,23 @@ export class OrganizationsService {
     await fs.promises.writeFile(file, buffer);
     return '/uploads/' + path.basename(file);
   }
+
+  private getCachedOrg(userId: string) {
+    const entry = this.orgCache.get(userId);
+    if (!entry) return undefined;
+    if (entry.expiresAt <= Date.now()) {
+      this.orgCache.delete(userId);
+      return undefined;
+    }
+    return entry.org;
+  }
+
+  private setCachedOrg(userId: string, org: Organization | null) {
+    if (!this.orgCacheTtlMs) return;
+    this.orgCache.set(userId, {
+      org,
+      expiresAt: Date.now() + this.orgCacheTtlMs,
+    });
+  }
+
 }

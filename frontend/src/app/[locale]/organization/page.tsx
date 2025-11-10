@@ -6,8 +6,9 @@ import { useLocale } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { createOrganization, getMyOrganization } from '@/lib/api'
+import { createOrganization } from '@/lib/api'
 import { toast } from 'sonner'
+import { useOrganizationStore } from '@/store/useOrganization'
 
 export default function OrganizationPage() {
   const router = useRouter()
@@ -22,21 +23,34 @@ export default function OrganizationPage() {
   const [phone, setPhone] = React.useState('')
   const [address, setAddress] = React.useState('')
   const [logoFile, setLogoFile] = React.useState<File | null>(null)
+  const { organization, fetchOrganization, setOrganization } = useOrganizationStore()
 
   React.useEffect(() => {
-    let mounted = true
-    getMyOrganization<any>()
-      .then((org) => {
-        if (!mounted) return
-        if (org && org.id) {
-          router.replace(`/${locale}`)
-        } else {
-          setLoading(false)
+    let active = true
+    const ensureOrg = async () => {
+      if (organization === undefined) {
+        try {
+          const org = await fetchOrganization()
+          if (!active) return
+          if (org && org.id) {
+            router.replace(`/${locale}`)
+          } else {
+            setLoading(false)
+          }
+        } catch {
+          if (active) setLoading(false)
         }
-      })
-      .catch(() => setLoading(false))
-    return () => { mounted = false }
-  }, [router, locale])
+      } else if (organization && organization.id) {
+        router.replace(`/${locale}`)
+      } else {
+        setLoading(false)
+      }
+    }
+    ensureOrg()
+    return () => {
+      active = false
+    }
+  }, [organization, fetchOrganization, router, locale])
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -47,7 +61,8 @@ export default function OrganizationPage() {
       if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Enter a valid email')
       if (!phone.trim()) throw new Error('Phone is required')
       if (!address.trim()) throw new Error('Address is required')
-      await createOrganization({ name, email, phone, address, logoFile })
+      const created = await createOrganization<any>({ name, email, phone, address, logoFile })
+      setOrganization(created)
       toast.success('Organization created successfully')
       router.replace(`/${locale}`)
     } catch (err: any) {

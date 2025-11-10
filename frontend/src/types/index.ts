@@ -161,3 +161,12 @@ export interface Buy {
   transportTotal: number
   createdAt: Date
 }
+
+export interface Organization {
+  id: string
+  name: string
+  email: string
+  phone: string
+  address: string
+  logoUrl?: string | null
+}

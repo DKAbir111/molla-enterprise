@@ -9,6 +9,8 @@ const path = require("path");
 let OrganizationsService = class OrganizationsService {
     constructor(prisma) {
         this.prisma = prisma;
+        this.orgCache = new Map();
+        this.orgCacheTtlMs = Math.max(Number(process.env.ORG_CACHE_TTL_MS ?? 60000), 0);
     }
     async create(userId, dto, logoPath) {
         const user = await this.prisma.user.findUnique({ where: { id: userId } });
@@ -39,13 +41,21 @@ let OrganizationsService = class OrganizationsService {
             });
         }
         catch { }
+        this.setCachedOrg(userId, org);
         return org;
     }
     async findMine(userId) {
-        const user = await this.prisma.user.findUnique({ where: { id: userId } });
-        if (!user?.organizationId)
-            return null;
-        return this.prisma.organization.findUnique({ where: { id: user.organizationId } });
+        const cached = this.getCachedOrg(userId);
+        if (cached !== undefined) {
+            return cached;
+        }
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+            select: { organization: true },
+        });
+        const org = user?.organization ?? null;
+        this.setCachedOrg(userId, org);
+        return org;
     }
     async update(userId, id, dto, logoPath) {
         const user = await this.prisma.user.findUnique({ where: { id: userId } });
@@ -55,7 +65,7 @@ let OrganizationsService = class OrganizationsService {
         if (!nextLogo && dto.logoBase64) {
             nextLogo = await this.saveBase64(dto.logoBase64, `org-${id}-logo`);
         }
-        return this.prisma.organization.update({
+        const updated = await this.prisma.organization.update({
             where: { id },
             data: {
                 name: dto.name,
@@ -65,6 +75,8 @@ let OrganizationsService = class OrganizationsService {
                 ...(nextLogo ? { logoUrl: nextLogo } : {}),
             },
         });
+        this.setCachedOrg(userId, updated);
+        return updated;
     }
     async getSettings(userId) {
         const user = await this.prisma.user.findUnique({ where: { id: userId } });
@@ -117,6 +129,24 @@ let OrganizationsService = class OrganizationsService {
         const file = path.join(dir, `${basename}-${Date.now()}.png`);
         await fs.promises.writeFile(file, buffer);
         return '/uploads/' + path.basename(file);
+    }
+    getCachedOrg(userId) {
+        const entry = this.orgCache.get(userId);
+        if (!entry)
+            return undefined;
+        if (entry.expiresAt <= Date.now()) {
+            this.orgCache.delete(userId);
+            return undefined;
+        }
+        return entry.org;
+    }
+    setCachedOrg(userId, org) {
+        if (!this.orgCacheTtlMs)
+            return;
+        this.orgCache.set(userId, {
+            org,
+            expiresAt: Date.now() + this.orgCacheTtlMs,
+        });
     }
 };
 exports.OrganizationsService = OrganizationsService;

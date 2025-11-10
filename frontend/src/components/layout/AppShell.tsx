@@ -5,15 +5,17 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useLocale } from 'next-intl'
 import { Header } from './header'
 import { Sidebar } from './sidebar'
-import { getAuthToken, getMyOrganization, logout } from '@/lib/api'
+import { getAuthToken, logout } from '@/lib/api'
 import { useTheme } from '@/store/useTheme'
 import { Toaster } from 'sonner'
+import { useOrganizationStore } from '@/store/useOrganization'
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const locale = useLocale()
   const router = useRouter()
   const { theme } = useTheme()
+  const { organization, fetchOrganization } = useOrganizationStore()
 
   const base = `/${locale}`
   const authRoutes = new Set([
@@ -27,33 +29,39 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const shouldHide = isAuthRoute || isOrgRoute
 
   React.useEffect(() => {
-    // Auth pages: never enforce auth or org check
     if (isAuthRoute) return
 
-    // For all other pages (including organization), require a valid token
     const token = getAuthToken()
     if (!token) {
       router.replace(`/${locale}/login`)
       return
     }
-    // If we are already on organization page, skip org check (user is here to create it)
-    if (isOrgRoute) return
 
-    // Ensure organization exists for the rest of the app
-    getMyOrganization<any>()
-      .then((org) => {
-        if (!org || !org.id) router.replace(`/${locale}/organization`)
-      })
-      .catch((err) => {
-        const status = err?.response?.status
-        if (status === 401 || status === 403) {
-          try { logout() } catch {}
-          router.replace(`/${locale}/login`)
-        } else {
-          router.replace(`/${locale}/organization`)
-        }
-      })
-  }, [isAuthRoute, isOrgRoute, shouldHide, router, locale, pathname])
+    const handleAuthError = (err: any) => {
+      const status = err?.response?.status
+      if (status === 401 || status === 403) {
+        try { logout() } catch {}
+        router.replace(`/${locale}/login`)
+      } else if (!isOrgRoute) {
+        router.replace(`/${locale}/organization`)
+      }
+    }
+
+    if (organization === undefined) {
+      fetchOrganization()
+        .then((org) => {
+          if (!org && !isOrgRoute) {
+            router.replace(`/${locale}/organization`)
+          }
+        })
+        .catch(handleAuthError)
+      return
+    }
+
+    if (!organization && !isOrgRoute) {
+      router.replace(`/${locale}/organization`)
+    }
+  }, [isAuthRoute, isOrgRoute, organization, fetchOrganization, router, locale])
 
   if (shouldHide) {
     return (

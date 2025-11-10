@@ -20,11 +20,12 @@ import {
   Camera,
   Check,
 } from 'lucide-react'
-import { getMyOrganization, updateOrganization } from '@/lib/api'
+import { updateOrganization } from '@/lib/api'
 import { getMyOrganizationSettings, updateOrganizationSettings } from '@/lib/api/organization-api'
 import { listSnoozes, unsnoozeAlert, type SnoozedItem } from '@/lib/api/alerts-api'
 import { useTheme } from '@/store/useTheme'
 import { toast } from 'sonner'
+import { useOrganizationStore } from '@/store/useOrganization'
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -43,26 +44,26 @@ export default function SettingsPage() {
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const [saving, setSaving] = useState(false)
+  const { organization, fetchOrganization, setOrganization } = useOrganizationStore()
 
   useEffect(() => {
-    let mounted = true
-    getMyOrganization<any>()
-      .then((org) => {
-        if (!mounted || !org) return
-        setOrgId(org.id)
-        const next = {
-          name: org.name || '',
-          email: org.email || '',
-          phone: org.phone || '',
-          address: org.address || '',
-          logoUrl: org.logoUrl || '',
-        }
-        setBusinessInfo(next)
-        setLogoPreview(next.logoUrl || null)
-      })
-      .catch(() => { })
-    return () => { mounted = false }
-  }, [])
+    if (organization === undefined) {
+      fetchOrganization().catch(() => {})
+      return
+    }
+    if (!organization) return
+
+    setOrgId(organization.id)
+    const next = {
+      name: organization.name || '',
+      email: organization.email || '',
+      phone: organization.phone || '',
+      address: organization.address || '',
+      logoUrl: organization.logoUrl || '',
+    }
+    setBusinessInfo(next)
+    setLogoPreview((current) => (current && current.startsWith('blob:') ? current : (next.logoUrl || null)))
+  }, [organization, fetchOrganization])
 
   const onSaveBusinessInfo = async () => {
     if (!orgId) return
@@ -75,6 +76,7 @@ export default function SettingsPage() {
         address: businessInfo.address,
         logoFile: logoFile || undefined,
       })
+      setOrganization(updated)
       toast.success('Business information saved')
       setBusinessInfo((prev) => ({
         ...prev,

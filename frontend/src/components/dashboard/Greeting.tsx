@@ -2,21 +2,22 @@
 
 import React from 'react'
 import { useLocale, useTranslations } from 'next-intl'
-import { getMyOrganization } from '@/lib/api/organization-api'
+import { useOrganizationStore } from '@/store/useOrganization'
 
 export function Greeting() {
   const t = useTranslations('greeting')
   const locale = useLocale()
-  const [name, setName] = React.useState<string>('')
+  const { organization, fetchOrganization } = useOrganizationStore()
 
   React.useEffect(() => {
-    let mounted = true
-    getMyOrganization<any>().then((org) => { if (!mounted) return; if (org?.name) setName(org.name) }).catch(() => { })
-    return () => { mounted = false }
-  }, [])
+    if (organization === undefined) {
+      fetchOrganization().catch(() => {})
+    }
+  }, [organization, fetchOrganization])
 
   const hour = new Date().getHours()
   const key = hour < 5 ? 'night' : hour < 12 ? 'morning' : hour === 12 ? 'noon' : hour < 17 ? 'afternoon' : hour < 21 ? 'evening' : 'night'
+  const name = organization?.name || ''
 
   return (
     <div className="flex items-center gap-3">
@@ -28,4 +29,3 @@ export function Greeting() {
     </div>
   )
 }
-

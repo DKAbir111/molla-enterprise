@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { useTheme } from '@/store/useTheme'
 import React from 'react'
-import { getMyOrganization } from '@/lib/api'
+import { useOrganizationStore } from '@/store/useOrganization'
 import {
   LayoutDashboard,
   Package,
@@ -38,20 +38,16 @@ export function Sidebar() {
   const t = useTranslations('nav')
   const locale = pathname.split('/')[1]
   const { theme } = useTheme()
-  const [orgName, setOrgName] = React.useState<string>('Business Manager')
-  const [logoUrl, setLogoUrl] = React.useState<string | null>(null)
+  const { organization, fetchOrganization } = useOrganizationStore()
 
   React.useEffect(() => {
-    let mounted = true
-    getMyOrganization<any>()
-      .then((org) => {
-        if (!mounted || !org) return
-        if (org?.name) setOrgName(org.name)
-        if (org?.logoUrl) setLogoUrl(org.logoUrl)
-      })
-      .catch(() => { })
-    return () => { mounted = false }
-  }, [])
+    if (organization === undefined) {
+      fetchOrganization().catch(() => {})
+    }
+  }, [organization, fetchOrganization])
+
+  const orgName = organization?.name || 'Business Manager'
+  const logoUrl = organization?.logoUrl || null
 
   return (
     <aside className="w-64 border-r border-[color:var(--card-border)] bg-[var(--card-bg)]/90 backdrop-blur-md">
