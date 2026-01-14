@@ -7,6 +7,7 @@ export interface JwtPayload {
   sub: string; // userId
   email: string;
   organizationId?: string | null;
+  role?: string | null;
 }
 
 @Injectable()
@@ -21,8 +22,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: JwtPayload) {
     const user = await this.prisma.user.findUnique({ where: { id: payload.sub } });
-    if (!user) throw new UnauthorizedException('User not found');
-    return { userId: user.id, email: user.email, organizationId: user.organizationId };
+    if (!user || user.deletedAt) throw new UnauthorizedException('User not found');
+    return { userId: user.id, email: user.email, organizationId: user.organizationId, role: user.role };
   }
 }
-

@@ -16,8 +16,10 @@ let AuthController = class AuthController {
     register(dto) {
         return this.auth.register(dto);
     }
-    login(dto) {
-        return this.auth.login(dto);
+    login(req, dto) {
+        const ipAddress = extractIp(req);
+        const userAgent = req.headers['user-agent'];
+        return this.auth.login(dto, { ipAddress, userAgent });
     }
     forgot(dto) {
         return this.auth.forgotPassword(dto);
@@ -36,9 +38,10 @@ tslib_1.__decorate([
 ], AuthController.prototype, "register", null);
 tslib_1.__decorate([
     (0, common_1.Post)('login'),
-    tslib_1.__param(0, (0, common_1.Body)()),
+    tslib_1.__param(0, (0, common_1.Req)()),
+    tslib_1.__param(1, (0, common_1.Body)()),
     tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [login_dto_1.LoginDto]),
+    tslib_1.__metadata("design:paramtypes", [Object, login_dto_1.LoginDto]),
     tslib_1.__metadata("design:returntype", void 0)
 ], AuthController.prototype, "login", null);
 tslib_1.__decorate([
@@ -60,3 +63,13 @@ exports.AuthController = AuthController = tslib_1.__decorate([
     (0, common_1.Controller)('auth'),
     tslib_1.__metadata("design:paramtypes", [auth_service_1.AuthService])
 ], AuthController);
+function extractIp(req) {
+    const forwarded = req.headers['x-forwarded-for'];
+    if (Array.isArray(forwarded) && forwarded.length > 0) {
+        return forwarded[0];
+    }
+    if (typeof forwarded === 'string' && forwarded.length > 0) {
+        return forwarded.split(',')[0]?.trim();
+    }
+    return req.ip || req.socket?.remoteAddress || undefined;
+}

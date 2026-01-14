@@ -1,28 +1,59 @@
 'use client'
-import { useEffect, useRef, useState } from 'react'
+import { FormEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 // import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import {
   Building,
   Globe,
   Bell,
-  Users,
   Save,
   Mail,
   Phone,
   MapPin,
-  CreditCard,
+  KeyRound,
   Shield,
   Palette,
   Camera,
   Check,
+  Plus,
+  RefreshCw,
+  Trash2,
 } from 'lucide-react'
 import { updateOrganization } from '@/lib/api'
 import { getMyOrganizationSettings, updateOrganizationSettings } from '@/lib/api/organization-api'
 import { listSnoozes, unsnoozeAlert, type SnoozedItem } from '@/lib/api/alerts-api'
+import {
+  changePassword as changePasswordRequest,
+  createTeamMember,
+  deleteTeamMember,
+  fetchLoginActivity,
+  listTeamMembers,
+  updateTeamMember,
+  type LoginActivityEntry,
+  type TeamMember,
+  type TeamMemberRole,
+  type TeamMembersResponse,
+} from '@/lib/api/user-api'
 import { useTheme } from '@/store/useTheme'
 import { toast } from 'sonner'
 import { useOrganizationStore } from '@/store/useOrganization'
@@ -45,6 +76,32 @@ export default function SettingsPage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const [saving, setSaving] = useState(false)
   const { organization, fetchOrganization, setOrganization } = useOrganizationStore()
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false)
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  })
+  const [passwordSaving, setPasswordSaving] = useState(false)
+  type InviteFormState = { name: string; email: string; temporaryPassword: string; role: TeamMemberRole }
+  const createInviteDefaults = (): InviteFormState => ({
+    name: '',
+    email: '',
+    temporaryPassword: generateSecurePassword(),
+    role: 'member',
+  })
+  const [inviteOpen, setInviteOpen] = useState(false)
+  const [inviteSubmitting, setInviteSubmitting] = useState(false)
+  const [inviteForm, setInviteForm] = useState<InviteFormState>(() => createInviteDefaults())
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([])
+  const [teamMeta, setTeamMeta] = useState<Pick<TeamMembersResponse, 'currentUserId' | 'currentUserRole'> | null>(null)
+  const [teamLoading, setTeamLoading] = useState(false)
+  const [teamInitialized, setTeamInitialized] = useState(false)
+  const [roleUpdatingId, setRoleUpdatingId] = useState<string | null>(null)
+  const [deletingMemberId, setDeletingMemberId] = useState<string | null>(null)
+  const [loginActivity, setLoginActivity] = useState<LoginActivityEntry[] | null>(null)
+  const [activityLoading, setActivityLoading] = useState(false)
+  const [activityInitialized, setActivityInitialized] = useState(false)
 
   useEffect(() => {
     if (organization === undefined) {
@@ -130,6 +187,39 @@ export default function SettingsPage() {
     payableReminderDays: 3,
   })
 
+  const loadTeamMembers = useCallback(async (opts?: { silent?: boolean }) => {
+    if (!opts?.silent) setTeamLoading(true)
+    try {
+      const data = await listTeamMembers<TeamMembersResponse>()
+      setTeamMembers(data?.members ?? [])
+      setTeamMeta({ currentUserId: data.currentUserId, currentUserRole: data.currentUserRole })
+      setTeamInitialized(true)
+    } catch (error: any) {
+      if (!opts?.silent) {
+        const message = error?.response?.data?.message ?? 'Failed to load team members'
+        toast.error(message)
+      }
+    } finally {
+      if (!opts?.silent) setTeamLoading(false)
+    }
+  }, [])
+
+  const loadLoginActivity = useCallback(async (opts?: { silent?: boolean }) => {
+    if (!opts?.silent) setActivityLoading(true)
+    try {
+      const entries = await fetchLoginActivity()
+      setLoginActivity(entries ?? [])
+      setActivityInitialized(true)
+    } catch (error: any) {
+      if (!opts?.silent) {
+        const message = error?.response?.data?.message ?? 'Failed to load login activity'
+        toast.error(message)
+      }
+    } finally {
+      if (!opts?.silent) setActivityLoading(false)
+    }
+  }, [])
+
   useEffect(() => {
     let mounted = true
     getMyOrganizationSettings<any>()
@@ -166,6 +256,16 @@ export default function SettingsPage() {
     return () => { mounted = false }
   }, [])
 
+  useEffect(() => {
+    if (activeTab !== 'other') return
+    if (!teamInitialized && !teamLoading) {
+      loadTeamMembers()
+    }
+    if (!activityInitialized && !activityLoading) {
+      loadLoginActivity()
+    }
+  }, [activeTab, teamInitialized, teamLoading, loadTeamMembers, activityInitialized, activityLoading, loadLoginActivity])
+
   const { theme, setTheme } = useTheme()
   const [snoozes, setSnoozes] = useState<SnoozedItem[] | null>(null)
   const [snoozeLoading, setSnoozeLoading] = useState(false)
@@ -193,6 +293,110 @@ export default function SettingsPage() {
     params.set('tab', key === 'notifications' ? 'notification' : key)
     const qs = params.toString()
     router.replace(qs ? `${pathname}?${qs}` : pathname)
+  }
+
+  const currentRole = teamMeta?.currentUserRole ?? 'member'
+  const isOwner = currentRole === 'owner'
+  const canManageMembers = currentRole === 'owner' || currentRole === 'admin'
+  const roleOptions: { value: TeamMemberRole; label: string }[] = [
+    { value: 'owner', label: 'Owner' },
+    { value: 'admin', label: 'Admin' },
+    { value: 'member', label: 'Member' },
+  ]
+
+  const handlePasswordSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!passwordForm.currentPassword || !passwordForm.newPassword) {
+      toast.error('Please complete all fields')
+      return
+    }
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      toast.error('New passwords do not match')
+      return
+    }
+    setPasswordSaving(true)
+    try {
+      await changePasswordRequest({
+        currentPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword,
+      })
+      toast.success('Password updated')
+      setPasswordDialogOpen(false)
+      setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
+    } catch (error: any) {
+      const message = error?.response?.data?.message ?? 'Failed to change password'
+      toast.error(message)
+    } finally {
+      setPasswordSaving(false)
+    }
+  }
+
+  const handleInviteSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!inviteForm.name.trim() || !inviteForm.email.trim() || inviteForm.temporaryPassword.length < 8) {
+      toast.error('Please fill all required fields')
+      return
+    }
+    setInviteSubmitting(true)
+    try {
+      await createTeamMember(inviteForm)
+      toast.success('Team member invited')
+      setInviteOpen(false)
+      setInviteForm(createInviteDefaults())
+      await loadTeamMembers({ silent: true })
+    } catch (error: any) {
+      const message = error?.response?.data?.message ?? 'Failed to invite member'
+      toast.error(message)
+    } finally {
+      setInviteSubmitting(false)
+    }
+  }
+
+  const handleRoleChange = async (member: TeamMember, nextRole: TeamMemberRole) => {
+    if (member.role === nextRole) return
+    setRoleUpdatingId(member.id)
+    try {
+      const updated = await updateTeamMember(member.id, { role: nextRole })
+      setTeamMembers((prev) => prev.map((m) => (m.id === updated.id ? { ...m, ...updated } : m)))
+      if (member.id === teamMeta?.currentUserId) {
+        setTeamMeta((prev) => (prev ? { ...prev, currentUserRole: nextRole } : prev))
+      }
+      toast.success('Role updated')
+    } catch (error: any) {
+      const message = error?.response?.data?.message ?? 'Failed to update role'
+      toast.error(message)
+    } finally {
+      setRoleUpdatingId(null)
+    }
+  }
+
+  const handleDeleteMember = async (member: TeamMember) => {
+    const confirmed = window.confirm(`Remove ${member.name}? They will immediately lose access.`)
+    if (!confirmed) return
+    setDeletingMemberId(member.id)
+    try {
+      await deleteTeamMember(member.id)
+      setTeamMembers((prev) => prev.filter((m) => m.id !== member.id))
+      toast.success('Member removed')
+    } catch (error: any) {
+      const message = error?.response?.data?.message ?? 'Failed to remove member'
+      toast.error(message)
+    } finally {
+      setDeletingMemberId(null)
+    }
+  }
+
+  const handleInviteDialogChange = (open: boolean) => {
+    setInviteOpen(open)
+    if (!open) {
+      setInviteForm(createInviteDefaults())
+    } else {
+      setInviteForm((prev) => ({ ...prev, temporaryPassword: prev.temporaryPassword || generateSecurePassword() }))
+    }
+  }
+
+  const regenerateInvitePassword = () => {
+    setInviteForm((prev) => ({ ...prev, temporaryPassword: generateSecurePassword() }))
   }
 
   return (
@@ -637,10 +841,14 @@ export default function SettingsPage() {
                 <CardDescription>Manage your password and authentication methods</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                <button className="w-full flex items-center justify-between p-4 rounded-lg border hover:bg-gray-50 transition-colors text-left">
+                <button
+                  type="button"
+                  onClick={() => setPasswordDialogOpen(true)}
+                  className="w-full flex items-center justify-between p-4 rounded-lg border hover:bg-gray-50 transition-colors text-left"
+                >
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-lg bg-purple-100 flex items-center justify-center">
-                      <CreditCard className="h-5 w-5 text-purple-600" />
+                      <KeyRound className="h-5 w-5 text-purple-600" />
                     </div>
                     <div>
                       <div className="font-medium text-gray-900">Change Password</div>
@@ -650,7 +858,7 @@ export default function SettingsPage() {
                   <span className="text-gray-400">→</span>
                 </button>
 
-                <button className="w-full flex items-center justify-between p-4 rounded-lg border hover:bg-gray-50 transition-colors text-left">
+                <button className="w-full flex items-center justify-between p-4 rounded-lg border hover:bg-gray-50 transition-colors text-left" type="button">
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
                       <Shield className="h-5 w-5 text-blue-600" />
@@ -666,58 +874,330 @@ export default function SettingsPage() {
             </Card>
 
             <Card>
-              <CardHeader>
-                <CardTitle>User Management</CardTitle>
-                <CardDescription>Control who has access to your organization</CardDescription>
+              <CardHeader className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <CardTitle>User Management</CardTitle>
+                  <CardDescription>Control who has access to your organization</CardDescription>
+                </div>
+                {canManageMembers && (
+                  <Button size="sm" onClick={() => handleInviteDialogChange(true)} disabled={teamLoading}>
+                    <Plus className="h-4 w-4 mr-1" />
+                    Invite Member
+                  </Button>
+                )}
               </CardHeader>
               <CardContent>
-                <button className="w-full flex items-center justify-between p-4 rounded-lg border hover:bg-gray-50 transition-colors text-left">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-emerald-100 flex items-center justify-center">
-                      <Users className="h-5 w-5 text-emerald-600" />
-                    </div>
-                    <div>
-                      <div className="font-medium text-gray-900">Manage Team Members</div>
-                      <div className="text-sm text-gray-600">Add, remove, or update user permissions</div>
-                    </div>
+                {teamLoading && teamMembers.length === 0 && (
+                  <div className="text-sm text-gray-500 text-center py-4">Loading team members...</div>
+                )}
+                {!teamLoading && teamMembers.length === 0 && (
+                  <div className="text-sm text-gray-500 text-center py-4">
+                    {canManageMembers ? 'No additional members yet. Invite a teammate to get started.' : 'No other members are linked to this organization.'}
                   </div>
-                  <span className="text-gray-400">→</span>
-                </button>
+                )}
+                {teamMembers.length > 0 && (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Member</TableHead>
+                          <TableHead className="w-40">Role</TableHead>
+                          <TableHead className="w-48">Last Active</TableHead>
+                          <TableHead className="w-16 text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {teamMembers.map((member) => {
+                          const isSelf = member.id === teamMeta?.currentUserId
+                          const canEditThisMember = canManageMembers && !isSelf && (member.role !== 'owner' || isOwner)
+                          const canDeleteThisMember = canManageMembers && !isSelf && (member.role !== 'owner' || isOwner)
+                          return (
+                            <TableRow key={member.id}>
+                              <TableCell>
+                                <div className="font-medium text-gray-900 flex items-center gap-2">
+                                  {member.name}
+                                  {isSelf && <span className="text-[11px] px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">You</span>}
+                                </div>
+                                <div className="text-xs text-gray-500">{member.email}</div>
+                              </TableCell>
+                              <TableCell>
+                                {canManageMembers ? (
+                                  <div className="flex items-center gap-2">
+                                    <select
+                                      value={member.role}
+                                      onChange={(e) => handleRoleChange(member, e.target.value as TeamMemberRole)}
+                                      disabled={!canEditThisMember || roleUpdatingId === member.id}
+                                      className="w-full rounded border border-gray-200 bg-white px-2 py-1 text-sm focus:border-purple-500 focus:outline-none"
+                                    >
+                                      {roleOptions.map((option) => (
+                                        <option
+                                          key={option.value}
+                                          value={option.value}
+                                          disabled={!isOwner && option.value === 'owner'}
+                                        >
+                                          {option.label}
+                                        </option>
+                                      ))}
+                                    </select>
+                                    {roleUpdatingId === member.id && <RefreshCw className="h-4 w-4 text-gray-400 animate-spin" />}
+                                  </div>
+                                ) : (
+                                  <span className="text-sm text-gray-600 capitalize">{member.role}</span>
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                <span className="text-sm text-gray-700">{formatDateTime(member.lastLoginAt)}</span>
+                              </TableCell>
+                              <TableCell className="text-right">
+                                {canDeleteThisMember ? (
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => handleDeleteMember(member)}
+                                    disabled={deletingMemberId === member.id}
+                                  >
+                                    <Trash2 className={`h-4 w-4 text-gray-500 ${deletingMemberId === member.id ? 'animate-pulse' : ''}`} />
+                                  </Button>
+                                ) : (
+                                  <span className="text-xs text-gray-400">—</span>
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          )
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+                {canManageMembers && (
+                  <p className="text-xs text-gray-500 pt-3">
+                    Share the temporary password securely with the teammate after creating their account.
+                  </p>
+                )}
               </CardContent>
             </Card>
 
             <Card className="md:col-span-2">
-              <CardHeader>
-                <CardTitle>Login Activity</CardTitle>
-                <CardDescription>Recent access to your account</CardDescription>
+              <CardHeader className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <CardTitle>Login Activity</CardTitle>
+                  <CardDescription>Recent access to your account</CardDescription>
+                </div>
+                <Button variant="outline" size="sm" onClick={() => loadLoginActivity()} disabled={activityLoading}>
+                  <RefreshCw className={`h-4 w-4 mr-2 ${activityLoading ? 'animate-spin' : ''}`} />
+                  Refresh
+                </Button>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {[
-                    { date: 'Nov 7, 2024 10:30 AM', ip: '192.168.1.1', device: 'Chrome on Windows', current: true },
-                    { date: 'Nov 6, 2024 3:15 PM', ip: '192.168.1.1', device: 'Safari on iPhone', current: false },
-                    { date: 'Nov 5, 2024 9:20 AM', ip: '192.168.1.1', device: 'Chrome on Windows', current: false },
-                  ].map((activity, i) => (
-                    <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-gray-50">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-gray-900">{activity.device}</span>
-                          {activity.current && (
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">Current</span>
-                          )}
+                {activityLoading && (!loginActivity || loginActivity.length === 0) && (
+                  <div className="text-sm text-gray-500 text-center py-4">Loading recent activity...</div>
+                )}
+                {!activityLoading && (!loginActivity || loginActivity.length === 0) && (
+                  <div className="text-sm text-gray-500 text-center py-4">No login events yet. They&apos;ll appear here after your next sign-in.</div>
+                )}
+                {(loginActivity?.length ?? 0) > 0 && (
+                  <div className="space-y-3">
+                    {activityLoading && <div className="text-xs text-gray-500 text-center">Refreshing…</div>}
+                    {(loginActivity ?? []).map((entry, index) => {
+                      const label = entry.deviceLabel || summarizeUserAgent(entry.userAgent) || 'Unknown device'
+                      const isCurrent = index === 0
+                      return (
+                        <div key={entry.id} className="flex items-center justify-between p-3 rounded-lg bg-gray-50">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium text-gray-900">{label}</span>
+                              {isCurrent && (
+                                <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">Current session</span>
+                              )}
+                            </div>
+                            <div className="text-xs text-gray-600 mt-1">
+                              {formatDateTime(entry.createdAt)} • {entry.ipAddress ?? 'Unknown IP'}
+                            </div>
+                            {entry.location && <div className="text-xs text-gray-500">{entry.location}</div>}
+                          </div>
                         </div>
-                        <div className="text-xs text-gray-600 mt-1">
-                          {activity.date} • {activity.ip}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                      )
+                    })}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
         )}
       </div>
+
+      <Dialog
+        open={passwordDialogOpen}
+        onOpenChange={(open) => {
+          setPasswordDialogOpen(open)
+          if (!open) {
+            setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Change password</DialogTitle>
+            <DialogDescription>Choose a strong password that you don&apos;t use elsewhere.</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handlePasswordSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="current-password">Current password</Label>
+              <Input
+                id="current-password"
+                type="password"
+                autoComplete="current-password"
+                value={passwordForm.currentPassword}
+                onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="new-password">New password</Label>
+              <Input
+                id="new-password"
+                type="password"
+                autoComplete="new-password"
+                value={passwordForm.newPassword}
+                onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="confirm-password">Confirm new password</Label>
+              <Input
+                id="confirm-password"
+                type="password"
+                autoComplete="new-password"
+                value={passwordForm.confirmPassword}
+                onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+              />
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setPasswordDialogOpen(false)} disabled={passwordSaving}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={passwordSaving}>
+                {passwordSaving ? 'Updating...' : 'Update Password'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={inviteOpen} onOpenChange={handleInviteDialogChange}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Invite a team member</DialogTitle>
+            <DialogDescription>They&apos;ll be able to sign in immediately with the temporary password.</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleInviteSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="invite-name">Full name</Label>
+              <Input
+                id="invite-name"
+                value={inviteForm.name}
+                onChange={(e) => setInviteForm((prev) => ({ ...prev, name: e.target.value }))}
+                placeholder="Jane Doe"
+              />
+            </div>
+            <div>
+              <Label htmlFor="invite-email">Email address</Label>
+              <Input
+                id="invite-email"
+                type="email"
+                autoComplete="email"
+                value={inviteForm.email}
+                onChange={(e) => setInviteForm((prev) => ({ ...prev, email: e.target.value }))}
+                placeholder="jane@example.com"
+              />
+            </div>
+            <div>
+              <Label htmlFor="invite-password">Temporary password</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="invite-password"
+                  type="text"
+                  value={inviteForm.temporaryPassword}
+                  onChange={(e) => setInviteForm((prev) => ({ ...prev, temporaryPassword: e.target.value }))}
+                  minLength={8}
+                />
+                <Button type="button" variant="outline" onClick={regenerateInvitePassword}>
+                  Generate
+                </Button>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">Share this password securely with the teammate.</p>
+            </div>
+            <div>
+              <Label htmlFor="invite-role">Role</Label>
+              <select
+                id="invite-role"
+                value={inviteForm.role}
+                onChange={(e) => setInviteForm((prev) => ({ ...prev, role: e.target.value as TeamMemberRole }))}
+                className="w-full rounded border border-gray-200 bg-white px-3 py-2 text-sm focus:border-purple-500 focus:outline-none"
+              >
+                {roleOptions.map((option) => (
+                  <option key={option.value} value={option.value} disabled={!isOwner && option.value === 'owner'}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setInviteOpen(false)} disabled={inviteSubmitting}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={inviteSubmitting}>
+                {inviteSubmitting ? 'Inviting...' : 'Invite Member'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   )
+}
+
+function formatDateTime(value?: string | null) {
+  if (!value) return 'Never'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+  return date.toLocaleString()
+}
+
+function summarizeUserAgent(ua?: string | null) {
+  if (!ua) return null
+  const str = ua.toLowerCase()
+  const device =
+    str.includes('iphone') ? 'iPhone' :
+      str.includes('ipad') ? 'iPad' :
+        str.includes('android') && str.includes('mobile') ? 'Android Phone' :
+          str.includes('android') ? 'Android' :
+            str.includes('mac os') || str.includes('macintosh') ? 'macOS' :
+              str.includes('windows') ? 'Windows' :
+                str.includes('linux') ? 'Linux' : null
+  const browser =
+    str.includes('edg/') ? 'Edge' :
+      str.includes('chrome') ? 'Chrome' :
+        str.includes('safari') && !str.includes('chrome') ? 'Safari' :
+          str.includes('firefox') ? 'Firefox' :
+            str.includes('msie') || str.includes('trident') ? 'Internet Explorer' : null
+  if (browser && device) return `${browser} on ${device}`
+  return browser || device
+}
+
+function generateSecurePassword(length = 12) {
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789!@#$%&*?'
+  const cryptoObj = typeof window !== 'undefined' ? window.crypto : undefined
+  const chars: string[] = []
+  if (cryptoObj?.getRandomValues) {
+    const values = new Uint32Array(length)
+    cryptoObj.getRandomValues(values)
+    for (let i = 0; i < length; i++) {
+      chars.push(alphabet[values[i] % alphabet.length])
+    }
+  } else {
+    for (let i = 0; i < length; i++) {
+      chars.push(alphabet[Math.floor(Math.random() * alphabet.length)])
+    }
+  }
+  return chars.join('')
 }

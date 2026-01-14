@@ -13,12 +13,16 @@ model User {
   email          String               @unique
   name           String
   password       String
+  role           String               @default("member")
   organizationId String? // current/primary org
   organization   Organization?        @relation("PrimaryOrg", fields: [organizationId], references: [id])
   ownedOrgs      Organization[]       @relation("OrgOwner")
   createdAt      DateTime             @default(now())
   updatedAt      DateTime             @updatedAt
+  lastLoginAt    DateTime?
+  deletedAt      DateTime?
   resetTokens    PasswordResetToken[]
+  loginActivity  LoginActivity[]
 }
 
 model Organization {
@@ -253,4 +257,18 @@ model PasswordResetToken {
   expiresAt DateTime
   used      Boolean  @default(false)
   createdAt DateTime @default(now())
+}
+
+model LoginActivity {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ipAddress   String?
+  userAgent   String?
+  location    String?
+  deviceLabel String?
+  createdAt   DateTime @default(now())
+  lastSeenAt  DateTime @updatedAt
+
+  @@index([userId, createdAt])
 }

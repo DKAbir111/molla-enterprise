@@ -9,7 +9,7 @@ function toNumber(x: any): number {
 
 @Injectable()
 export class AccountsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   private ensureOrg(orgId?: string | null) {
     if (!orgId) throw new ForbiddenException('Organization required')
@@ -85,7 +85,7 @@ export class AccountsService {
       })),
       ...transactions.map((t) => ({
         id: `txn-${t.id}`,
-        type: (t.type === 'income' ? 'income' : 'expense') as const,
+        type: (t.type === 'income' ? 'income' : 'expense') as 'income' | 'expense',
         description: t.description,
         amount: Math.max(0, toNumber(t.amount)),
         date: t.date,

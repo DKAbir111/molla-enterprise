@@ -13,25 +13,39 @@ export class AuthService {
   constructor(private prisma: PrismaService, private jwt: JwtService, private mail: MailService) {}
 
   async register(dto: RegisterDto) {
-    const exists = await this.prisma.user.findUnique({ where: { email: dto.email } });
+    const email = dto.email.toLowerCase();
+    const exists = await this.prisma.user.findUnique({ where: { email } });
     if (exists) throw new BadRequestException('Email already in use');
     const password = await bcrypt.hash(dto.password, 10);
-    const user = await this.prisma.user.create({ data: { name: dto.name, email: dto.email, password } });
-    const token = await this.sign(user.id, user.email, user.organizationId);
+    const user = await this.prisma.user.create({ data: { name: dto.name, email, password, role: 'owner' } });
+    const token = await this.sign(user.id, user.email, user.organizationId, user.role);
     return { user: this.sanitize(user), token };
   }
 
-  async login(dto: LoginDto) {
-    const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
-    if (!user) throw new UnauthorizedException('Invalid credentials');
+  async login(dto: LoginDto, meta?: { ipAddress?: string; userAgent?: string }) {
+    const email = dto.email.toLowerCase();
+    const user = await this.prisma.user.findUnique({ where: { email } });
+    if (!user || user.deletedAt) throw new UnauthorizedException('Invalid credentials');
     const ok = await bcrypt.compare(dto.password, user.password);
     if (!ok) throw new UnauthorizedException('Invalid credentials');
-    const token = await this.sign(user.id, user.email, user.organizationId);
+    await this.prisma.$transaction([
+      this.prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } }),
+      this.prisma.loginActivity.create({
+        data: {
+          userId: user.id,
+          ipAddress: meta?.ipAddress,
+          userAgent: meta?.userAgent,
+          deviceLabel: describeUserAgent(meta?.userAgent),
+        },
+      }),
+    ]);
+    const token = await this.sign(user.id, user.email, user.organizationId, user.role);
     return { user: this.sanitize(user), token };
   }
 
   async forgotPassword(dto: ForgotPasswordDto) {
-    const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
+    const email = dto.email.toLowerCase();
+    const user = await this.prisma.user.findUnique({ where: { email } });
     if (!user) return { ok: true }; // Do not leak existence
     const token = cryptoRandom();
     const expiresAt = new Date(Date.now() + 1000 * 60 * 5); // 5 minutes
@@ -51,8 +65,8 @@ export class AuthService {
     return { ok: true };
   }
 
-  private async sign(sub: string, email: string, organizationId?: string | null) {
-    return this.jwt.signAsync({ sub, email, organizationId: organizationId ?? undefined });
+  private async sign(sub: string, email: string, organizationId?: string | null, role?: string | null) {
+    return this.jwt.signAsync({ sub, email, organizationId: organizationId ?? undefined, role: role ?? undefined });
   }
 
   private sanitize(user: any) {
@@ -67,4 +81,26 @@ function cryptoRandom(len = 40) {
   let out = '';
   for (let i = 0; i < len; i++) out += alphabet[Math.floor(Math.random() * alphabet.length)];
   return out;
+}
+
+function describeUserAgent(ua?: string | null) {
+  if (!ua) return null;
+  const str = ua.toLowerCase();
+  const device =
+    str.includes('iphone') ? 'iPhone' :
+      str.includes('ipad') ? 'iPad' :
+        str.includes('android') && str.includes('mobile') ? 'Android Phone' :
+          str.includes('android') ? 'Android' :
+            str.includes('mac os') || str.includes('macintosh') ? 'macOS' :
+              str.includes('windows') ? 'Windows' :
+                str.includes('linux') ? 'Linux' : null;
+  const browser =
+    str.includes('edg/') ? 'Edge' :
+      str.includes('chrome') ? 'Chrome' :
+        str.includes('safari') && !str.includes('chrome') ? 'Safari' :
+          str.includes('firefox') ? 'Firefox' :
+            str.includes('msie') || str.includes('trident') ? 'Internet Explorer' : null;
+  if (!device && !browser) return null;
+  if (browser && device) return `${browser} on ${device}`;
+  return browser || device;
 }

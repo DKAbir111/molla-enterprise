@@ -5,8 +5,10 @@ export type AuthUser = {
   email: string
   name: string
   organizationId?: string | null
+  role?: 'owner' | 'admin' | 'member'
   createdAt?: string
   updatedAt?: string
+  lastLoginAt?: string | null
 }
 
 export type AuthResponse = {
@@ -39,4 +41,3 @@ export async function resetPassword(data: { token: string; newPassword: string }
 export function logout() {
   setAuthToken(null)
 }
-
