@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Delete, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -17,7 +17,7 @@ const storage = diskStorage({
     const isDist = path.basename(parent) === 'dist';
     const backendRoot = isDist ? path.resolve(parent, '..') : parent; // -> backend
     const dir = path.resolve(backendRoot, 'uploads');
-    try { fs.mkdirSync(dir, { recursive: true }); } catch {}
+    try { fs.mkdirSync(dir, { recursive: true }); } catch { }
     cb(null, dir);
   },
   filename: (_req, file, cb) => {
@@ -44,7 +44,7 @@ function withPublicLogo<T extends { logoUrl?: string | null }>(obj: T): T {
 @UseGuards(JwtAuthGuard)
 @Controller('organizations')
 export class OrganizationsController {
-  constructor(private orgs: OrganizationsService) {}
+  constructor(private orgs: OrganizationsService) { }
 
   @Post()
   @ApiConsumes('multipart/form-data')
@@ -86,5 +86,21 @@ export class OrganizationsController {
     @Body() dto: any,
   ) {
     return this.orgs.updateSettings(req.user.userId, id, dto)
+  }
+
+  @Post(':id/disable')
+  disableOrganization(
+    @Req() req: any,
+    @Param('id') id: string,
+  ) {
+    return this.orgs.disableOrganization(req.user.userId, id).then(withPublicLogo);
+  }
+
+  @Delete(':id')
+  deleteOrganization(
+    @Req() req: any,
+    @Param('id') id: string,
+  ) {
+    return this.orgs.deleteOrganization(req.user.userId, id);
   }
 }

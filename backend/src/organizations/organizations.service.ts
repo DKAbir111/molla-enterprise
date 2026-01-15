@@ -14,7 +14,7 @@ export class OrganizationsService {
     0,
   );
 
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(userId: string, dto: CreateOrganizationDto, logoPath?: string) {
     // Prevent creating multiple orgs for minimal design; extend later if needed
@@ -45,7 +45,7 @@ export class OrganizationsService {
           organizationId: org.id,
         },
       });
-    } catch {}
+    } catch { }
     this.setCachedOrg(userId, org);
     return org;
   }
@@ -147,6 +147,59 @@ export class OrganizationsService {
       return undefined;
     }
     return entry.org;
+  }
+
+  async disableOrganization(userId: string, orgId: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user?.organizationId || user.organizationId !== orgId) {
+      throw new ForbiddenException('Not your organization');
+    }
+
+    const updated = await this.prisma.organization.update({
+      where: { id: orgId },
+      data: {
+        deletedAt: new Date(), // Soft delete by setting deletedAt
+      },
+    });
+    this.setCachedOrg(userId, null);
+    return updated;
+  }
+
+  async deleteOrganization(userId: string, orgId: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user?.organizationId || user.organizationId !== orgId) {
+      throw new ForbiddenException('Not your organization');
+    }
+
+    // Delete all related data in proper order
+    await this.prisma.$transaction(async (tx: any) => {
+      // Delete all order items first
+      await tx.sellItem.deleteMany({ where: { sell: { organizationId: orgId } } });
+      await tx.buyItem.deleteMany({ where: { buy: { organizationId: orgId } } });
+
+      // Delete main entities
+      await tx.sell.deleteMany({ where: { organizationId: orgId } });
+      await tx.buy.deleteMany({ where: { organizationId: orgId } });
+      await tx.transaction.deleteMany({ where: { organizationId: orgId } });
+      await tx.dryingGain.deleteMany({ where: { organizationId: orgId } });
+      await tx.product.deleteMany({ where: { organizationId: orgId } });
+      await tx.customer.deleteMany({ where: { organizationId: orgId } });
+      await tx.vendor.deleteMany({ where: { organizationId: orgId } });
+
+      // Delete settings and users associated with org
+      await tx.organizationSettings.deleteMany({ where: { organizationId: orgId } });
+      await tx.organizationAlertSnooze.deleteMany({ where: { organizationId: orgId } });
+      await tx.user.updateMany({
+        where: { organizationId: orgId },
+        data: { organizationId: null },
+      });
+
+      // Delete the organization itself
+      await tx.organization.delete({ where: { id: orgId } });
+    });
+
+    this.setCachedOrg(userId, null);
+    return { message: 'Organization deleted successfully' };
   }
 
   private setCachedOrg(userId: string, org: Organization | null) {

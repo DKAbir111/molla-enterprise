@@ -13,14 +13,16 @@ import { Input } from '@/components/ui/input'
 import { AlertTriangle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { deleteOrganization } from '@/lib/api/organization-api'
 
 interface DeleteOrgDialogProps {
     open: boolean
     onOpenChange: (open: boolean) => void
     organizationName?: string
+    organizationId?: string
 }
 
-export function DeleteOrgDialog({ open, onOpenChange, organizationName }: DeleteOrgDialogProps) {
+export function DeleteOrgDialog({ open, onOpenChange, organizationName, organizationId }: DeleteOrgDialogProps) {
     const [confirm, setConfirm] = useState('')
     const [deleting, setDeleting] = useState(false)
     const router = useRouter()
@@ -30,10 +32,13 @@ export function DeleteOrgDialog({ open, onOpenChange, organizationName }: Delete
             toast.error('Organization name does not match')
             return
         }
+        if (!organizationId) {
+            toast.error('Organization ID is missing')
+            return
+        }
         setDeleting(true)
         try {
-            // TODO: Call API to delete organization - you'll need to implement this endpoint
-            // await deleteAccountApi(orgId)
+            await deleteOrganization(organizationId)
             toast.success('Organization deleted successfully')
             router.push('/')
         } catch (error: any) {

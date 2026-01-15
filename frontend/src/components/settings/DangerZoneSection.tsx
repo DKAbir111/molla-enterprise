@@ -7,9 +7,10 @@ import { DisableOrgDialog, DeleteOrgDialog } from './dialogs'
 
 interface DangerZoneSectionProps {
     organizationName?: string
+    organizationId?: string
 }
 
-export function DangerZoneSection({ organizationName }: DangerZoneSectionProps) {
+export function DangerZoneSection({ organizationName, organizationId }: DangerZoneSectionProps) {
     const [disableOrgOpen, setDisableOrgOpen] = useState(false)
     const [deleteAccountOpen, setDeleteAccountOpen] = useState(false)
 
@@ -66,11 +67,13 @@ export function DangerZoneSection({ organizationName }: DangerZoneSectionProps) 
                 open={disableOrgOpen}
                 onOpenChange={setDisableOrgOpen}
                 organizationName={organizationName}
+                organizationId={organizationId}
             />
             <DeleteOrgDialog
                 open={deleteAccountOpen}
                 onOpenChange={setDeleteAccountOpen}
                 organizationName={organizationName}
+                organizationId={organizationId}
             />
         </div>
     )

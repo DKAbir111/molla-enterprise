@@ -3,7 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -24,17 +26,18 @@ model User {
 }
 
 model Organization {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   name      String
   email     String
   phone     String
   address   String
   logoUrl   String?
   ownerId   String
-  owner     User     @relation("OrgOwner", fields: [ownerId], references: [id])
-  users     User[]   @relation("PrimaryOrg")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  owner     User      @relation("OrgOwner", fields: [ownerId], references: [id])
+  users     User[]    @relation("PrimaryOrg")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   products     Product[]
   customers    Customer[]

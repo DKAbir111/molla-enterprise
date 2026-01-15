@@ -140,6 +140,46 @@ let OrganizationsService = class OrganizationsService {
         }
         return entry.org;
     }
+    async disableOrganization(userId, orgId) {
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        if (!user?.organizationId || user.organizationId !== orgId) {
+            throw new common_1.ForbiddenException('Not your organization');
+        }
+        const updated = await this.prisma.organization.update({
+            where: { id: orgId },
+            data: {
+                deletedAt: new Date(),
+            },
+        });
+        this.setCachedOrg(userId, null);
+        return updated;
+    }
+    async deleteOrganization(userId, orgId) {
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        if (!user?.organizationId || user.organizationId !== orgId) {
+            throw new common_1.ForbiddenException('Not your organization');
+        }
+        await this.prisma.$transaction(async (tx) => {
+            await tx.sellItem.deleteMany({ where: { sell: { organizationId: orgId } } });
+            await tx.buyItem.deleteMany({ where: { buy: { organizationId: orgId } } });
+            await tx.sell.deleteMany({ where: { organizationId: orgId } });
+            await tx.buy.deleteMany({ where: { organizationId: orgId } });
+            await tx.transaction.deleteMany({ where: { organizationId: orgId } });
+            await tx.dryingGain.deleteMany({ where: { organizationId: orgId } });
+            await tx.product.deleteMany({ where: { organizationId: orgId } });
+            await tx.customer.deleteMany({ where: { organizationId: orgId } });
+            await tx.vendor.deleteMany({ where: { organizationId: orgId } });
+            await tx.organizationSettings.deleteMany({ where: { organizationId: orgId } });
+            await tx.organizationAlertSnooze.deleteMany({ where: { organizationId: orgId } });
+            await tx.user.updateMany({
+                where: { organizationId: orgId },
+                data: { organizationId: null },
+            });
+            await tx.organization.delete({ where: { id: orgId } });
+        });
+        this.setCachedOrg(userId, null);
+        return { message: 'Organization deleted successfully' };
+    }
     setCachedOrg(userId, org) {
         if (!this.orgCacheTtlMs)
             return;

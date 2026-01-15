@@ -62,3 +62,13 @@ export async function updateOrganizationSettings<T = any>(id: string, data: Upda
   const res = await api.patch<T>(`/organizations/${id}/settings`, data)
   return res.data
 }
+
+export async function disableOrganization<T = any>(id: string): Promise<T> {
+  const res = await api.post<T>(`/organizations/${id}/disable`, {})
+  return res.data
+}
+
+export async function deleteOrganization<T = any>(id: string): Promise<T> {
+  const res = await api.delete<T>(`/organizations/${id}`)
+  return res.data
+}

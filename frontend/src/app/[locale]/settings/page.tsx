@@ -120,8 +120,8 @@ export default function SettingsPage() {
               key={tab.id}
               onClick={() => switchTab(tab.id)}
               className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${activeTab === tab.id
-                  ? 'border-purple-600 text-purple-600'
-                  : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                ? 'border-purple-600 text-purple-600'
+                : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
                 }`}
             >
               <tab.icon className="h-4 w-4" />
@@ -152,7 +152,7 @@ export default function SettingsPage() {
 
         {activeTab === 'other' && <OtherSection />}
 
-        {activeTab === 'danger' && <DangerZoneSection organizationName={organization?.name} />}
+        {activeTab === 'danger' && <DangerZoneSection organizationName={organization?.name} organizationId={organization?.id} />}
       </div>
     </div>
   )

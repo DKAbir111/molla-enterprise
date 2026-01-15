@@ -12,23 +12,28 @@ import { Button } from '@/components/ui/button'
 import { AlertTriangle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { disableOrganization } from '@/lib/api/organization-api'
 
 interface DisableOrgDialogProps {
     open: boolean
     onOpenChange: (open: boolean) => void
     organizationName?: string
+    organizationId?: string
 }
 
-export function DisableOrgDialog({ open, onOpenChange, organizationName }: DisableOrgDialogProps) {
+export function DisableOrgDialog({ open, onOpenChange, organizationName, organizationId }: DisableOrgDialogProps) {
     const [disabling, setDisabling] = useState(false)
     const router = useRouter()
 
     const handleDisable = async () => {
+        if (!organizationId) {
+            toast.error('Organization ID is missing')
+            return
+        }
         setDisabling(true)
         try {
-            // TODO: Call API to disable organization - you'll need to implement this endpoint
-            // await disableOrganizationApi(orgId)
-            toast.success('Organization disabled')
+            await disableOrganization(organizationId)
+            toast.success('Organization disabled successfully')
             onOpenChange(false)
             router.push('/')
         } catch (error: any) {

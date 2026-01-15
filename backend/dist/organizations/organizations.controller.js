@@ -65,6 +65,12 @@ let OrganizationsController = class OrganizationsController {
     updateSettings(req, id, dto) {
         return this.orgs.updateSettings(req.user.userId, id, dto);
     }
+    disableOrganization(req, id) {
+        return this.orgs.disableOrganization(req.user.userId, id).then(withPublicLogo);
+    }
+    deleteOrganization(req, id) {
+        return this.orgs.deleteOrganization(req.user.userId, id);
+    }
 };
 exports.OrganizationsController = OrganizationsController;
 tslib_1.__decorate([
@@ -115,6 +121,22 @@ tslib_1.__decorate([
     tslib_1.__metadata("design:paramtypes", [Object, String, Object]),
     tslib_1.__metadata("design:returntype", void 0)
 ], OrganizationsController.prototype, "updateSettings", null);
+tslib_1.__decorate([
+    (0, common_1.Post)(':id/disable'),
+    tslib_1.__param(0, (0, common_2.Req)()),
+    tslib_1.__param(1, (0, common_1.Param)('id')),
+    tslib_1.__metadata("design:type", Function),
+    tslib_1.__metadata("design:paramtypes", [Object, String]),
+    tslib_1.__metadata("design:returntype", void 0)
+], OrganizationsController.prototype, "disableOrganization", null);
+tslib_1.__decorate([
+    (0, common_1.Delete)(':id'),
+    tslib_1.__param(0, (0, common_2.Req)()),
+    tslib_1.__param(1, (0, common_1.Param)('id')),
+    tslib_1.__metadata("design:type", Function),
+    tslib_1.__metadata("design:paramtypes", [Object, String]),
+    tslib_1.__metadata("design:returntype", void 0)
+], OrganizationsController.prototype, "deleteOrganization", null);
 exports.OrganizationsController = OrganizationsController = tslib_1.__decorate([
     (0, swagger_1.ApiTags)('organizations'),
     (0, swagger_1.ApiBearerAuth)(),
