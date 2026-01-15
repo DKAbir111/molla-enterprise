@@ -27,9 +27,7 @@ import {
     type TeamMembersResponse,
 } from '@/lib/api/user-api'
 import { toast } from 'sonner'
-import { PasswordChangeDialog } from './dialogs/PasswordChangeDialog'
-import { InviteMemberDialog } from './dialogs/InviteMemberDialog'
-import { DeleteMemberDialog } from './dialogs/DeleteMemberDialog'
+import { PasswordChangeDialog, InviteMemberDialog, DeleteMemberDialog } from './dialogs'
 
 interface OtherSectionProps {
     onDeleteMember?: (member: TeamMember) => void

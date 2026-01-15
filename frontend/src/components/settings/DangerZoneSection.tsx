@@ -3,8 +3,7 @@ import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { AlertTriangle } from 'lucide-react'
-import { DisableOrgDialog } from './dialogs/DisableOrgDialog'
-import { DeleteOrgDialog } from './dialogs/DeleteOrgDialog'
+import { DisableOrgDialog, DeleteOrgDialog } from './dialogs'
 
 interface DangerZoneSectionProps {
     organizationName?: string
