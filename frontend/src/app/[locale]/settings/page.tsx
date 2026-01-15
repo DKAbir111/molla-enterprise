@@ -99,6 +99,8 @@ export default function SettingsPage() {
   const [teamInitialized, setTeamInitialized] = useState(false)
   const [roleUpdatingId, setRoleUpdatingId] = useState<string | null>(null)
   const [deletingMemberId, setDeletingMemberId] = useState<string | null>(null)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [memberToDelete, setMemberToDelete] = useState<TeamMember | null>(null)
   const [loginActivity, setLoginActivity] = useState<LoginActivityEntry[] | null>(null)
   const [activityLoading, setActivityLoading] = useState(false)
   const [activityInitialized, setActivityInitialized] = useState(false)
@@ -370,14 +372,20 @@ export default function SettingsPage() {
     }
   }
 
-  const handleDeleteMember = async (member: TeamMember) => {
-    const confirmed = window.confirm(`Remove ${member.name}? They will immediately lose access.`)
-    if (!confirmed) return
-    setDeletingMemberId(member.id)
+  const handleDeleteMember = (member: TeamMember) => {
+    setMemberToDelete(member)
+    setDeleteConfirmOpen(true)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!memberToDelete) return
+    setDeletingMemberId(memberToDelete.id)
     try {
-      await deleteTeamMember(member.id)
-      setTeamMembers((prev) => prev.filter((m) => m.id !== member.id))
+      await deleteTeamMember(memberToDelete.id)
+      setTeamMembers((prev) => prev.filter((m) => m.id !== memberToDelete.id))
       toast.success('Member removed')
+      setDeleteConfirmOpen(false)
+      setMemberToDelete(null)
     } catch (error: any) {
       const message = error?.response?.data?.message ?? 'Failed to remove member'
       toast.error(message)
@@ -901,9 +909,9 @@ export default function SettingsPage() {
                       <TableHeader>
                         <TableRow>
                           <TableHead>Member</TableHead>
-                          <TableHead className="w-40">Role</TableHead>
-                          <TableHead className="w-48">Last Active</TableHead>
-                          <TableHead className="w-16 text-right">Actions</TableHead>
+                          <TableHead className="w-32">Role</TableHead>
+                          <TableHead className="w-56">Last Active</TableHead>
+                          <TableHead className="w-20 text-right">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -927,7 +935,7 @@ export default function SettingsPage() {
                                       value={member.role}
                                       onChange={(e) => handleRoleChange(member, e.target.value as TeamMemberRole)}
                                       disabled={!canEditThisMember || roleUpdatingId === member.id}
-                                      className="w-full rounded border border-gray-200 bg-white px-2 py-1 text-sm focus:border-purple-500 focus:outline-none"
+                                      className="min-w-24 rounded border border-gray-200 bg-white px-2 py- text-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
                                     >
                                       {roleOptions.map((option) => (
                                         <option
@@ -1150,6 +1158,38 @@ export default function SettingsPage() {
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Remove member</DialogTitle>
+            <DialogDescription>
+              Remove {memberToDelete?.name}? They will immediately lose access.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setDeleteConfirmOpen(false)
+                setMemberToDelete(null)
+              }}
+              disabled={deletingMemberId !== null}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleConfirmDelete}
+              disabled={deletingMemberId !== null}
+            >
+              {deletingMemberId ? 'Removing...' : 'Remove'}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
