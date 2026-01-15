@@ -1,0 +1,5 @@
+export { BusinessInfoSection } from './BusinessInfoSection'
+export { NotificationsSection } from './NotificationsSection'
+export { AppearanceSection } from './AppearanceSection'
+export { OtherSection } from './OtherSection'
+export { DangerZoneSection } from './DangerZoneSection'
