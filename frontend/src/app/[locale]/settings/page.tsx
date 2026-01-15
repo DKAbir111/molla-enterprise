@@ -110,8 +110,25 @@ export default function SettingsPage() {
     }
   }
 
+  const isOrgDisabled = organization && 'deletedAt' in organization && organization.deletedAt ? true : false
+
   return (
     <div className="max-w-6xl mx-auto">
+      {/* Disabled Organization Banner */}
+      {isOrgDisabled && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
+            <div>
+              <h3 className="font-semibold text-red-900">Organization Disabled</h3>
+              <p className="text-sm text-red-700 mt-1">
+                This organization is currently disabled. Only read-only operations are allowed.
+                Contact the owner or administrator to re-enable it.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Tab Navigation */}
       <div className="mb-6 border-b border-gray-200">
         <nav className="flex gap-1 overflow-x-auto">
@@ -143,6 +160,7 @@ export default function SettingsPage() {
             orgId={orgId}
             onSave={onSaveBusinessInfo}
             saving={saving}
+            isDisabled={isOrgDisabled}
           />
         )}
 
@@ -152,7 +170,7 @@ export default function SettingsPage() {
 
         {activeTab === 'other' && <OtherSection />}
 
-        {activeTab === 'danger' && <DangerZoneSection organizationName={organization?.name} organizationId={organization?.id} />}
+        {activeTab === 'danger' && <DangerZoneSection organizationName={organization?.name} organizationId={organization?.id} isDisabled={isOrgDisabled} />}
       </div>
     </div>
   )

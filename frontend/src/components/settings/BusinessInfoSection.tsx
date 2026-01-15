@@ -22,6 +22,7 @@ interface BusinessInfoSectionProps {
     orgId: string | null
     onSave: () => Promise<void>
     saving: boolean
+    isDisabled?: boolean
 }
 
 export function BusinessInfoSection({
@@ -33,6 +34,7 @@ export function BusinessInfoSection({
     orgId,
     onSave,
     saving,
+    isDisabled = false,
 }: BusinessInfoSectionProps) {
     const fileInputRef = useRef<HTMLInputElement | null>(null)
 
@@ -65,8 +67,9 @@ export function BusinessInfoSection({
                         <button
                             type="button"
                             aria-label="Upload logo"
-                            onClick={onPickLogo}
-                            className="relative h-32 w-32 rounded-xl border-2 border-dashed border-gray-300 bg-white overflow-hidden hover:border-purple-400 transition-colors group"
+                            disabled={isDisabled}
+                            className={`relative h-32 w-32 rounded-xl border-2 border-dashed border-gray-300 bg-white overflow-hidden hover:border-purple-400 transition-colors group ${isDisabled ? 'opacity-60 cursor-not-allowed' : ''
+                                }`}
                         >
                             {logoPreview ? (
                                 <>
@@ -152,7 +155,7 @@ export function BusinessInfoSection({
                     </div>
 
                     <div className="flex justify-end pt-4 border-t">
-                        <Button onClick={onSave} disabled={saving || !orgId} className="px-6">
+                        <Button onClick={onSave} disabled={saving || !orgId || isDisabled} className="px-6">
                             <Save className="h-4 w-4 mr-2" />
                             {saving ? 'Saving...' : 'Save Changes'}
                         </Button>

@@ -8,11 +8,27 @@ import { DisableOrgDialog, DeleteOrgDialog } from './dialogs'
 interface DangerZoneSectionProps {
     organizationName?: string
     organizationId?: string
+    isDisabled?: boolean
 }
 
-export function DangerZoneSection({ organizationName, organizationId }: DangerZoneSectionProps) {
+export function DangerZoneSection({ organizationName, organizationId, isDisabled = false }: DangerZoneSectionProps) {
     const [disableOrgOpen, setDisableOrgOpen] = useState(false)
     const [deleteAccountOpen, setDeleteAccountOpen] = useState(false)
+
+    if (isDisabled) {
+        return (
+            <div className="space-y-6">
+                <Card className="border-blue-200 bg-blue-50">
+                    <CardHeader>
+                        <CardTitle className="text-blue-700">Organization Already Disabled</CardTitle>
+                        <CardDescription className="text-blue-600">
+                            This organization is currently disabled. Only owner/admin can manage it.
+                        </CardDescription>
+                    </CardHeader>
+                </Card>
+            </div>
+        )
+    }
 
     return (
         <div className="space-y-6">

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 // Remove ServeStaticModule completely
 import * as path from 'path';
 import { ConfigModule } from '@nestjs/config';
@@ -18,6 +19,7 @@ import { DryingGainsModule } from './drying-gains/drying-gains.module';
 import { AlertsModule } from './alerts/alerts.module';
 import { MailModule } from './mail/mail.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { OrgDisabledGuard } from './common/guards/org-disabled.guard';
 
 @Module({
   imports: [
@@ -39,6 +41,12 @@ import { ScheduleModule } from '@nestjs/schedule';
     DryingGainsModule,
     AlertsModule,
     MailModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: OrgDisabledGuard,
+    },
   ],
 })
 export class AppModule { }

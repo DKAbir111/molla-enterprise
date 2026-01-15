@@ -9,35 +9,47 @@ yarn-error.log*
 pnpm-debug.log*
 .DS_Store
 dist/
+build/
 coverage/
 *.tsbuildinfo
 
 # Frontend (Next.js) specific ignores
 /frontend/.next/
-frontend/out/
-frontend/node_modules/
-frontend/.env
-frontend/.env.*
-frontend/.turbo/
-frontend/.vercel/
-frontend/.eslintcache
+/frontend/out/
+/frontend/node_modules/
+/frontend/.env
+/frontend/.env.*
+/frontend/.turbo/
+/frontend/.vercel/
+/frontend/.eslintcache
+/frontend/dist/
+/frontend/build/
 
 # Backend (NestJS + Prisma) specific ignores
 /backend/dist/
-backend/node_modules/
-backend/.env
-backend/.env.*
-backend/prisma/*.db
-backend/prisma/migrations/
-backend/coverage/
-backend/*.tsbuildinfo
+/backend/build/
+/backend/node_modules/
+/backend/.env
+/backend/.env.*
+/backend/prisma/*.db
+/backend/uploads/
+/backend/coverage/
+/backend/*.tsbuildinfo
 
 # VS Code and IDE settings
-.vscode/
+.vscode/settings.json
+.vscode/launch.json
+.vscode/extensions.json
 .idea/
 *.swp
+*.swo
+*~
 
 # OS-specific files
 Thumbs.db
 ehthumbs.db
 Icon?
+
+# Production/deployment
+.next/
+.vercel/
