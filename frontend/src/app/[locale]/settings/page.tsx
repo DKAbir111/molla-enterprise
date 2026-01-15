@@ -105,7 +105,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (organization === undefined) {
-      fetchOrganization().catch(() => {})
+      fetchOrganization().catch(() => { })
       return
     }
     if (!organization) return
@@ -281,7 +281,7 @@ export default function SettingsPage() {
   useEffect(() => {
     const q = search?.get('tab') || ''
     const norm = q === 'notification' ? 'notifications' : q
-    if (['business','notifications','appearance','other'].includes(norm)) {
+    if (['business', 'notifications', 'appearance', 'other'].includes(norm)) {
       setActiveTab(norm)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -952,7 +952,7 @@ export default function SettingsPage() {
                                 {canDeleteThisMember ? (
                                   <Button
                                     variant="ghost"
-                                    size="icon"
+                                    size="default"
                                     onClick={() => handleDeleteMember(member)}
                                     disabled={deletingMemberId === member.id}
                                   >
@@ -977,7 +977,7 @@ export default function SettingsPage() {
               </CardContent>
             </Card>
 
-            <Card className="md:col-span-2">
+            <Card>
               <CardHeader className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div>
                   <CardTitle>Login Activity</CardTitle>
