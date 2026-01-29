@@ -211,21 +211,21 @@ export function OtherSection() {
                     <div className="grid gap-6">
                         <div>
                             <label className="text-sm font-semibold text-gray-700 mb-2 block">Display Language</label>
-                            <select className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <select className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
                                 <option value="en">English</option>
                                 <option value="bn">বাংলা (Bengali)</option>
                             </select>
                         </div>
                         <div>
                             <label className="text-sm font-semibold text-gray-700 mb-2 block">Currency</label>
-                            <select className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <select className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
                                 <option value="BDT">BDT (৳)</option>
                                 <option value="USD">USD ($)</option>
                             </select>
                         </div>
                         <div>
                             <label className="text-sm font-semibold text-gray-700 mb-2 block">Date Format</label>
-                            <select className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <select className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
                                 <option value="DD/MM/YYYY">DD/MM/YYYY</option>
                                 <option value="MM/DD/YYYY">MM/DD/YYYY</option>
                                 <option value="YYYY-MM-DD">YYYY-MM-DD</option>
@@ -254,8 +254,8 @@ export function OtherSection() {
                         className="w-full flex items-center justify-between p-4 rounded-lg border hover:bg-gray-50 transition-colors text-left"
                     >
                         <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-lg bg-purple-100 flex items-center justify-center">
-                                <KeyRound className="h-5 w-5 text-purple-600" />
+                            <div className="h-10 w-10 rounded-lg bg-teal-100 flex items-center justify-center">
+                                <KeyRound className="h-5 w-5 text-teal-600" />
                             </div>
                             <div>
                                 <div className="font-medium text-gray-900">Change Password</div>
@@ -323,7 +323,7 @@ export function OtherSection() {
                                                 <TableCell>
                                                     <div className="font-medium text-gray-900 flex items-center gap-2">
                                                         {member.name}
-                                                        {isSelf && <span className="text-[11px] px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">You</span>}
+                                                        {isSelf && <span className="text-[11px] px-2 py-0.5 rounded-full bg-teal-100 text-teal-700">You</span>}
                                                     </div>
                                                     <div className="text-xs text-gray-500">{member.email}</div>
                                                 </TableCell>
@@ -334,7 +334,7 @@ export function OtherSection() {
                                                                 value={member.role}
                                                                 onChange={(e) => handleRoleChange(member, e.target.value as TeamMemberRole)}
                                                                 disabled={!canEditThisMember || roleUpdatingId === member.id}
-                                                                className="min-w-24 rounded border border-gray-200 bg-white px-2 py-1 text-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                                                className="min-w-24 rounded border border-gray-200 bg-white px-2 py-1 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
                                                             >
                                                                 {roleOptions.map((option) => (
                                                                     <option

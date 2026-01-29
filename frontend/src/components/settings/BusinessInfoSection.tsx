@@ -68,7 +68,7 @@ export function BusinessInfoSection({
                             type="button"
                             aria-label="Upload logo"
                             disabled={isDisabled}
-                            className={`relative h-32 w-32 rounded-xl border-2 border-dashed border-gray-300 bg-white overflow-hidden hover:border-purple-400 transition-colors group ${isDisabled ? 'opacity-60 cursor-not-allowed' : ''
+                            className={`relative h-32 w-32 rounded-xl border-2 border-dashed border-gray-300 bg-white overflow-hidden hover:border-teal-400 transition-colors group ${isDisabled ? 'opacity-60 cursor-not-allowed' : ''
                                 }`}
                         >
                             {logoPreview ? (

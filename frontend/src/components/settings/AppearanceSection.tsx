@@ -17,22 +17,21 @@ export function AppearanceSection() {
                 <CardContent>
                     <div className="grid gap-4">
                         {[
-                            { id: 'default', name: 'Default', desc: 'Light theme with purple accents', colors: ['bg-purple-600', 'bg-blue-600', 'bg-gray-200'] },
+                            { id: 'default', name: 'Default', desc: 'Light theme with teal accents', colors: ['bg-teal-600', 'bg-teal-500', 'bg-gray-200'] },
                             { id: 'dark', name: 'Dark Mode', desc: 'Easy on the eyes', colors: ['bg-gray-900', 'bg-gray-800', 'bg-gray-700'] },
-                            { id: 'contrast', name: 'High Contrast', desc: 'Enhanced visibility', colors: ['bg-black', 'bg-white', 'bg-yellow-400'] },
                         ].map((t) => (
                             <button
                                 key={t.id}
                                 type="button"
                                 onClick={() => setTheme(t.id as any)}
                                 className={`p-4 rounded-xl border-2 text-left transition-all ${theme === t.id
-                                    ? 'border-purple-600 bg-purple-50 shadow-md'
+                                    ? 'border-teal-600 bg-teal-50 shadow-md'
                                     : 'border-gray-200 hover:border-gray-300 hover:shadow'
                                     }`}
                             >
                                 <div className="flex items-center justify-between mb-3">
                                     <h4 className="font-semibold text-gray-900">{t.name}</h4>
-                                    {theme === t.id && <Check className="h-5 w-5 text-purple-600" />}
+                                    {theme === t.id && <Check className="h-5 w-5 text-teal-600" />}
                                 </div>
                                 <p className="text-sm text-gray-600 mb-4">{t.desc}</p>
                                 <div className="flex gap-2">

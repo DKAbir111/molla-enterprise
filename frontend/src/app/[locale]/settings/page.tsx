@@ -137,7 +137,7 @@ export default function SettingsPage() {
               key={tab.id}
               onClick={() => switchTab(tab.id)}
               className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${activeTab === tab.id
-                ? 'border-purple-600 text-purple-600'
+                ? 'border-teal-600 text-teal-600'
                 : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
                 }`}
             >

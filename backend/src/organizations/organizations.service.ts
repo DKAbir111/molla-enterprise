@@ -84,7 +84,18 @@ export class OrganizationsService {
       where: { id: orgId },
       data: { deletedAt: new Date() },
     });
-    this.setCachedOrg(userId, null);
+    // Cache the disabled organization so frontend still sees the org (read-only)
+    this.setCachedOrg(userId, updated);
+    return updated;
+  }
+
+  async enableOrganization(userId: string, orgId: string) {
+    await this.validateUserIsAdmin(userId, orgId);
+    const updated = await this.prisma.organization.update({
+      where: { id: orgId },
+      data: { deletedAt: null },
+    });
+    this.setCachedOrg(userId, updated);
     return updated;
   }
 

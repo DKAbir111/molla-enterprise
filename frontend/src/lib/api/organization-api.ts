@@ -72,3 +72,8 @@ export async function deleteOrganization<T = any>(id: string): Promise<T> {
   const res = await api.delete<T>(`/organizations/${id}`)
   return res.data
 }
+
+export async function enableOrganization<T = any>(id: string): Promise<T> {
+  const res = await api.post<T>(`/organizations/${id}/enable`, {})
+  return res.data
+}

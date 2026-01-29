@@ -63,7 +63,7 @@ export function DateFilter({
       <select
         onChange={handlePresetChange}
         defaultValue=""
-        className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+        className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
       >
         <option value="" disabled>{t('selectRange')}</option>
         <option value="today">{t('today')}</option>
@@ -78,14 +78,14 @@ export function DateFilter({
         type="date"
         value={startDate}
         onChange={(e) => { setStartDate(e.target.value); onChange?.({ start: e.target.value, end: endDate }) }}
-        className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+        className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
       />
       <span className="text-(--text)/60">-</span>
       <input
         type="date"
         value={endDate}
         onChange={(e) => { setEndDate(e.target.value); onChange?.({ start: startDate, end: e.target.value }) }}
-        className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+        className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
       />
       <Button size="sm" onClick={handleClear}>{t('clear')}</Button>
     </div>

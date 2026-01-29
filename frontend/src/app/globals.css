@@ -4,8 +4,12 @@
   :root {
     --font-inter: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
     --font-noto-bengali: "Noto Sans Bengali", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    /* Brand colors from logo */
+    --brand-primary: #0d9488; /* Teal-600 */
+    --brand-secondary: #0f766e; /* Teal-700 */
+    --brand-accent: #14b8a6; /* Teal-500 */
     /* Theme tokens */
-    --app-bg: linear-gradient(to bottom right, #f5f3ff, #ffffff, #eff6ff);
+    --app-bg: linear-gradient(to bottom right, #f0fdfa, #ffffff, #ecfeff);
     --text: #111827;
     --card-bg: rgba(255, 255, 255, 0.8);
     --card-border: #e5e7eb;
@@ -27,13 +31,6 @@ html.theme-dark {
   --text: #e5e7eb;
   --card-bg: rgba(17, 24, 39, 0.9);
   --card-border: #334155;
-}
-
-html.theme-contrast {
-  --app-bg: #000000;
-  --text: #ffffff;
-  --card-bg: #0a0a0a;
-  --card-border: #ffffff;
 }
 
 /* App wrapper background */
@@ -110,44 +107,17 @@ html.theme-dark textarea::placeholder {
   /* slate-400 */
 }
 
-/* High-contrast inputs */
-html.theme-contrast input,
-html.theme-contrast select,
-html.theme-contrast textarea {
-  background-color: #000 !important;
-  border-color: #fff !important;
-  color: #fff !important;
-}
-
-html.theme-contrast input::placeholder,
-html.theme-contrast textarea::placeholder {
-  color: #d1d5db !important;
-}
-
-html.theme-contrast .text-gray-900,
-html.theme-contrast .text-gray-800,
-html.theme-contrast .text-gray-700,
-html.theme-contrast .text-gray-600,
-html.theme-contrast .text-gray-500,
-html.theme-contrast .text-gray-400 {
-  color: #ffffff !important;
-}
-
-html.theme-contrast .border-gray-200 {
-  border-color: #ffffff !important;
-}
-
 @layer utilities {
   .glass {
     @apply bg-white/70 backdrop-blur-md border border-white/20;
   }
 
   .gradient-text {
-    @apply bg-linear-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent;
+    @apply bg-linear-to-r from-teal-600 to-teal-400 bg-clip-text text-transparent;
   }
 
   .gradient-border {
-    @apply relative before:absolute before:inset-0 before:rounded-lg before:p-px before:bg-linear-to-r before:from-purple-600 before:to-blue-600 before:-z-10;
+    @apply relative before:absolute before:inset-0 before:rounded-lg before:p-px before:bg-linear-to-r before:from-teal-600 before:to-teal-400 before:-z-10;
   }
 
   .animate-float {

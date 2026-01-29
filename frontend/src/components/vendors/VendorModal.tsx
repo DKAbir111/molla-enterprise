@@ -135,7 +135,7 @@ export function VendorModal({ open, mode, onClose, vendor, onSaved }: VendorModa
     return (
         <Dialog open={open} onOpenChange={handleClose}>
             <DialogContent overlayClassName="bg-black/20 backdrop-blur-none" className="sm:max-w-2xl p-0 bg-white border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
-                <div className="bg-linear-to-r from-purple-600 to-blue-600 px-8 py-6 text-white">
+                <div className="bg-linear-to-r from-teal-600 to-teal-500 px-8 py-6 text-white">
                     <DialogHeader className="space-y-2">
                         <div className="flex items-center gap-3">
                             <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
@@ -226,7 +226,7 @@ export function VendorModal({ open, mode, onClose, vendor, onSaved }: VendorModa
                             <Button type="button" variant="outline" onClick={handleClose} className="flex-1 h-11 border-gray-300 hover:bg-gray-50" disabled={isLoading}>
                                 {tCommon('cancel')}
                             </Button>
-                            <Button type="submit" className="flex-1 h-11 bg-linear-to-r from-purple-600 to-blue-600 text-white" disabled={isLoading}>
+                            <Button type="submit" className="flex-1 h-11 bg-linear-to-r from-teal-600 to-teal-500 text-white" disabled={isLoading}>
                                 {isLoading ? (
                                     <div className="flex items-center gap-2">
                                         <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>

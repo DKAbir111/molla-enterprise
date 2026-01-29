@@ -33,8 +33,8 @@ export function DashboardCharts({ revenueData, productData }: DashboardChartsPro
             <AreaChart data={revenueData}>
               <defs>
                 <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8} />
-                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#0d9488" stopOpacity={0.8} />
+                  <stop offset="95%" stopColor="#0d9488" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" />
@@ -44,7 +44,7 @@ export function DashboardCharts({ revenueData, productData }: DashboardChartsPro
               <Area
                 type="monotone"
                 dataKey="revenue"
-                stroke="#8b5cf6"
+                stroke="#0d9488"
                 fillOpacity={1}
                 fill="url(#colorRevenue)"
               />
@@ -64,7 +64,7 @@ export function DashboardCharts({ revenueData, productData }: DashboardChartsPro
               <XAxis dataKey="name" />
               <YAxis />
               <Tooltip />
-              <Bar dataKey="sales" fill="#3b82f6" />
+              <Bar dataKey="sales" fill="#14b8a6" />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>

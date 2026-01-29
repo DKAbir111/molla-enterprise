@@ -71,7 +71,7 @@ export default function ProductsPage() {
       rod: 'from-slate-400 to-slate-600',
       cement: 'from-stone-400 to-stone-600',
     }
-    return gradients[type as keyof typeof gradients] || 'from-purple-400 to-pink-500'
+    return gradients[type as keyof typeof gradients] || 'from-teal-400 to-teal-500'
   }
 
   const handleEditClick = (product: Product) => setModal({ open: true, mode: 'edit', product })
@@ -199,7 +199,7 @@ export default function ProductsPage() {
       {filteredProducts.length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="py-16 text-center">
-            <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-linear-to-r from-purple-600 to-blue-600 text-white flex items-center justify-center text-2xl">+</div>
+            <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-linear-to-r from-teal-600 to-teal-500 text-white flex items-center justify-center text-2xl">+</div>
             <h3 className="text-lg font-semibold mb-1">{t('emptyTitle')}</h3>
             <p className="text-gray-600 mb-4">{t('emptyDescription')}</p>
             <Button onClick={() => setModal({ open: true, mode: 'create' })}>{t('addProduct')}</Button>

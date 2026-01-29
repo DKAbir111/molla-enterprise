@@ -35,7 +35,8 @@ export function DisableOrgDialog({ open, onOpenChange, organizationName, organiz
             await disableOrganization(organizationId)
             toast.success('Organization disabled successfully')
             onOpenChange(false)
-            router.push('/')
+            // Refresh the current page so the org stays visible (read-only) instead of redirecting to create flow
+            router.refresh()
         } catch (error: any) {
             const message = error?.response?.data?.message ?? 'Failed to disable organization'
             toast.error(message)

@@ -96,6 +96,14 @@ export class OrganizationsController {
     return this.orgs.disableOrganization(req.user.userId, id).then(withPublicLogo);
   }
 
+  @Post(':id/enable')
+  enableOrganization(
+    @Req() req: any,
+    @Param('id') id: string,
+  ) {
+    return this.orgs.enableOrganization(req.user.userId, id).then(withPublicLogo);
+  }
+
   @Delete(':id')
   deleteOrganization(
     @Req() req: any,

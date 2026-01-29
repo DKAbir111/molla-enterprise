@@ -52,18 +52,14 @@ export function Sidebar({ onNavigate }: SidebarProps) {
   }, [organization, fetchOrganization])
 
   const orgName = organization?.name || 'Business Manager'
-  const logoUrl = organization?.logoUrl || null
+  const logoUrl = organization?.logoUrl || '/conix.png'
 
   return (
     <aside className="w-64 border-r border-[color:var(--card-border)] bg-[var(--card-bg)]/90 backdrop-blur-md min-h-screen">
       <div className="flex h-full flex-col">
         <div className="flex h-16 items-center gap-2 px-4 border-b border-[color:var(--card-border)]">
-          {logoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={logoUrl} alt="Logo" className="h-7 w-7 rounded-md object-cover" />
-          ) : (
-            <div className="h-7 w-7 rounded-md bg-gradient-to-br from-purple-600 to-blue-600" />
-          )}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={logoUrl} alt="Logo" className="h-8 w-8 rounded-md object-contain" />
           <h2 className="text-base font-semibold text-[color:var(--text)] truncate" title={orgName}>{orgName}</h2>
         </div>
 
@@ -84,7 +80,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
                     ? (
                       theme === 'contrast'
                         ? 'bg-white text-black border border-black shadow'
-                        : 'bg-linear-to-r from-purple-600 to-blue-600 text-white shadow'
+                        : 'bg-linear-to-r from-teal-600 to-teal-500 text-white shadow'
                     )
                     : 'text-[color:var(--text)]/80 hover:bg-white/10'
                 )}

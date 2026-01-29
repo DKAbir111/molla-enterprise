@@ -58,7 +58,6 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
   const [dgQty, setDgQty] = React.useState<number>(0)
   const [dgSaving, setDgSaving] = React.useState(false)
 
-  // initialize/reset when opening or product changes
   React.useEffect(() => {
     if (isEdit && product) {
       setName(product.name || '')
@@ -72,12 +71,9 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
       setActive(product.active !== false)
       setImagePreview(product.imageUrl || null)
       setImageFile(null)
-      // Load drying gains for this product (lightweight)
       listDryingGains<any[]>(product.id).then((res) => setDryingGains((res || []).map(normalizeDryingGain))).catch(() => { })
     } else if (!open) {
-      // noop when closed
     } else {
-      // create mode defaults
       setName('')
       setType('')
       setGrade('')
@@ -133,7 +129,6 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
     setIsLoading(true)
     try {
       if (isEdit && product) {
-        // update
         const payload: Partial<Product> = {
           name,
           type,
@@ -156,7 +151,6 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
         toast.success('Product updated')
         handleClose()
       } else {
-        // create
         const created = await apiCreateProduct<any>({
           name: name.trim(),
           type: type.trim(),
@@ -178,7 +172,6 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
         toast.success('Product added')
         handleClose()
       }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       toast.error(isEdit ? 'Failed to update product' : 'Failed to add product')
     } finally {
@@ -189,7 +182,7 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent overlayClassName="bg-black/20 backdrop-blur-none" className="sm:max-w-2xl p-0 bg-white border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
-        <div className="bg-linear-to-r from-purple-600 to-blue-600 px-8 py-6 text-white">
+        <div className="bg-linear-to-r from-teal-600 to-teal-500 px-8 py-6 text-white">
           <DialogHeader className="space-y-2">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
@@ -199,7 +192,7 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
                 {isEdit ? t('editProduct') : t('addProduct')}
               </DialogTitle>
             </div>
-            <DialogDescription className="text-blue-100 text-base">
+            <DialogDescription className="text-teal-100 text-base">
               {isEdit ? t('editProductDescription') : t('addProductDescription')}
             </DialogDescription>
           </DialogHeader>
@@ -208,7 +201,6 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
         <div className="px-8 py-6">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="gap-6 md:flex md:items-start">
-              {/* Image */}
               <div className="space-y-2">
                 <div className="flex items-center gap-4">
                   <button
@@ -220,12 +212,10 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
                     aria-label="Upload product image"
                   >
                     {imagePreview ? (
-                      // eslint-disable-next-line @next/next/no-img-element
                       <img src={imagePreview} alt="Preview" className="h-full w-full object-cover" />
                     ) : (
                       <span className="text-sm text-gray-400">No image</span>
                     )}
-                    {/* subtle hover overlay without text */}
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition" />
                     {imagePreview && (
                       <span
@@ -251,31 +241,29 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
                 </div>
               </div>
 
-              {/* Right side: first row name, second row type + grade */}
               <div className="space-y-5 self-start min-w-0 md:flex-1">
                 <div className="space-y-2">
                   <Label htmlFor="name" className="text-sm font-medium text-gray-700">{t('productName')}</Label>
-                  <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder={t('enterProductName')} />
+                  <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required className="h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500" placeholder={t('enterProductName')} />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div className="space-y-2">
                     <Label htmlFor="type" className="text-sm font-medium text-gray-700">{t('productType')}</Label>
-                    <Input id="type" value={type} onChange={(e) => setType(e.target.value)} required className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder={t('exampleProductType')} />
+                    <Input id="type" value={type} onChange={(e) => setType(e.target.value)} required className="h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500" placeholder={t('exampleProductType')} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="grade" className="text-sm font-medium text-gray-700">{t('productGrade')}</Label>
-                    <Input id="grade" value={grade} onChange={(e) => setGrade(e.target.value)} className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder={t('exampleProductGrade')} />
+                    <Input id="grade" value={grade} onChange={(e) => setGrade(e.target.value)} className="h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500" placeholder={t('exampleProductGrade')} />
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Unit / Stock */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-2">
                 <Label htmlFor="unit" className="text-sm font-medium text-gray-700">{t('unit')}</Label>
                 <Select onValueChange={setUnit} value={unit || undefined} required>
-                  <SelectTrigger className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500 bg-white">
+                  <SelectTrigger className="h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500 bg-white">
                     <SelectValue placeholder={t('selectUnit')} />
                   </SelectTrigger>
                   <SelectContent className="max-h-60 bg-white border border-gray-200 shadow-lg">
@@ -287,29 +275,25 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
               </div>
               <div className="space-y-2">
                 <Label htmlFor="stock" className="text-sm font-medium text-gray-700">{t('stock')}</Label>
-                <Input id="stock" type="number" value={stock} onChange={(e) => setStock(parseFloat(e.target.value) || 0)} required className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" min="0" />
+                <Input id="stock" type="number" value={stock} onChange={(e) => setStock(parseFloat(e.target.value) || 0)} required className="h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500" min="0" />
               </div>
             </div>
 
-            {/* Pricing */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700">Buy Price / Unit ({t('currencySymbol')})</Label>
-                <Input type="number" value={buyPrice} onChange={(e) => setBuyPrice(parseFloat(e.target.value) || 0)} className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder="0.00" min={0} step="0.01" />
+                <Input type="number" value={buyPrice} onChange={(e) => setBuyPrice(parseFloat(e.target.value) || 0)} className="h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500" placeholder="0.00" min={0} step="0.01" />
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700">Other Cost / Unit ({t('currencySymbol')})</Label>
-                <Input type="number" value={otherCostPerUnit} onChange={(e) => setOtherCostPerUnit(parseFloat(e.target.value) || 0)} className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder="0.00" min={0} step="0.01" />
+                <Input type="number" value={otherCostPerUnit} onChange={(e) => setOtherCostPerUnit(parseFloat(e.target.value) || 0)} className="h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500" placeholder="0.00" min={0} step="0.01" />
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700">Sell Price / Unit ({t('currencySymbol')})</Label>
-                <Input type="number" value={price} onChange={(e) => setPrice(parseFloat(e.target.value) || 0)} required className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder="0.00" min={0} step="0.01" />
+                <Input type="number" value={price} onChange={(e) => setPrice(parseFloat(e.target.value) || 0)} required className="h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500" placeholder="0.00" min={0} step="0.01" />
               </div>
             </div>
 
-            {/* After-dry unit price moved next to Drying Gain input */}
-
-            {/* Drying Gain (edit mode) */}
             {isEdit && (
               <div className="space-y-3 pt-4 border-t border-gray-200">
                 <div className="text-base font-semibold text-gray-900">Drying Gain</div>
@@ -325,7 +309,7 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
                         const n = Math.max(0, parseInt(e.target.value || '0', 10) || 0)
                         setDgQty(n)
                       }}
-                      className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                      className="h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
                       placeholder="0"
                     />
                   </div>
@@ -361,16 +345,12 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
                           <span className="font-medium">+{g.quantity} {product?.unit}</span>
                         </div>
                       ))}
-                      {dryingGains.length === 0 && (
-                        <div className="px-3 py-2 text-sm text-gray-500">No gains yet</div>
-                      )}
                     </div>
                   </div>
                 )}
               </div>
             )}
 
-            {/* Totals (auto-calculated, read-only) */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-1">
                 <Label className="text-sm font-medium text-gray-700">Total Cost (BDT)</Label>
@@ -387,14 +367,13 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
               </div>
             </div>
 
-            {/* Active toggle only for edit */}
             {isEdit && (
               <div className="flex items-center gap-3">
                 <Label className="text-sm font-medium text-gray-700">Active</Label>
                 <button
                   type="button"
                   onClick={() => setActive((v) => !v)}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${active ? 'bg-purple-600' : 'bg-gray-200'}`}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${active ? 'bg-teal-600' : 'bg-gray-200'}`}
                 >
                   <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${active ? 'translate-x-6' : 'translate-x-1'}`} />
                 </button>
@@ -405,7 +384,7 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
               <Button type="button" variant="outline" onClick={handleClose} className="flex-1 h-11 border-gray-300 hover:bg-gray-50" disabled={isLoading}>
                 {t('cancel')}
               </Button>
-              <Button type="submit" className="flex-1 h-11 bg-linear-to-r from-purple-600 to-blue-600 text-white" disabled={isLoading}>
+              <Button type="submit" className="flex-1 h-11 bg-linear-to-r from-teal-600 to-teal-500 text-white" disabled={isLoading}>
                 {isLoading ? (
                   <div className="flex items-center gap-2">
                     <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>

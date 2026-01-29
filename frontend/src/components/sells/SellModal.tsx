@@ -210,7 +210,7 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
     return (
         <Dialog open={open} onOpenChange={handleClose}>
             <DialogContent overlayClassName="bg-black/20 backdrop-blur-none" className="sm:max-w-6xl p-0 bg-white border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
-                <div className="bg-linear-to-r from-purple-600 to-blue-600 px-8 py-6 text-white">
+                <div className="bg-linear-to-r from-teal-600 to-teal-500 px-8 py-6 text-white">
                     <DialogHeader className="space-y-2">
                         <div className="flex items-center gap-3">
                             <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
@@ -231,7 +231,7 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                         {/* Customer Information Section */}
                         <div className="space-y-4">
                             <div className="flex items-center gap-2 text-base font-semibold text-gray-900 pb-2 border-b">
-                                <User className="h-5 w-5 text-purple-600" />
+                                <User className="h-5 w-5 text-teal-600" />
                                 <span>Customer Information</span>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -254,7 +254,7 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                                             }}
                                             onClick={() => setShowCustomerDropdown(true)}
                                             onBlur={() => setTimeout(() => setShowCustomerDropdown(false), 200)}
-                                            className="pl-10 h-11 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                                            className="pl-10 h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
                                             required
                                             disabled={isEdit}
                                         />
@@ -263,7 +263,7 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                                                 {filteredCustomers.map(c => (
                                                     <div
                                                         key={c.id}
-                                                        className="p-3 hover:bg-purple-50 cursor-pointer border-b border-gray-100 last:border-0"
+                                                        className="p-3 hover:bg-teal-50 cursor-pointer border-b border-gray-100 last:border-0"
                                                         onClick={() => {
                                                             setSelectedCustomer(c)
                                                             setCustomerSearch(c.name)
@@ -292,7 +292,7 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                                         value={customerPhone}
                                         onChange={(e) => setCustomerPhone(e.target.value)}
                                         placeholder="Enter phone"
-                                        className="h-11 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                                        className="h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
                                         required
                                         disabled={isEdit}
                                     />
@@ -309,7 +309,7 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                                         value={deliveryAddress}
                                         onChange={(e) => setDeliveryAddress(e.target.value)}
                                         placeholder="Enter delivery address"
-                                        className="h-11 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                                        className="h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
                                         required
                                     />
                                 </div>
@@ -319,7 +319,7 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                         {/* Products Section */}
                         <div className="space-y-4">
                             <div className="flex items-center gap-2 text-base font-semibold text-gray-900 pb-2 border-b">
-                                <Package className="h-5 w-5 text-purple-600" />
+                                <Package className="h-5 w-5 text-teal-600" />
                                 <span>Products</span>
                             </div>
                             {!isEdit && (
@@ -336,14 +336,14 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                                             }}
                                             onClick={() => setShowProductDropdown(true)}
                                             onBlur={() => setTimeout(() => setShowProductDropdown(false), 200)}
-                                            className="pl-10 h-11 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                                            className="pl-10 h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
                                         />
                                         {showProductDropdown && filteredProducts.length > 0 && (
                                             <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-20 max-h-60 overflow-y-auto">
                                                 {filteredProducts.map(p => (
                                                     <div
                                                         key={p.id}
-                                                        className="p-3 hover:bg-purple-50 cursor-pointer border-b border-gray-100 last:border-0"
+                                                        className="p-3 hover:bg-teal-50 cursor-pointer border-b border-gray-100 last:border-0"
                                                         onClick={() => addProductToOrder(p)}
                                                     >
                                                         <div className="font-semibold text-gray-900">{p.name}</div>
@@ -442,7 +442,7 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                         {/* Financial Details Section */}
                         <div className="space-y-4">
                             <div className="flex items-center gap-2 text-base font-semibold text-gray-900 pb-2 border-b">
-                                <TrendingUp className="h-5 w-5 text-purple-600" />
+                                <TrendingUp className="h-5 w-5 text-teal-600" />
                                 <span>Financial Details</span>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -452,7 +452,7 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                                         type="number"
                                         value={discount}
                                         onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)}
-                                        className="h-11 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                                        className="h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
                                         placeholder="0.00"
                                         min="0"
                                         step="0.01"
@@ -467,7 +467,7 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                                             type="number"
                                             value={transportPerTrip}
                                             onChange={(e) => setTransportPerTrip(parseFloat(e.target.value) || 0)}
-                                            className="h-11 flex-1 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                                            className="h-11 flex-1 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
                                             placeholder="0.00"
                                             min="0"
                                             step="0.01"
@@ -477,7 +477,7 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                                             type="number"
                                             value={transportTrips}
                                             onChange={(e) => setTransportTrips(parseInt(e.target.value || '0', 10))}
-                                            className="h-11 w-24 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                                            className="h-11 w-24 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
                                             placeholder="0"
                                             min="0"
                                         />
@@ -489,7 +489,7 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                             </div>
 
                             {/* Summary */}
-                            <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-5 space-y-3 border border-purple-200">
+                            <div className="bg-gradient-to-r from-teal-50 to-teal-50 rounded-lg p-5 space-y-3 border border-teal-200">
                                 <div className="flex justify-between items-center text-sm">
                                     <span className="text-gray-600">Subtotal</span>
                                     <span className="font-semibold text-gray-900">{formatCurrency(subtotal, locale)}</span>
@@ -502,9 +502,9 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                                     <span className="text-gray-600">Discount</span>
                                     <span className="font-semibold text-red-600">- {formatCurrency(discount, locale)}</span>
                                 </div>
-                                <div className="border-t border-purple-200 pt-3 flex justify-between items-center">
+                                <div className="border-t border-teal-200 pt-3 flex justify-between items-center">
                                     <span className="text-lg font-bold text-gray-900">Grand Total</span>
-                                    <span className="text-2xl font-bold text-purple-600">{formatCurrency(grandTotal, locale)}</span>
+                                    <span className="text-2xl font-bold text-teal-600">{formatCurrency(grandTotal, locale)}</span>
                                 </div>
                                 <div className="flex items-center gap-3 pt-2">
                                     <Label className="text-sm font-medium text-gray-700 whitespace-nowrap">Paid Amount</Label>
@@ -512,7 +512,7 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                                         type="number"
                                         value={paidAmount}
                                         onChange={(e) => setPaidAmount(parseFloat(e.target.value) || 0)}
-                                        className="h-10 flex-1 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                                        className="h-10 flex-1 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
                                         placeholder="0.00"
                                         min="0"
                                         step="0.01"
@@ -537,7 +537,7 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                             </Button>
                             <Button
                                 type="submit"
-                                className="flex-1 h-11 bg-linear-to-r from-purple-600 to-blue-600 text-white"
+                                className="flex-1 h-11 bg-linear-to-r from-teal-600 to-teal-500 text-white"
                                 disabled={isLoading || !selectedCustomer || orderItems.length === 0}
                             >
                                 {isLoading ? (

@@ -50,7 +50,7 @@ export function RecentOrders({ }: RecentOrdersProps) {
             <Link key={order.id} href={`/${locale}/sells/${order.id}`} className="block">
               <div className="flex items-center justify-between p-4 rounded-lg border hover:bg-gray-50">
                 <div className="flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-full bg-linear-to-r from-purple-600 to-blue-600 flex items-center justify-center text-white font-semibold">
+                  <div className="h-10 w-10 rounded-full bg-linear-to-r from-teal-600 to-teal-500 flex items-center justify-center text-white font-semibold">
                     {order.customerName.charAt(0)}
                   </div>
                   <div>

@@ -20,7 +20,8 @@ export class OrgDisabledGuard implements CanActivate {
 
         // Get organizationId from user
         const userId = request.user?.userId;
-        if (!userId) return false;
+        // If there's no authenticated user (e.g., login/forgot-password), allow the request
+        if (!userId) return true;
 
         const user = await this.prisma.user.findUnique({
             where: { id: userId },

@@ -41,7 +41,11 @@ export default function LoginPage() {
     <div className="w-full max-w-md">
       <div className="gradient-border rounded-xl">
         <div className="glass rounded-xl p-8 shadow-xl">
-          <div className="mb-6">
+          <div className="flex justify-center mb-6">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/conix.png" alt="Conix Logo" className="h-16 w-auto" />
+          </div>
+          <div className="mb-6 text-center">
             <h1 className="text-2xl font-bold gradient-text">Welcome back</h1>
             <p className="text-sm text-gray-600 mt-1">Sign in to your account</p>
           </div>

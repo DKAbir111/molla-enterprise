@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button'
 import { AlertTriangle } from 'lucide-react'
 import { DisableOrgDialog, DeleteOrgDialog } from './dialogs'
+import EnableButton from './EnableButton'
 
 interface DangerZoneSectionProps {
     organizationName?: string
@@ -25,6 +26,10 @@ export function DangerZoneSection({ organizationName, organizationId, isDisabled
                             This organization is currently disabled. Only owner/admin can manage it.
                         </CardDescription>
                     </CardHeader>
+                    <CardContent className="flex items-center justify-end">
+                        {/* Enable button will only be visible to owner/admin via OtherSection team meta check */}
+                        <EnableButton organizationId={organizationId} />
+                    </CardContent>
                 </Card>
             </div>
         )

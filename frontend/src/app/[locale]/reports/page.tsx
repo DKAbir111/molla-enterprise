@@ -88,7 +88,7 @@ export default function ReportsPage() {
 
         // Category sales as product share (%)
         const totalQty = Object.values(qtyByProduct).reduce((s, v) => s + v, 0)
-        const palette = ['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#6b7280']
+        const palette = ['#0d9488', '#14b8a6', '#10b981', '#f59e0b', '#6b7280']
         const topPairs = Object.entries(qtyByProduct).sort((a, b) => b[1] - a[1]).slice(0, 4)
         const others = Object.entries(qtyByProduct).sort((a, b) => b[1] - a[1]).slice(4)
         const othersQty = others.reduce((s, [, v]) => s + v, 0)
@@ -134,7 +134,7 @@ export default function ReportsPage() {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-medium">{t('salesReport')}</CardTitle>
-              <FileText className="h-4 w-4 text-purple-600" />
+              <FileText className="h-4 w-4 text-teal-600" />
             </div>
           </CardHeader>
           <CardContent>
@@ -197,8 +197,8 @@ export default function ReportsPage() {
             <AreaChart data={revenueTrend}>
               <defs>
                 <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8} />
-                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#0d9488" stopOpacity={0.8} />
+                  <stop offset="95%" stopColor="#0d9488" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" />
@@ -208,7 +208,7 @@ export default function ReportsPage() {
               <Area
                 type="monotone"
                 dataKey="total"
-                stroke="#8b5cf6"
+                stroke="#0d9488"
                 fillOpacity={1}
                 fill="url(#colorTotal)"
                 name="Total Revenue"
@@ -276,7 +276,7 @@ export default function ReportsPage() {
             {topProducts.map((product, index) => (
               <div key={index} className="flex items-center justify-between p-4 rounded-lg border">
                 <div className="flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-full bg-linear-to-r from-purple-600 to-blue-600 flex items-center justify-center text-white font-semibold">
+                  <div className="h-10 w-10 rounded-full bg-linear-to-r from-teal-600 to-teal-500 flex items-center justify-center text-white font-semibold">
                     {index + 1}
                   </div>
                   <div>

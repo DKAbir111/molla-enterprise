@@ -126,7 +126,7 @@ export default function AccountsPage() {
   // Expense categories (last 90 days)
   // We no longer compute categories (no manual categories).
   const pieBase: [string, number][] = [['Purchases', totalExpenses]]
-  const palette = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#6b7280']
+  const palette = ['#14b8a6', '#0d9488', '#10b981', '#f59e0b', '#6b7280']
   const expenseCategories = pieBase.map(([name, value], idx) => ({ name, value, color: palette[idx % palette.length] }))
 
   // Compute change vs previous month for KPI cards
@@ -167,7 +167,7 @@ export default function AccountsPage() {
             <Label htmlFor="quick-type">Type</Label>
             <select
               id="quick-type"
-              className="mt-1 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="mt-1 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
               value={quickForm.type}
               onChange={(e) => setQuickForm((prev) => ({ ...prev, type: e.target.value as 'income' | 'expense' }))}
             >
@@ -218,7 +218,7 @@ export default function AccountsPage() {
           </div>
           <Card className="border-dashed">
             <CardContent className="py-16 text-center">
-              <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-linear-to-r from-purple-600 to-blue-600 text-white flex items-center justify-center text-2xl">+</div>
+              <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-linear-to-r from-teal-600 to-teal-500 text-white flex items-center justify-center text-2xl">+</div>
               <h3 className="text-lg font-semibold mb-1">{t('emptyTitle') || 'No transactions yet'}</h3>
               <p className="text-gray-600">Use quick entries for ad-hoc cash flow or create sells/buys to populate this dashboard.</p>
               <Button variant="outline" className="mt-6" onClick={() => setQuickOpen(true)}>Add quick income / expense</Button>
@@ -289,14 +289,14 @@ export default function AccountsPage() {
               <CardTitle className="text-sm font-medium text-gray-600">
                 {t('netProfit')}
               </CardTitle>
-              <DollarSign className="h-4 w-4 text-purple-600" />
+              <DollarSign className="h-4 w-4 text-teal-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-purple-600">
+              <div className="text-2xl font-bold text-teal-600">
                 {formatCurrency(netProfit, locale)}
               </div>
               {prevProfit > 0 && (
-                <div className="flex items-center text-xs text-purple-600 mt-1">
+                <div className="flex items-center text-xs text-teal-600 mt-1">
                   <ArrowUpRight className="h-3 w-3 mr-1" />
                   <span>{`${profitPct >= 0 ? '+' : ''}${profitPct.toFixed(1)}%`} {t('fromLastMonth')}</span>
                 </div>

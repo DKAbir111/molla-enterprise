@@ -34,7 +34,7 @@ export function QuickEntriesStats({ totals, locale }: Props) {
           <CardTitle className="text-sm text-gray-600">Net</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-purple-600">{formatCurrency(totals.net, locale)}</div>
+          <div className="text-2xl font-bold text-teal-600">{formatCurrency(totals.net, locale)}</div>
         </CardContent>
       </Card>
     </div>

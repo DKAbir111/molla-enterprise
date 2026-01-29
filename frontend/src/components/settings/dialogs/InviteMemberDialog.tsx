@@ -141,7 +141,7 @@ export function InviteMemberDialog({ open, onOpenChange, isOwner, onSubmit }: In
                             id="invite-role"
                             value={form.role}
                             onChange={(e) => setForm((prev) => ({ ...prev, role: e.target.value as TeamMemberRole }))}
-                            className="w-full rounded border border-gray-200 bg-white px-3 py-2 text-sm focus:border-purple-500 focus:outline-none"
+                            className="w-full rounded border border-gray-200 bg-white px-3 py-2 text-sm focus:border-teal-500 focus:outline-none"
                         >
                             {roleOptions.map((option) => (
                                 <option key={option.value} value={option.value} disabled={!isOwner && option.value === 'owner'}>
