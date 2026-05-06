@@ -5,7 +5,7 @@
 <br/>
 <br/>
 
-# 🏢 Inventra — Enterprise Inventory & Business Management
+# 🏢 Inventra II — Enterprise Inventory & Business Management
 
 **The all-in-one open-source platform for managing your business operations with precision.**
 Built with **Next.js**, **NestJS**, and **TypeScript** — designed for enterprises, freelancers, and growing businesses.
