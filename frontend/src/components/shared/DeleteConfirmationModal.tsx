@@ -31,10 +31,10 @@ export function DeleteConfirmationModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] p-0 overflow-hidden rounded-lg bg-gray-50">
-        <DialogHeader className=" border-b border-gray-200 p-6">
-          <DialogTitle className="text-xl font-bold text-gray-900">{title}</DialogTitle>
-          <DialogDescription className="text-gray-600">
+      <DialogContent className="sm:max-w-[425px] p-0 overflow-hidden rounded-lg bg-surface-muted">
+        <DialogHeader className=" border-b border-border-subtle p-6">
+          <DialogTitle className="text-xl font-bold text-foreground">{title}</DialogTitle>
+          <DialogDescription className="text-muted-foreground">
             {description}
           </DialogDescription>
         </DialogHeader>
@@ -42,7 +42,7 @@ export function DeleteConfirmationModal({
           <Button variant="outline" onClick={onClose}>
             {t('cancel')}
           </Button>
-          <Button variant="destructive" onClick={onConfirm} className="bg-red-600 hover:bg-red-700">
+          <Button variant="destructive" onClick={onConfirm} className="bg-danger hover:bg-danger-hover">
             {t('confirm')}
           </Button>
         </DialogFooter>

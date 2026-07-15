@@ -74,8 +74,8 @@ export function TransactionModal({ open, onClose, onSaved }: TransactionModalPro
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent overlayClassName="bg-black/20 backdrop-blur-none" className="sm:max-w-lg p-0 bg-white border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
-        <div className="bg-linear-to-r from-teal-600 to-teal-500 px-8 py-6 text-white">
+      <DialogContent overlayClassName="bg-black/20 backdrop-blur-none" className="sm:max-w-lg p-0 bg-surface border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div className="gradient-primary px-8 py-6 text-primary-foreground">
           <DialogHeader className="space-y-2">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
@@ -95,39 +95,39 @@ export function TransactionModal({ open, onClose, onSaved }: TransactionModalPro
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">{t('description')}</Label>
-                <Input value={description} onChange={(e) => setDescription(e.target.value)} className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder="e.g., Cash sale" />
+                <Label className="text-sm font-medium text-muted-foreground">{t('description')}</Label>
+                <Input value={description} onChange={(e) => setDescription(e.target.value)} className="h-11 border-border focus:border-info focus:ring-info" placeholder="e.g., Cash sale" />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">{t('type')}</Label>
+                <Label className="text-sm font-medium text-muted-foreground">{t('type')}</Label>
                 <div className="flex items-center gap-3 h-11">
-                  <button type="button" onClick={() => setType('income')} className={`px-3 py-2 rounded-lg border ${type === 'income' ? 'border-green-600 text-green-700 bg-green-50' : 'border-gray-300 text-gray-700'}`}>{t('income')}</button>
-                  <button type="button" onClick={() => setType('expense')} className={`px-3 py-2 rounded-lg border ${type === 'expense' ? 'border-red-600 text-red-700 bg-red-50' : 'border-gray-300 text-gray-700'}`}>{t('expense')}</button>
+                  <button type="button" onClick={() => setType('income')} className={`px-3 py-2 rounded-lg border ${type === 'income' ? 'border-success text-success bg-success-subtle' : 'border-border text-muted-foreground'}`}>{t('income')}</button>
+                  <button type="button" onClick={() => setType('expense')} className={`px-3 py-2 rounded-lg border ${type === 'expense' ? 'border-danger text-danger bg-danger-subtle' : 'border-border text-muted-foreground'}`}>{t('expense')}</button>
                 </div>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">{t('amount')}</Label>
-                <Input type="number" value={amount} onChange={(e) => setAmount(parseFloat(e.target.value) || 0)} className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder="0.00" min={0} step="0.01" />
+                <Label className="text-sm font-medium text-muted-foreground">{t('amount')}</Label>
+                <Input type="number" value={amount} onChange={(e) => setAmount(parseFloat(e.target.value) || 0)} className="h-11 border-border focus:border-info focus:ring-info" placeholder="0.00" min={0} step="0.01" />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">Category</Label>
-                <Input value={category} onChange={(e) => setCategory(e.target.value)} className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder={type === 'income' ? 'Sales, Other' : 'Transport, Rent, Utilities'} />
+                <Label className="text-sm font-medium text-muted-foreground">Category</Label>
+                <Input value={category} onChange={(e) => setCategory(e.target.value)} className="h-11 border-border focus:border-info focus:ring-info" placeholder={type === 'income' ? 'Sales, Other' : 'Transport, Rent, Utilities'} />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm font-medium text-gray-700">Date</Label>
-              <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" />
+              <Label className="text-sm font-medium text-muted-foreground">Date</Label>
+              <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-11 border-border focus:border-info focus:ring-info" />
             </div>
 
-            <div className="flex gap-3 pt-6 border-t border-gray-200">
-              <Button type="button" variant="outline" onClick={onClose} className="flex-1 h-11 border-gray-300 hover:bg-gray-50" disabled={isLoading}>
+            <div className="flex gap-3 pt-6 border-t border-border-subtle">
+              <Button type="button" variant="outline" onClick={onClose} className="flex-1 h-11 border-border hover:bg-surface-hover" disabled={isLoading}>
                 Cancel
               </Button>
-              <Button type="submit" className="flex-1 h-11 bg-linear-to-r from-teal-600 to-teal-500 text-white" disabled={isLoading}>
+              <Button type="submit" className="flex-1 h-11 gradient-primary text-primary-foreground" disabled={isLoading}>
                 {isLoading ? (
                   <div className="flex items-center gap-2">
                     <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>

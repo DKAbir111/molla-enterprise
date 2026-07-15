@@ -46,7 +46,7 @@ export default function RegisterPage() {
         <div className="glass rounded-xl p-8 shadow-xl">
           <div className="mb-6">
             <h1 className="text-2xl font-bold gradient-text">Create your account</h1>
-            <p className="text-sm text-gray-600 mt-1">Start by entering your details</p>
+            <p className="text-sm text-muted-foreground mt-1">Start by entering your details</p>
           </div>
           <form onSubmit={onSubmit} className="space-y-4">
           <div>
@@ -70,7 +70,7 @@ export default function RegisterPage() {
               {loading ? 'Creating...' : 'Register'}
             </Button>
             <div className="text-sm">
-              <a href={`/${locale}/login`} className="text-blue-600 hover:underline">Already have an account?</a>
+              <a href={`/${locale}/login`} className="text-info hover:underline">Already have an account?</a>
             </div>
           </div>
         </form>

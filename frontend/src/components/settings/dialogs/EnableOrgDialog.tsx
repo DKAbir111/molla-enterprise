@@ -48,7 +48,7 @@ export function EnableOrgDialog({ open, onOpenChange, organizationName, organiza
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle className="text-green-700 flex items-center gap-2">
+                    <DialogTitle className="text-success flex items-center gap-2">
                         <CheckCircle className="h-5 w-5" />
                         Enable Organization
                     </DialogTitle>

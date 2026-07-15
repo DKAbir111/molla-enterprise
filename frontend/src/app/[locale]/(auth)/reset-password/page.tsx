@@ -46,7 +46,7 @@ export default function ResetPasswordPage() {
         <div className="glass rounded-xl p-8 shadow-xl">
           <div className="mb-6">
             <h1 className="text-2xl font-bold gradient-text">Reset password</h1>
-            <p className="text-sm text-gray-600 mt-1">Enter your new password</p>
+            <p className="text-sm text-muted-foreground mt-1">Enter your new password</p>
           </div>
           <form onSubmit={onSubmit} className="space-y-4">
           <div>

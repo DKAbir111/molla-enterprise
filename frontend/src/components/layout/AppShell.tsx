@@ -82,7 +82,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </div>
       <div
         className={cn(
-          'fixed inset-y-0 left-0 z-50 w-64 bg-[var(--card-bg)] shadow-lg transition-transform duration-200 md:hidden',
+          'fixed inset-y-0 left-0 z-50 w-64 bg-surface shadow-lg transition-transform duration-200 md:hidden',
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >

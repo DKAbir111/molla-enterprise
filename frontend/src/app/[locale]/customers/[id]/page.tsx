@@ -142,13 +142,13 @@ export default function CustomerDetailsPage() {
         <div className="text-center">
           {loadingCustomer ? (
             <>
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">Loading customer...</h2>
-              <p className="text-gray-600 mb-4">Please wait.</p>
+              <h2 className="text-xl font-semibold text-foreground mb-2">Loading customer...</h2>
+              <p className="text-muted-foreground mb-4">Please wait.</p>
             </>
           ) : (
             <>
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">Customer Not Found</h2>
-              <p className="text-gray-600 mb-4">The customer you&apos;re looking for doesn&apos;t exist.</p>
+              <h2 className="text-xl font-semibold text-foreground mb-2">Customer Not Found</h2>
+              <p className="text-muted-foreground mb-4">The customer you&apos;re looking for doesn&apos;t exist.</p>
               <Button onClick={() => router.push(`/${locale}/customers`)}>
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Customers
@@ -175,8 +175,8 @@ export default function CustomerDetailsPage() {
           </Button>
         </div>
         <div className='text-center'>
-          <h1 className="text-3xl font-bold text-gray-900">{customer.name}</h1>
-          <p className="text-gray-600">{t('customerDetails')}</p>
+          <h1 className="text-3xl font-bold text-foreground">{customer.name}</h1>
+          <p className="text-muted-foreground">{t('customerDetails')}</p>
         </div>
         <div className="flex gap-2">
           <Button onClick={handlePrint} variant="outline">
@@ -196,7 +196,7 @@ export default function CustomerDetailsPage() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                 <Phone className="h-4 w-4" />
                 {t('phone')}
               </CardTitle>
@@ -208,7 +208,7 @@ export default function CustomerDetailsPage() {
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                 <MapPin className="h-4 w-4" />
                 {t('address')}
               </CardTitle>
@@ -220,7 +220,7 @@ export default function CustomerDetailsPage() {
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
                 {t('customerSince')}
               </CardTitle>
@@ -234,7 +234,7 @@ export default function CustomerDetailsPage() {
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                 <ShoppingCart className="h-4 w-4" />
                 {t('totalOrders')}
               </CardTitle>
@@ -256,14 +256,14 @@ export default function CustomerDetailsPage() {
           <CardContent>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <p className="text-sm text-gray-600">{t('totalSpent')}</p>
-                <p className="text-3xl font-bold text-green-600">
+                <p className="text-sm text-muted-foreground">{t('totalSpent')}</p>
+                <p className="text-3xl font-bold text-success">
                   {formatCurrency(customer.totalSpent, locale)}
                 </p>
               </div>
               <div className="space-y-2">
-                <p className="text-sm text-gray-600">{t('averageOrderValue')}</p>
-                <p className="text-3xl font-bold text-blue-600">
+                <p className="text-sm text-muted-foreground">{t('averageOrderValue')}</p>
+                <p className="text-3xl font-bold text-info">
                   {formatCurrency(customer.totalSpent / customer.totalOrders, locale)}
                 </p>
               </div>
@@ -297,7 +297,7 @@ export default function CustomerDetailsPage() {
                       {data.quantity} {data.unit}
                     </TableCell>
                     <TableCell className="text-center">
-                      <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700">
+                      <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full bg-info-subtle text-info">
                         {data.transactions}
                       </span>
                     </TableCell>
@@ -350,7 +350,7 @@ export default function CustomerDetailsPage() {
                       {formatCurrency(item.total, locale)}
                     </TableCell>
                     <TableCell className="text-center">
-                      <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700">
+                      <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full bg-surface-hover text-muted-foreground">
                         {item.invoiceId}
                       </span>
                     </TableCell>

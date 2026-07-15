@@ -48,24 +48,24 @@ export function RecentOrders({ }: RecentOrdersProps) {
         <div className="space-y-4">
           {orders.slice(0, 5).map((order) => (
             <Link key={order.id} href={`/${locale}/sells/${order.id}`} className="block">
-              <div className="flex items-center justify-between p-4 rounded-lg border hover:bg-gray-50">
+              <div className="flex items-center justify-between p-4 rounded-lg border hover:bg-surface-hover">
                 <div className="flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-full bg-linear-to-r from-teal-600 to-teal-500 flex items-center justify-center text-white font-semibold">
+                  <div className="h-10 w-10 rounded-full gradient-primary flex items-center justify-center text-primary-foreground font-semibold">
                     {order.customerName.charAt(0)}
                   </div>
                   <div>
                     <p className="font-medium">{order.customerName}</p>
-                    <p className="text-sm text-gray-500">{`Sell ${formatOrderCode(order.id, order.createdAt)}`}</p>
+                    <p className="text-sm text-subtle-foreground">{`Sell ${formatOrderCode(order.id, order.createdAt)}`}</p>
                   </div>
                 </div>
                 <div className="text-right">
                   <p className="font-medium">{formatCurrency(order.total, locale)}</p>
                   <p className={cn(
                     "text-sm",
-                    order.status === 'delivered' ? "text-green-600" : "",
-                    order.status === 'processing' ? "text-blue-600" : "",
-                    order.status === 'pending' ? "text-yellow-600" : "",
-                    order.status === 'cancelled' ? "text-red-600" : ""
+                    order.status === 'delivered' ? "text-success" : "",
+                    order.status === 'processing' ? "text-info" : "",
+                    order.status === 'pending' ? "text-warning" : "",
+                    order.status === 'cancelled' ? "text-danger" : ""
                   )}>
                     {t(`orderStatus.${order.status}`)}
                   </p>

@@ -102,7 +102,7 @@ export default function ProductsPage() {
       <div className="flex items-center gap-4 justify-between">
         <div className="flex items-center gap-4 flex-1">
           <div className="relative w-full max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-subtle-foreground" />
             <Input
               placeholder={t('search')}
               value={searchQuery}
@@ -144,7 +144,7 @@ export default function ProductsPage() {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-gray-600">Total Products</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">Total Products</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.total}</div>
@@ -152,26 +152,26 @@ export default function ProductsPage() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-gray-600">Active Products</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">Active Products</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.active}</div>
+            <div className="text-2xl font-bold text-success">{stats.active}</div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-gray-600">Out of Stock</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">Out of Stock</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{stats.out}</div>
+            <div className="text-2xl font-bold text-danger">{stats.out}</div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-gray-600">Inventory Value</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">Inventory Value</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{formatCurrency(stats.value, locale)}</div>
+            <div className="text-2xl font-bold text-info">{formatCurrency(stats.value, locale)}</div>
           </CardContent>
         </Card>
       </div>
@@ -199,9 +199,9 @@ export default function ProductsPage() {
       {filteredProducts.length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="py-16 text-center">
-            <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-linear-to-r from-teal-600 to-teal-500 text-white flex items-center justify-center text-2xl">+</div>
+            <div className="mx-auto mb-4 h-14 w-14 rounded-full gradient-primary text-primary-foreground flex items-center justify-center text-2xl">+</div>
             <h3 className="text-lg font-semibold mb-1">{t('emptyTitle')}</h3>
-            <p className="text-gray-600 mb-4">{t('emptyDescription')}</p>
+            <p className="text-muted-foreground mb-4">{t('emptyDescription')}</p>
             <Button onClick={() => setModal({ open: true, mode: 'create' })}>{t('addProduct')}</Button>
           </CardContent>
         </Card>
@@ -209,13 +209,13 @@ export default function ProductsPage() {
         /* Products Grid */
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filteredProducts.map((product, idx) => (
-            <Card key={`${product.id}-${idx}`} className={`hover:shadow-lg transition-all group ${product.awaitingPurchase !== false ? 'bg-yellow-50 border-yellow-200' : 'bg-white'}`}>
+            <Card key={`${product.id}-${idx}`} className={`hover:shadow-lg transition-all group ${product.awaitingPurchase !== false ? 'bg-warning-subtle border-warning' : 'bg-surface'}`}>
               <CardHeader className="pb-4 relative">
                 {!product.active && (
-                  <span className="absolute top-2 right-2 text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">Inactive</span>
+                  <span className="absolute top-2 right-2 text-xs bg-danger-subtle text-danger px-2 py-0.5 rounded">Inactive</span>
                 )}
                 {product.awaitingPurchase !== false && (
-                  <span className="absolute top-2 left-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">Awaiting Purchase</span>
+                  <span className="absolute top-2 left-2 text-xs bg-warning-subtle text-warning px-2 py-0.5 rounded">Awaiting Purchase</span>
                 )}
                 <div className={`h-32 rounded-lg mb-4 overflow-hidden ${product.imageUrl ? '' : `bg-linear-to-br ${getProductImage(product.type)} flex items-center justify-center text-white`}`}>
                   {product.imageUrl ? (
@@ -229,7 +229,7 @@ export default function ProductsPage() {
                 </div>
                 <CardTitle className="text-lg">{product?.name}</CardTitle>
                 {product.grade && (
-                  <span className="text-sm text-gray-500 capitalize">
+                  <span className="text-sm text-subtle-foreground capitalize">
                     {product.grade}
                   </span>
                 )}
@@ -237,14 +237,14 @@ export default function ProductsPage() {
               <CardContent>
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-500">{t('pricePerUnit')}</span>
+                    <span className="text-sm text-subtle-foreground">{t('pricePerUnit')}</span>
                     <span className="font-semibold">
                       {formatCurrency(product.price, locale)}/{product.unit}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-500">{t('stock')}</span>
-                    <span className="font-semibold text-green-600">
+                    <span className="text-sm text-subtle-foreground">{t('stock')}</span>
+                    <span className="font-semibold text-success">
                       {product.stock} {product.unit}
                     </span>
                   </div>
@@ -260,7 +260,7 @@ export default function ProductsPage() {
                     <Edit className="h-3 w-3 mr-1" />
                     {t('edit')}
                   </Button>
-                  <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700" onClick={() => handleDeleteClick(product.id)}>
+                  <Button variant="outline" size="sm" className="text-danger hover:text-danger" onClick={() => handleDeleteClick(product.id)}>
                     <Trash2 className="h-3 w-3" />
                   </Button>
                   {/* Status and restock controls moved into Edit modal */}

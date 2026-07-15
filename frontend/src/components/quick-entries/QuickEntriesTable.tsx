@@ -32,14 +32,14 @@ export function QuickEntriesTable({ entries, loading, locale, onDelete }: Props)
           <TableBody>
             {loading && (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-sm text-gray-500">
+                <TableCell colSpan={6} className="text-center py-8 text-sm text-subtle-foreground">
                   Loading…
                 </TableCell>
               </TableRow>
             )}
             {!loading && entries.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-10 text-gray-500">
+                <TableCell colSpan={6} className="text-center py-10 text-subtle-foreground">
                   No quick entries yet.
                 </TableCell>
               </TableRow>
@@ -51,13 +51,13 @@ export function QuickEntriesTable({ entries, loading, locale, onDelete }: Props)
                 <TableCell>{entry.category}</TableCell>
                 <TableCell>
                   <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${entry.type === 'income'
-                    ? 'bg-green-100 text-green-700'
-                    : 'bg-red-100 text-red-700'}`}>
+                    ? 'bg-success-subtle text-success'
+                    : 'bg-danger-subtle text-danger'}`}>
                     {entry.type === 'income' ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
                     {entry.type}
                   </span>
                 </TableCell>
-                <TableCell className={`text-right font-semibold ${entry.type === 'income' ? 'text-green-600' : 'text-red-600'}`}>
+                <TableCell className={`text-right font-semibold ${entry.type === 'income' ? 'text-success' : 'text-danger'}`}>
                   {entry.type === 'income' ? '+' : '-'}
                   {formatCurrency(entry.amount, locale)}
                 </TableCell>

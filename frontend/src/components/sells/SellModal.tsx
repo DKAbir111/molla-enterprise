@@ -209,8 +209,8 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
 
     return (
         <Dialog open={open} onOpenChange={handleClose}>
-            <DialogContent overlayClassName="bg-black/20 backdrop-blur-none" className="sm:max-w-6xl p-0 bg-white border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
-                <div className="bg-linear-to-r from-teal-600 to-teal-500 px-8 py-6 text-white">
+            <DialogContent overlayClassName="bg-black/20 backdrop-blur-none" className="sm:max-w-6xl p-0 bg-surface border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
+                <div className="gradient-primary px-8 py-6 text-primary-foreground">
                     <DialogHeader className="space-y-2">
                         <div className="flex items-center gap-3">
                             <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
@@ -230,20 +230,20 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {/* Customer Information Section */}
                         <div className="space-y-4">
-                            <div className="flex items-center gap-2 text-base font-semibold text-gray-900 pb-2 border-b">
-                                <User className="h-5 w-5 text-teal-600" />
+                            <div className="flex items-center gap-2 text-base font-semibold text-foreground pb-2 border-b">
+                                <User className="h-5 w-5 text-primary" />
                                 <span>Customer Information</span>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="customer" className="text-sm font-medium text-gray-700">
+                                    <Label htmlFor="customer" className="text-sm font-medium text-muted-foreground">
                                         <div className="flex items-center gap-2">
                                             <User className="h-4 w-4" />
                                             Select Customer
                                         </div>
                                     </Label>
                                     <div className="relative">
-                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 z-10" />
+                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-subtle-foreground z-10" />
                                         <Input
                                             id="customer"
                                             placeholder="Search by name or phone..."
@@ -254,16 +254,16 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                                             }}
                                             onClick={() => setShowCustomerDropdown(true)}
                                             onBlur={() => setTimeout(() => setShowCustomerDropdown(false), 200)}
-                                            className="pl-10 h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
+                                            className="pl-10 h-11 border-border focus:border-primary focus:ring-ring"
                                             required
                                             disabled={isEdit}
                                         />
                                         {showCustomerDropdown && filteredCustomers.length > 0 && !isEdit && (
-                                            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-20 max-h-60 overflow-y-auto">
+                                            <div className="absolute top-full left-0 right-0 mt-1 bg-surface border border-border-subtle rounded-lg shadow-xl z-20 max-h-60 overflow-y-auto">
                                                 {filteredCustomers.map(c => (
                                                     <div
                                                         key={c.id}
-                                                        className="p-3 hover:bg-teal-50 cursor-pointer border-b border-gray-100 last:border-0"
+                                                        className="p-3 hover:bg-primary-subtle cursor-pointer border-b border-border-subtle last:border-0"
                                                         onClick={() => {
                                                             setSelectedCustomer(c)
                                                             setCustomerSearch(c.name)
@@ -272,8 +272,8 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                                                             setShowCustomerDropdown(false)
                                                         }}
                                                     >
-                                                        <div className="font-semibold text-gray-900">{c.name}</div>
-                                                        <div className="text-xs text-gray-500">{c.phone}</div>
+                                                        <div className="font-semibold text-foreground">{c.name}</div>
+                                                        <div className="text-xs text-subtle-foreground">{c.phone}</div>
                                                     </div>
                                                 ))}
                                             </div>
@@ -281,7 +281,7 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                                     </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
+                                    <Label htmlFor="phone" className="text-sm font-medium text-muted-foreground">
                                         <div className="flex items-center gap-2">
                                             <Phone className="h-4 w-4" />
                                             Phone Number
@@ -292,13 +292,13 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                                         value={customerPhone}
                                         onChange={(e) => setCustomerPhone(e.target.value)}
                                         placeholder="Enter phone"
-                                        className="h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
+                                        className="h-11 border-border focus:border-primary focus:ring-ring"
                                         required
                                         disabled={isEdit}
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="address" className="text-sm font-medium text-gray-700">
+                                    <Label htmlFor="address" className="text-sm font-medium text-muted-foreground">
                                         <div className="flex items-center gap-2">
                                             <MapPin className="h-4 w-4" />
                                             Delivery Address
@@ -309,7 +309,7 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                                         value={deliveryAddress}
                                         onChange={(e) => setDeliveryAddress(e.target.value)}
                                         placeholder="Enter delivery address"
-                                        className="h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
+                                        className="h-11 border-border focus:border-primary focus:ring-ring"
                                         required
                                     />
                                 </div>
@@ -318,15 +318,15 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
 
                         {/* Products Section */}
                         <div className="space-y-4">
-                            <div className="flex items-center gap-2 text-base font-semibold text-gray-900 pb-2 border-b">
-                                <Package className="h-5 w-5 text-teal-600" />
+                            <div className="flex items-center gap-2 text-base font-semibold text-foreground pb-2 border-b">
+                                <Package className="h-5 w-5 text-primary" />
                                 <span>Products</span>
                             </div>
                             {!isEdit && (
                                 <div className="space-y-2">
-                                    <Label className="text-sm font-medium text-gray-700">Search & Add Products</Label>
+                                    <Label className="text-sm font-medium text-muted-foreground">Search & Add Products</Label>
                                     <div className="relative">
-                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 z-10" />
+                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-subtle-foreground z-10" />
                                         <Input
                                             placeholder="Search products to add..."
                                             value={productSearch}
@@ -336,18 +336,18 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                                             }}
                                             onClick={() => setShowProductDropdown(true)}
                                             onBlur={() => setTimeout(() => setShowProductDropdown(false), 200)}
-                                            className="pl-10 h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
+                                            className="pl-10 h-11 border-border focus:border-primary focus:ring-ring"
                                         />
                                         {showProductDropdown && filteredProducts.length > 0 && (
-                                            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-20 max-h-60 overflow-y-auto">
+                                            <div className="absolute top-full left-0 right-0 mt-1 bg-surface border border-border-subtle rounded-lg shadow-xl z-20 max-h-60 overflow-y-auto">
                                                 {filteredProducts.map(p => (
                                                     <div
                                                         key={p.id}
-                                                        className="p-3 hover:bg-teal-50 cursor-pointer border-b border-gray-100 last:border-0"
+                                                        className="p-3 hover:bg-primary-subtle cursor-pointer border-b border-border-subtle last:border-0"
                                                         onClick={() => addProductToOrder(p)}
                                                     >
-                                                        <div className="font-semibold text-gray-900">{p.name}</div>
-                                                        <div className="text-xs text-gray-500">
+                                                        <div className="font-semibold text-foreground">{p.name}</div>
+                                                        <div className="text-xs text-subtle-foreground">
                                                             {formatCurrency(p.price, locale)} per {p.unit}
                                                         </div>
                                                     </div>
@@ -359,10 +359,10 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                             )}
 
                             {orderItems.length > 0 ? (
-                                <div className="border border-gray-200 rounded-lg overflow-hidden">
+                                <div className="border border-border-subtle rounded-lg overflow-hidden">
                                     <Table>
                                         <TableHeader>
-                                            <TableRow className="bg-gray-50">
+                                            <TableRow className="bg-surface-muted">
                                                 <TableHead className="font-semibold">Product</TableHead>
                                                 <TableHead className="text-center font-semibold">Quantity</TableHead>
                                                 <TableHead className="text-right font-semibold">Price/Unit</TableHead>
@@ -413,7 +413,7 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                                                             min="0"
                                                         />
                                                     </TableCell>
-                                                    <TableCell className="text-right font-semibold text-gray-900">
+                                                    <TableCell className="text-right font-semibold text-foreground">
                                                         {formatCurrency(item.total, locale)}
                                                     </TableCell>
                                                     <TableCell className="text-right">
@@ -421,7 +421,7 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                                                             type="button"
                                                             variant="ghost"
                                                             size="icon"
-                                                            className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                                            className="h-8 w-8 text-danger hover:text-danger hover:bg-danger-subtle"
                                                             onClick={() => updateItemQuantity(item.productId, 0)}
                                                         >
                                                             <X className="h-4 w-4" />
@@ -433,7 +433,7 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                                     </Table>
                                 </div>
                             ) : (
-                                <div className="text-center py-8 text-gray-500 border border-dashed border-gray-300 rounded-lg">
+                                <div className="text-center py-8 text-subtle-foreground border border-dashed border-border rounded-lg">
                                     No products added yet
                                 </div>
                             )}
@@ -441,25 +441,25 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
 
                         {/* Financial Details Section */}
                         <div className="space-y-4">
-                            <div className="flex items-center gap-2 text-base font-semibold text-gray-900 pb-2 border-b">
-                                <TrendingUp className="h-5 w-5 text-teal-600" />
+                            <div className="flex items-center gap-2 text-base font-semibold text-foreground pb-2 border-b">
+                                <TrendingUp className="h-5 w-5 text-primary" />
                                 <span>Financial Details</span>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label className="text-sm font-medium text-gray-700">Discount ({formatCurrency(0, locale).replace(/[0-9.,]/g, '')})</Label>
+                                    <Label className="text-sm font-medium text-muted-foreground">Discount ({formatCurrency(0, locale).replace(/[0-9.,]/g, '')})</Label>
                                     <Input
                                         type="number"
                                         value={discount}
                                         onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)}
-                                        className="h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
+                                        className="h-11 border-border focus:border-primary focus:ring-ring"
                                         placeholder="0.00"
                                         min="0"
                                         step="0.01"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-sm font-medium text-gray-700">
+                                    <Label className="text-sm font-medium text-muted-foreground">
                                         Transport Cost (per trip × trips)
                                     </Label>
                                     <div className="flex items-center gap-2">
@@ -467,21 +467,21 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                                             type="number"
                                             value={transportPerTrip}
                                             onChange={(e) => setTransportPerTrip(parseFloat(e.target.value) || 0)}
-                                            className="h-11 flex-1 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
+                                            className="h-11 flex-1 border-border focus:border-primary focus:ring-ring"
                                             placeholder="0.00"
                                             min="0"
                                             step="0.01"
                                         />
-                                        <span className="text-gray-500">×</span>
+                                        <span className="text-subtle-foreground">×</span>
                                         <Input
                                             type="number"
                                             value={transportTrips}
                                             onChange={(e) => setTransportTrips(parseInt(e.target.value || '0', 10))}
-                                            className="h-11 w-24 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
+                                            className="h-11 w-24 border-border focus:border-primary focus:ring-ring"
                                             placeholder="0"
                                             min="0"
                                         />
-                                        <div className="min-w-[120px] text-right font-semibold text-gray-900">
+                                        <div className="min-w-[120px] text-right font-semibold text-foreground">
                                             = {formatCurrency(transportTotal, locale)}
                                         </div>
                                     </div>
@@ -489,55 +489,55 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                             </div>
 
                             {/* Summary */}
-                            <div className="bg-gradient-to-r from-teal-50 to-teal-50 rounded-lg p-5 space-y-3 border border-teal-200">
+                            <div className="bg-primary-subtle rounded-lg p-5 space-y-3 border border-primary">
                                 <div className="flex justify-between items-center text-sm">
-                                    <span className="text-gray-600">Subtotal</span>
-                                    <span className="font-semibold text-gray-900">{formatCurrency(subtotal, locale)}</span>
+                                    <span className="text-muted-foreground">Subtotal</span>
+                                    <span className="font-semibold text-foreground">{formatCurrency(subtotal, locale)}</span>
                                 </div>
                                 <div className="flex justify-between items-center text-sm">
-                                    <span className="text-gray-600">Transport</span>
-                                    <span className="font-semibold text-gray-900">{formatCurrency(transportTotal, locale)}</span>
+                                    <span className="text-muted-foreground">Transport</span>
+                                    <span className="font-semibold text-foreground">{formatCurrency(transportTotal, locale)}</span>
                                 </div>
                                 <div className="flex justify-between items-center text-sm">
-                                    <span className="text-gray-600">Discount</span>
-                                    <span className="font-semibold text-red-600">- {formatCurrency(discount, locale)}</span>
+                                    <span className="text-muted-foreground">Discount</span>
+                                    <span className="font-semibold text-danger">- {formatCurrency(discount, locale)}</span>
                                 </div>
-                                <div className="border-t border-teal-200 pt-3 flex justify-between items-center">
-                                    <span className="text-lg font-bold text-gray-900">Grand Total</span>
-                                    <span className="text-2xl font-bold text-teal-600">{formatCurrency(grandTotal, locale)}</span>
+                                <div className="border-t border-primary pt-3 flex justify-between items-center">
+                                    <span className="text-lg font-bold text-foreground">Grand Total</span>
+                                    <span className="text-2xl font-bold text-primary">{formatCurrency(grandTotal, locale)}</span>
                                 </div>
                                 <div className="flex items-center gap-3 pt-2">
-                                    <Label className="text-sm font-medium text-gray-700 whitespace-nowrap">Paid Amount</Label>
+                                    <Label className="text-sm font-medium text-muted-foreground whitespace-nowrap">Paid Amount</Label>
                                     <Input
                                         type="number"
                                         value={paidAmount}
                                         onChange={(e) => setPaidAmount(parseFloat(e.target.value) || 0)}
-                                        className="h-10 flex-1 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
+                                        className="h-10 flex-1 border-border focus:border-primary focus:ring-ring"
                                         placeholder="0.00"
                                         min="0"
                                         step="0.01"
                                     />
                                     <div className="min-w-[150px] text-right">
-                                        <span className="text-sm text-gray-600">Due: </span>
-                                        <span className="text-lg font-bold text-green-600">{formatCurrency(due, locale)}</span>
+                                        <span className="text-sm text-muted-foreground">Due: </span>
+                                        <span className="text-lg font-bold text-success">{formatCurrency(due, locale)}</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="flex gap-3 pt-6 border-t border-gray-200">
+                        <div className="flex gap-3 pt-6 border-t border-border-subtle">
                             <Button
                                 type="button"
                                 variant="outline"
                                 onClick={handleClose}
-                                className="flex-1 h-11 border-gray-300 hover:bg-gray-50"
+                                className="flex-1 h-11 border-border hover:bg-surface-hover"
                                 disabled={isLoading}
                             >
                                 Cancel
                             </Button>
                             <Button
                                 type="submit"
-                                className="flex-1 h-11 bg-linear-to-r from-teal-600 to-teal-500 text-white"
+                                className="flex-1 h-11 gradient-primary text-primary-foreground"
                                 disabled={isLoading || !selectedCustomer || orderItems.length === 0}
                             >
                                 {isLoading ? (

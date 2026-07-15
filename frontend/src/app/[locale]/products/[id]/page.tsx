@@ -102,7 +102,7 @@ export default function ProductDetailsPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Product Not Found</h2>
+          <h2 className="text-xl font-semibold text-foreground mb-2">Product Not Found</h2>
           <Button onClick={() => router.push(`/${locale}/products`)} variant="outline" className="mt-2 flex items-center gap-2"><ChevronLeft className="h-4 w-4" />Back to Products</Button>
         </div>
       </div>
@@ -119,8 +119,8 @@ export default function ProductDetailsPage() {
           </Button>
         </div>
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">{product?.name}</h1>
-          <p className="text-gray-600">Product Details & Sales</p>
+          <h1 className="text-3xl font-bold text-foreground">{product?.name}</h1>
+          <p className="text-muted-foreground">Product Details & Sales</p>
         </div>
         <div />
       </div>
@@ -128,19 +128,19 @@ export default function ProductDetailsPage() {
       {/* Summary */}
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600">Total Sold (Qty)</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total Sold (Qty)</CardTitle></CardHeader>
           <CardContent><div className="text-2xl font-bold">{summary.totalQty}</div></CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600">Total Revenue</CardTitle></CardHeader>
-          <CardContent><div className="text-2xl font-bold text-green-600">{formatCurrency(summary.totalRevenue, locale)}</div></CardContent>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total Revenue</CardTitle></CardHeader>
+          <CardContent><div className="text-2xl font-bold text-success">{formatCurrency(summary.totalRevenue, locale)}</div></CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600">Sells</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Sells</CardTitle></CardHeader>
           <CardContent><div className="text-2xl font-bold">{summary.ordersCount}</div></CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600">Avg/day (last 30d)</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Avg/day (last 30d)</CardTitle></CardHeader>
           <CardContent><div className="text-2xl font-bold">{summary.avgPerDay.toFixed(2)}</div></CardContent>
         </Card>
       </div>
@@ -148,23 +148,23 @@ export default function ProductDetailsPage() {
       {/* Product meta */}
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600 flex items-center gap-2"><Layers className="h-4 w-4" /> Type</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground flex items-center gap-2"><Layers className="h-4 w-4" /> Type</CardTitle></CardHeader>
           <CardContent><div className="text-lg font-semibold">{product?.type || '-'}</div></CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600 flex items-center gap-2"><Tag className="h-4 w-4" /> Grade</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground flex items-center gap-2"><Tag className="h-4 w-4" /> Grade</CardTitle></CardHeader>
           <CardContent><div className="text-lg font-semibold">{product?.grade || '-'}</div></CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600">Target Sell Price / Unit</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Target Sell Price / Unit</CardTitle></CardHeader>
           <CardContent><div className="text-lg font-semibold">{formatCurrency((product as any)?.targetPrice || product?.price || 0, locale)}</div></CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600">Current Avg Price / Unit (after discount)</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Current Avg Price / Unit (after discount)</CardTitle></CardHeader>
           <CardContent><div className="text-lg font-semibold">{formatCurrency(summary.avgSellPrice, locale)}</div></CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600">Stock Left</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Stock Left</CardTitle></CardHeader>
           <CardContent><div className="text-lg font-semibold">{product?.stock} {product?.unit}</div></CardContent>
         </Card>
       </div>
@@ -195,7 +195,7 @@ export default function ProductDetailsPage() {
               ))}
               {gains.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center text-gray-500 py-10">No drying gains recorded.</TableCell>
+                  <TableCell colSpan={4} className="text-center text-subtle-foreground py-10">No drying gains recorded.</TableCell>
                 </TableRow>
               )}
             </TableBody>
@@ -233,7 +233,7 @@ export default function ProductDetailsPage() {
               ))}
               {sales.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center text-gray-500 py-10">No sales yet for this product.</TableCell>
+                  <TableCell colSpan={5} className="text-center text-subtle-foreground py-10">No sales yet for this product.</TableCell>
                 </TableRow>
               )}
             </TableBody>

@@ -1,36 +1,194 @@
 @import "tailwindcss";
 
-@layer base {
-  :root {
-    --font-inter: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-    --font-noto-bengali: "Noto Sans Bengali", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-    /* Brand colors from logo */
-    --brand-primary: #0d9488; /* Teal-600 */
-    --brand-secondary: #0f766e; /* Teal-700 */
-    --brand-accent: #14b8a6; /* Teal-500 */
-    /* Theme tokens */
-    --app-bg: linear-gradient(to bottom right, #f0fdfa, #ffffff, #ecfeff);
-    --text: #111827;
-    --card-bg: rgba(255, 255, 255, 0.8);
-    --card-border: #e5e7eb;
-  }
+/* ============================================================================
+   DESIGN TOKENS — the single source of truth for every color in the app.
+   ============================================================================
+   Components must never hardcode a palette color (bg-white, text-gray-600,
+   border-gray-300, ...). They use the semantic utilities generated from these
+   tokens: bg-surface, text-foreground, text-muted-foreground, border-border,
+   bg-primary, text-danger, and so on.
 
+   Why this matters: dark mode used to be retrofitted with a list of
+   `html.theme-dark .text-gray-700 { ... !important }` overrides. Any class the
+   list forgot silently broke — that is exactly how the .glass auth cards ended
+   up light-on-light in dark mode. With tokens there is nothing to forget: the
+   value changes, the utility follows.
+
+   To retheme the app, edit the values below. Nothing else.
+
+   Light values live on :root; html.theme-dark overrides them. The theme class
+   is set on <html> by src/store/useTheme.ts from localStorage['bm_theme'].
+   ============================================================================ */
+
+:root {
+  /* --- Typography ------------------------------------------------------- */
+  --font-inter: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  --font-noto-bengali: "Noto Sans Bengali", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+
+  /* --- Brand ------------------------------------------------------------ */
+  --primary: #0d9488;            /* teal-600 */
+  --primary-hover: #0f766e;      /* teal-700 */
+  --primary-active: #115e59;     /* teal-800 */
+  --primary-foreground: #ffffff; /* text/icons on a primary fill */
+  --primary-subtle: #ccfbf1;     /* teal-100 — tinted badge/chip backgrounds */
+  --primary-subtle-foreground: #0f766e;
+
+  /* Gradient stops used by buttons, headers and .gradient-text */
+  --primary-gradient-from: #0d9488; /* teal-600 */
+  --primary-gradient-to: #14b8a6;   /* teal-500 */
+
+  /* --- Page ------------------------------------------------------------- */
+  --app-bg: linear-gradient(to bottom right, #f0fdfa, #ffffff, #ecfeff);
+  --background: #ffffff;
+
+  /* --- Text ------------------------------------------------------------- */
+  --foreground: #111827;         /* gray-900 — headings, primary copy */
+  --muted-foreground: #4b5563;   /* gray-600 — body, secondary copy */
+  --subtle-foreground: #6b7280;  /* gray-500 — captions, placeholders, hints */
+
+  /* --- Surfaces --------------------------------------------------------- */
+  --surface: #ffffff;            /* cards, panels, modals */
+  --surface-muted: #f9fafb;      /* gray-50 — table headers, inset areas */
+  --surface-hover: #f3f4f6;      /* gray-100 — hover/pressed rows */
+
+  /* Translucent "glass" surface (auth + onboarding cards) */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.2);
+
+  /* --- Lines ------------------------------------------------------------ */
+  --border: #d1d5db;             /* gray-300 — inputs, dividers */
+  --border-subtle: #e5e7eb;      /* gray-200 — card edges, light rules */
+  --ring: #14b8a6;               /* teal-500 — focus rings */
+
+  /* --- Status ----------------------------------------------------------- */
+  --success: #059669;
+  --success-foreground: #ffffff;
+  --success-subtle: #ecfdf5;
+
+  --danger: #dc2626;
+  --danger-hover: #b91c1c;
+  --danger-foreground: #ffffff;
+  --danger-subtle: #fef2f2;
+
+  --warning: #d97706;
+  --warning-foreground: #ffffff;
+  --warning-subtle: #fffbeb;
+
+  --info: #2563eb;
+  --info-foreground: #ffffff;
+  --info-subtle: #eff6ff;
+}
+
+/* ----------------------------------------------------------------------------
+   DARK THEME
+   Only token values change. No component and no utility is redefined here.
+   Primary lifts teal-600 -> teal-500: the same hue stays legible on dark fills.
+   ---------------------------------------------------------------------------- */
+html.theme-dark {
+  --primary: #14b8a6;            /* teal-500 — lifted so it stays legible on dark */
+  --primary-hover: #2dd4bf;      /* teal-400 */
+  --primary-active: #5eead4;     /* teal-300 */
+  /* Stays white in both themes: a saturated brand fill reads the same either
+     way, and the gradient buttons/headers already pair teal with white. */
+  --primary-foreground: #ffffff;
+  --primary-subtle: rgba(20, 184, 166, 0.15);
+  --primary-subtle-foreground: #5eead4;
+
+  --primary-gradient-from: #0f766e;
+  --primary-gradient-to: #14b8a6;
+
+  --app-bg: linear-gradient(to bottom right, #0b1220, #0b1220, #111827);
+  --background: #0b1220;
+
+  --foreground: #f3f4f6;
+  --muted-foreground: #cbd5e1;
+  --subtle-foreground: #94a3b8;
+
+  --surface: #111827;
+  --surface-muted: #0f172a;
+  --surface-hover: rgba(255, 255, 255, 0.06);
+
+  --glass-bg: rgba(17, 24, 39, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.08);
+
+  --border: #334155;
+  --border-subtle: #1f2937;
+  --ring: #2dd4bf;
+
+  /* Status colours sit at the 500 level in dark: light enough to read as text
+     on a dark surface, still saturated enough to carry white text as a fill.
+     Foregrounds stay white so fills look the same in both themes. */
+  --success: #10b981;
+  --success-foreground: #ffffff;
+  --success-subtle: rgba(16, 185, 129, 0.14);
+
+  --danger: #ef4444;
+  --danger-hover: #dc2626;
+  --danger-foreground: #ffffff;
+  --danger-subtle: rgba(239, 68, 68, 0.14);
+
+  --warning: #f59e0b;
+  --warning-foreground: #ffffff;
+  --warning-subtle: rgba(245, 158, 11, 0.14);
+
+  --info: #3b82f6;
+  --info-foreground: #ffffff;
+  --info-subtle: rgba(59, 130, 246, 0.14);
+}
+
+/* ----------------------------------------------------------------------------
+   Expose tokens to Tailwind as utilities.
+   `inline` makes each utility emit var(--token) rather than baking the value in,
+   which is what lets the theme switch at runtime without rebuilding CSS.
+   ---------------------------------------------------------------------------- */
+@theme inline {
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-active: var(--primary-active);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-subtle: var(--primary-subtle);
+  --color-primary-subtle-foreground: var(--primary-subtle-foreground);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-subtle-foreground: var(--subtle-foreground);
+
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-hover: var(--surface-hover);
+
+  --color-border: var(--border);
+  --color-border-subtle: var(--border-subtle);
+  --color-ring: var(--ring);
+
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-subtle: var(--success-subtle);
+
+  --color-danger: var(--danger);
+  --color-danger-hover: var(--danger-hover);
+  --color-danger-foreground: var(--danger-foreground);
+  --color-danger-subtle: var(--danger-subtle);
+
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning-subtle: var(--warning-subtle);
+
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-info-subtle: var(--info-subtle);
+}
+
+@layer base {
   body {
     font-family: var(--font-inter);
-    color: var(--text);
+    color: var(--foreground);
   }
 
   [lang="bn"] body {
     font-family: var(--font-noto-bengali), var(--font-inter);
   }
-}
-
-/* Theme modifiers */
-html.theme-dark {
-  --app-bg: linear-gradient(to bottom right, #0b1220, #0b1220, #111827);
-  --text: #e5e7eb;
-  --card-bg: rgba(17, 24, 39, 0.9);
-  --card-border: #334155;
 }
 
 /* App wrapper background */
@@ -43,81 +201,40 @@ html.theme-dark {
   display: none !important;
 }
 
-/* Card variable styles override */
-.card {
-  background: var(--card-bg) !important;
-  border-color: var(--card-border) !important;
-}
+@layer components {
+  /* Card surface. Token-driven, so it themes automatically. */
+  .card {
+    background: var(--surface);
+    border-color: var(--border-subtle);
+  }
 
-/* Dark theme readability overrides (for components that use fixed gray classes) */
-html.theme-dark .text-gray-900 {
-  color: #f3f4f6 !important;
-}
-
-html.theme-dark .text-gray-800 {
-  color: #e5e7eb !important;
-}
-
-html.theme-dark .text-gray-700 {
-  color: #d1d5db !important;
-}
-
-html.theme-dark .text-gray-600 {
-  color: #cbd5e1 !important;
-}
-
-html.theme-dark .text-gray-500 {
-  color: #9ca3af !important;
-}
-
-html.theme-dark .text-gray-400 {
-  color: #94a3b8 !important;
-}
-
-html.theme-dark .border-gray-200 {
-  border-color: var(--card-border) !important;
-}
-
-html.theme-dark .hover\:bg-gray-100:hover {
-  background-color: rgba(255, 255, 255, 0.06) !important;
-}
-
-/* Surfaces that used hard white */
-html.theme-dark .bg-white {
-  background-color: var(--card-bg) !important;
-}
-
-html.theme-dark .bg-white\/80 {
-  background-color: var(--card-bg) !important;
-}
-
-/* Inputs & selects in dark */
-html.theme-dark input,
-html.theme-dark select,
-html.theme-dark textarea {
-  background-color: #0f172a !important;
-  /* slate-900 */
-  border-color: var(--card-border) !important;
-  color: var(--text) !important;
-}
-
-html.theme-dark input::placeholder,
-html.theme-dark textarea::placeholder {
-  color: #94a3b8 !important;
-  /* slate-400 */
+  /* Translucent card used by the auth + onboarding pages. */
+  .glass {
+    background-color: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
 }
 
 @layer utilities {
-  .glass {
-    @apply bg-white/70 backdrop-blur-md border border-white/20;
-  }
-
   .gradient-text {
-    @apply bg-linear-to-r from-teal-600 to-teal-400 bg-clip-text text-transparent;
+    background-image: linear-gradient(to right, var(--primary-gradient-from), var(--primary-gradient-to));
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
   }
 
   .gradient-border {
-    @apply relative before:absolute before:inset-0 before:rounded-lg before:p-px before:bg-linear-to-r before:from-teal-600 before:to-teal-400 before:-z-10;
+    @apply relative before:absolute before:inset-0 before:rounded-lg before:p-px before:-z-10;
+  }
+
+  .gradient-border::before {
+    background-image: linear-gradient(to right, var(--primary-gradient-from), var(--primary-gradient-to));
+  }
+
+  .gradient-primary {
+    background-image: linear-gradient(to right, var(--primary-gradient-from), var(--primary-gradient-to));
   }
 
   .animate-float {

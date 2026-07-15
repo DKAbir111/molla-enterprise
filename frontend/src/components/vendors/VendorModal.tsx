@@ -134,8 +134,8 @@ export function VendorModal({ open, mode, onClose, vendor, onSaved }: VendorModa
 
     return (
         <Dialog open={open} onOpenChange={handleClose}>
-            <DialogContent overlayClassName="bg-black/20 backdrop-blur-none" className="sm:max-w-2xl p-0 bg-white border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
-                <div className="bg-linear-to-r from-teal-600 to-teal-500 px-8 py-6 text-white">
+            <DialogContent overlayClassName="bg-black/20 backdrop-blur-none" className="sm:max-w-2xl p-0 bg-surface border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
+                <div className="gradient-primary px-8 py-6 text-primary-foreground">
                     <DialogHeader className="space-y-2">
                         <div className="flex items-center gap-3">
                             <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
@@ -162,14 +162,14 @@ export function VendorModal({ open, mode, onClose, vendor, onSaved }: VendorModa
                                         onClick={() => fileInputRef.current?.click()}
                                         onDragOver={(e) => { e.preventDefault(); e.stopPropagation() }}
                                         onDrop={(e) => { e.preventDefault(); handlePickFile(e.dataTransfer.files?.[0]) }}
-                                        className="group relative h-40 w-[150px] rounded-xl border border-gray-300 overflow-hidden bg-gray-50 flex items-center justify-center shadow-sm hover:shadow-md transition cursor-pointer"
+                                        className="group relative h-40 w-[150px] rounded-xl border border-border overflow-hidden bg-surface-muted flex items-center justify-center shadow-sm hover:shadow-md transition cursor-pointer"
                                         aria-label="Upload vendor logo"
                                     >
                                         {avatarPreview ? (
                                             // eslint-disable-next-line @next/next/no-img-element
                                             <img src={avatarPreview} alt="Preview" className="h-full w-full object-cover" />
                                         ) : (
-                                            <span className="text-sm text-gray-400">No logo</span>
+                                            <span className="text-sm text-subtle-foreground">No logo</span>
                                         )}
                                         {/* subtle hover overlay without text */}
                                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition" />
@@ -179,10 +179,10 @@ export function VendorModal({ open, mode, onClose, vendor, onSaved }: VendorModa
                                                 tabIndex={0}
                                                 onClick={(e) => { e.stopPropagation(); revokePreview(avatarPreview); setAvatarPreview(null); setAvatarFile(null) }}
                                                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); revokePreview(avatarPreview); setAvatarPreview(null); setAvatarFile(null) } }}
-                                                className="absolute top-1.5 right-1.5 inline-flex items-center justify-center h-6 w-6 rounded-full bg-white/95 border border-gray-300 shadow hover:bg-red-50 cursor-pointer"
+                                                className="absolute top-1.5 right-1.5 inline-flex items-center justify-center h-6 w-6 rounded-full bg-white/95 border border-border shadow hover:bg-danger-subtle cursor-pointer"
                                                 aria-label="Remove logo"
                                             >
-                                                <X className="h-4 w-4 text-gray-700" />
+                                                <X className="h-4 w-4 text-muted-foreground" />
                                             </span>
                                         )}
                                     </button>
@@ -200,12 +200,12 @@ export function VendorModal({ open, mode, onClose, vendor, onSaved }: VendorModa
                             {/* Right side: first row name, second row address */}
                             <div className="space-y-5 self-start min-w-0 md:flex-1">
                                 <div className="space-y-2">
-                                    <Label htmlFor="name" className="text-sm font-medium text-gray-700">Vendor Name</Label>
-                                    <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder="e.g., ABC Traders" />
+                                    <Label htmlFor="name" className="text-sm font-medium text-muted-foreground">Vendor Name</Label>
+                                    <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required className="h-11 border-border focus:border-info focus:ring-info" placeholder="e.g., ABC Traders" />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="address" className="text-sm font-medium text-gray-700">Address</Label>
-                                    <Input id="address" value={address} onChange={(e) => setAddress(e.target.value)} className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder="Street, City, Country" />
+                                    <Label htmlFor="address" className="text-sm font-medium text-muted-foreground">Address</Label>
+                                    <Input id="address" value={address} onChange={(e) => setAddress(e.target.value)} className="h-11 border-border focus:border-info focus:ring-info" placeholder="Street, City, Country" />
                                 </div>
                             </div>
                         </div>
@@ -213,20 +213,20 @@ export function VendorModal({ open, mode, onClose, vendor, onSaved }: VendorModa
                         {/* Phone and Email (below image) */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div className="space-y-2">
-                                <Label htmlFor="phone" className="text-sm font-medium text-gray-700">Phone</Label>
-                                <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} required className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder="e.g., +880 1XXXXXXXXX" />
+                                <Label htmlFor="phone" className="text-sm font-medium text-muted-foreground">Phone</Label>
+                                <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} required className="h-11 border-border focus:border-info focus:ring-info" placeholder="e.g., +880 1XXXXXXXXX" />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email (Optional)</Label>
-                                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder="e.g., vendor@example.com" />
+                                <Label htmlFor="email" className="text-sm font-medium text-muted-foreground">Email (Optional)</Label>
+                                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="h-11 border-border focus:border-info focus:ring-info" placeholder="e.g., vendor@example.com" />
                             </div>
                         </div>
 
-                        <div className="flex gap-3 pt-6 border-t border-gray-200">
-                            <Button type="button" variant="outline" onClick={handleClose} className="flex-1 h-11 border-gray-300 hover:bg-gray-50" disabled={isLoading}>
+                        <div className="flex gap-3 pt-6 border-t border-border-subtle">
+                            <Button type="button" variant="outline" onClick={handleClose} className="flex-1 h-11 border-border hover:bg-surface-hover" disabled={isLoading}>
                                 {tCommon('cancel')}
                             </Button>
-                            <Button type="submit" className="flex-1 h-11 bg-linear-to-r from-teal-600 to-teal-500 text-white" disabled={isLoading}>
+                            <Button type="submit" className="flex-1 h-11 gradient-primary text-primary-foreground" disabled={isLoading}>
                                 {isLoading ? (
                                     <div className="flex items-center gap-2">
                                         <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>

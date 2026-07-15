@@ -210,22 +210,22 @@ export function OtherSection() {
                 <CardContent className="space-y-6">
                     <div className="grid gap-6">
                         <div>
-                            <label className="text-sm font-semibold text-gray-700 mb-2 block">Display Language</label>
-                            <select className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
+                            <label className="text-sm font-semibold text-muted-foreground mb-2 block">Display Language</label>
+                            <select className="w-full px-4 py-2 rounded-lg border border-border bg-surface text-sm focus:outline-none focus:ring-2 focus:ring-ring">
                                 <option value="en">English</option>
                                 <option value="bn">বাংলা (Bengali)</option>
                             </select>
                         </div>
                         <div>
-                            <label className="text-sm font-semibold text-gray-700 mb-2 block">Currency</label>
-                            <select className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
+                            <label className="text-sm font-semibold text-muted-foreground mb-2 block">Currency</label>
+                            <select className="w-full px-4 py-2 rounded-lg border border-border bg-surface text-sm focus:outline-none focus:ring-2 focus:ring-ring">
                                 <option value="BDT">BDT (৳)</option>
                                 <option value="USD">USD ($)</option>
                             </select>
                         </div>
                         <div>
-                            <label className="text-sm font-semibold text-gray-700 mb-2 block">Date Format</label>
-                            <select className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
+                            <label className="text-sm font-semibold text-muted-foreground mb-2 block">Date Format</label>
+                            <select className="w-full px-4 py-2 rounded-lg border border-border bg-surface text-sm focus:outline-none focus:ring-2 focus:ring-ring">
                                 <option value="DD/MM/YYYY">DD/MM/YYYY</option>
                                 <option value="MM/DD/YYYY">MM/DD/YYYY</option>
                                 <option value="YYYY-MM-DD">YYYY-MM-DD</option>
@@ -251,31 +251,31 @@ export function OtherSection() {
                     <button
                         type="button"
                         onClick={() => setPasswordDialogOpen(true)}
-                        className="w-full flex items-center justify-between p-4 rounded-lg border hover:bg-gray-50 transition-colors text-left"
+                        className="w-full flex items-center justify-between p-4 rounded-lg border hover:bg-surface-hover transition-colors text-left"
                     >
                         <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-lg bg-teal-100 flex items-center justify-center">
-                                <KeyRound className="h-5 w-5 text-teal-600" />
+                            <div className="h-10 w-10 rounded-lg bg-primary-subtle flex items-center justify-center">
+                                <KeyRound className="h-5 w-5 text-primary" />
                             </div>
                             <div>
-                                <div className="font-medium text-gray-900">Change Password</div>
-                                <div className="text-sm text-gray-600">Update your account password</div>
+                                <div className="font-medium text-foreground">Change Password</div>
+                                <div className="text-sm text-muted-foreground">Update your account password</div>
                             </div>
                         </div>
-                        <span className="text-gray-400">→</span>
+                        <span className="text-subtle-foreground">→</span>
                     </button>
 
-                    <button className="w-full flex items-center justify-between p-4 rounded-lg border hover:bg-gray-50 transition-colors text-left" type="button">
+                    <button className="w-full flex items-center justify-between p-4 rounded-lg border hover:bg-surface-hover transition-colors text-left" type="button">
                         <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                                <Shield className="h-5 w-5 text-blue-600" />
+                            <div className="h-10 w-10 rounded-lg bg-info-subtle flex items-center justify-center">
+                                <Shield className="h-5 w-5 text-info" />
                             </div>
                             <div>
-                                <div className="font-medium text-gray-900">Two-Factor Authentication</div>
-                                <div className="text-sm text-gray-600">Add an extra layer of security</div>
+                                <div className="font-medium text-foreground">Two-Factor Authentication</div>
+                                <div className="text-sm text-muted-foreground">Add an extra layer of security</div>
                             </div>
                         </div>
-                        <span className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-600">Coming soon</span>
+                        <span className="text-xs px-2 py-1 rounded bg-surface-hover text-muted-foreground">Coming soon</span>
                     </button>
                 </CardContent>
             </Card>
@@ -295,10 +295,10 @@ export function OtherSection() {
                 </CardHeader>
                 <CardContent>
                     {teamLoading && teamMembers.length === 0 && (
-                        <div className="text-sm text-gray-500 text-center py-4">Loading team members...</div>
+                        <div className="text-sm text-subtle-foreground text-center py-4">Loading team members...</div>
                     )}
                     {!teamLoading && teamMembers.length === 0 && (
-                        <div className="text-sm text-gray-500 text-center py-4">
+                        <div className="text-sm text-subtle-foreground text-center py-4">
                             {canManageMembers ? 'No additional members yet. Invite a teammate to get started.' : 'No other members are linked to this organization.'}
                         </div>
                     )}
@@ -321,11 +321,11 @@ export function OtherSection() {
                                         return (
                                             <TableRow key={member.id}>
                                                 <TableCell>
-                                                    <div className="font-medium text-gray-900 flex items-center gap-2">
+                                                    <div className="font-medium text-foreground flex items-center gap-2">
                                                         {member.name}
-                                                        {isSelf && <span className="text-[11px] px-2 py-0.5 rounded-full bg-teal-100 text-teal-700">You</span>}
+                                                        {isSelf && <span className="text-[11px] px-2 py-0.5 rounded-full bg-primary-subtle text-primary">You</span>}
                                                     </div>
-                                                    <div className="text-xs text-gray-500">{member.email}</div>
+                                                    <div className="text-xs text-subtle-foreground">{member.email}</div>
                                                 </TableCell>
                                                 <TableCell>
                                                     {canManageMembers ? (
@@ -334,7 +334,7 @@ export function OtherSection() {
                                                                 value={member.role}
                                                                 onChange={(e) => handleRoleChange(member, e.target.value as TeamMemberRole)}
                                                                 disabled={!canEditThisMember || roleUpdatingId === member.id}
-                                                                className="min-w-24 rounded border border-gray-200 bg-white px-2 py-1 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                                                                className="min-w-24 rounded border border-border-subtle bg-surface px-2 py-1 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-ring"
                                                             >
                                                                 {roleOptions.map((option) => (
                                                                     <option
@@ -346,14 +346,14 @@ export function OtherSection() {
                                                                     </option>
                                                                 ))}
                                                             </select>
-                                                            {roleUpdatingId === member.id && <RefreshCw className="h-4 w-4 text-gray-400 animate-spin" />}
+                                                            {roleUpdatingId === member.id && <RefreshCw className="h-4 w-4 text-subtle-foreground animate-spin" />}
                                                         </div>
                                                     ) : (
-                                                        <span className="text-sm text-gray-600 capitalize">{member.role}</span>
+                                                        <span className="text-sm text-muted-foreground capitalize">{member.role}</span>
                                                     )}
                                                 </TableCell>
                                                 <TableCell>
-                                                    <span className="text-sm text-gray-700">{formatDateTime(member.lastLoginAt)}</span>
+                                                    <span className="text-sm text-muted-foreground">{formatDateTime(member.lastLoginAt)}</span>
                                                 </TableCell>
                                                 <TableCell className="text-right">
                                                     {canDeleteThisMember ? (
@@ -363,10 +363,10 @@ export function OtherSection() {
                                                             onClick={() => handleDeleteMember(member)}
                                                             disabled={deletingMemberId === member.id}
                                                         >
-                                                            <Trash2 className={`h-4 w-4 text-gray-500 ${deletingMemberId === member.id ? 'animate-pulse' : ''}`} />
+                                                            <Trash2 className={`h-4 w-4 text-subtle-foreground ${deletingMemberId === member.id ? 'animate-pulse' : ''}`} />
                                                         </Button>
                                                     ) : (
-                                                        <span className="text-xs text-gray-400">—</span>
+                                                        <span className="text-xs text-subtle-foreground">—</span>
                                                     )}
                                                 </TableCell>
                                             </TableRow>
@@ -377,7 +377,7 @@ export function OtherSection() {
                         </div>
                     )}
                     {canManageMembers && (
-                        <p className="text-xs text-gray-500 pt-3">
+                        <p className="text-xs text-subtle-foreground pt-3">
                             Share the temporary password securely with the teammate after creating their account.
                         </p>
                     )}
@@ -397,30 +397,30 @@ export function OtherSection() {
                 </CardHeader>
                 <CardContent>
                     {activityLoading && (!loginActivity || loginActivity.length === 0) && (
-                        <div className="text-sm text-gray-500 text-center py-4">Loading recent activity...</div>
+                        <div className="text-sm text-subtle-foreground text-center py-4">Loading recent activity...</div>
                     )}
                     {!activityLoading && (!loginActivity || loginActivity.length === 0) && (
-                        <div className="text-sm text-gray-500 text-center py-4">No login events yet. They&apos;ll appear here after your next sign-in.</div>
+                        <div className="text-sm text-subtle-foreground text-center py-4">No login events yet. They&apos;ll appear here after your next sign-in.</div>
                     )}
                     {(loginActivity?.length ?? 0) > 0 && (
                         <div className="space-y-3">
-                            {activityLoading && <div className="text-xs text-gray-500 text-center">Refreshing…</div>}
+                            {activityLoading && <div className="text-xs text-subtle-foreground text-center">Refreshing…</div>}
                             {(loginActivity ?? []).map((entry, index) => {
                                 const label = entry.deviceLabel || summarizeUserAgent(entry.userAgent) || 'Unknown device'
                                 const isCurrent = index === 0
                                 return (
-                                    <div key={entry.id} className="flex items-center justify-between p-3 rounded-lg bg-gray-50">
+                                    <div key={entry.id} className="flex items-center justify-between p-3 rounded-lg bg-surface-muted">
                                         <div className="flex-1">
                                             <div className="flex items-center gap-2">
-                                                <span className="text-sm font-medium text-gray-900">{label}</span>
+                                                <span className="text-sm font-medium text-foreground">{label}</span>
                                                 {isCurrent && (
-                                                    <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">Current session</span>
+                                                    <span className="text-xs px-2 py-0.5 rounded-full bg-success-subtle text-success font-medium">Current session</span>
                                                 )}
                                             </div>
-                                            <div className="text-xs text-gray-600 mt-1">
+                                            <div className="text-xs text-muted-foreground mt-1">
                                                 {formatDateTime(entry.createdAt)} • {entry.ipAddress ?? 'Unknown IP'}
                                             </div>
-                                            {entry.location && <div className="text-xs text-gray-500">{entry.location}</div>}
+                                            {entry.location && <div className="text-xs text-subtle-foreground">{entry.location}</div>}
                                         </div>
                                     </div>
                                 )

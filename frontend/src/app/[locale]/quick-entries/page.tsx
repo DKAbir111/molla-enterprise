@@ -151,8 +151,8 @@ export default function QuickEntriesPage() {
         {filteredEntries.length === 0 ? (
           <Card className="border-dashed">
             <CardContent className="py-16 text-center space-y-3">
-              <div className="mx-auto mb-2 h-14 w-14 rounded-full bg-linear-to-r from-teal-600 to-teal-500 text-white flex items-center justify-center text-2xl">+</div>
-              <p className="text-gray-600">No quick entries found.</p>
+              <div className="mx-auto mb-2 h-14 w-14 rounded-full gradient-primary text-primary-foreground flex items-center justify-center text-2xl">+</div>
+              <p className="text-muted-foreground">No quick entries found.</p>
               <div className="flex items-center justify-center gap-2">
                 <Button onClick={() => openModal('income')}>Add income</Button>
                 <Button variant="outline" onClick={() => openModal('expense')}>Add expense</Button>

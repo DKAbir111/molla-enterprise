@@ -47,7 +47,7 @@ export default function LoginPage() {
           </div>
           <div className="mb-6 text-center">
             <h1 className="text-2xl font-bold gradient-text">Welcome back</h1>
-            <p className="text-sm text-gray-600 mt-1">Sign in to your account</p>
+            <p className="text-sm text-muted-foreground mt-1">Sign in to your account</p>
           </div>
           <form onSubmit={onSubmit} className="space-y-4">
           <div>
@@ -63,11 +63,11 @@ export default function LoginPage() {
               {loading ? 'Signing in...' : 'Login'}
             </Button>
             <div className="text-sm">
-              <a href={`/${locale}/forgot-password`} className="text-blue-600 hover:underline">Forgot password?</a>
+              <a href={`/${locale}/forgot-password`} className="text-info hover:underline">Forgot password?</a>
             </div>
           </div>
-          <div className="text-sm mt-4 text-gray-600">
-            New here? <a href={`/${locale}/register`} className="text-blue-600 hover:underline">Create account</a>
+          <div className="text-sm mt-4 text-muted-foreground">
+            New here? <a href={`/${locale}/register`} className="text-info hover:underline">Create account</a>
           </div>
         </form>
         </div>

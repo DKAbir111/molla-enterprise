@@ -13,28 +13,28 @@ export function QuickEntriesStats({ totals, locale }: Props) {
     <div className="grid gap-4 md:grid-cols-3">
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm text-gray-600">Total Income</CardTitle>
+          <CardTitle className="text-sm text-muted-foreground">Total Income</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-green-600">{formatCurrency(totals.income, locale)}</div>
+          <div className="text-2xl font-bold text-success">{formatCurrency(totals.income, locale)}</div>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm text-gray-600">Total Expense</CardTitle>
+          <CardTitle className="text-sm text-muted-foreground">Total Expense</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-red-600">{formatCurrency(totals.expense, locale)}</div>
+          <div className="text-2xl font-bold text-danger">{formatCurrency(totals.expense, locale)}</div>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm text-gray-600">Net</CardTitle>
+          <CardTitle className="text-sm text-muted-foreground">Net</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-teal-600">{formatCurrency(totals.net, locale)}</div>
+          <div className="text-2xl font-bold text-primary">{formatCurrency(totals.net, locale)}</div>
         </CardContent>
       </Card>
     </div>

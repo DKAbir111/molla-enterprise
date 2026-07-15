@@ -82,7 +82,7 @@ export default function VendorsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
         <div className="relative w-full max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-subtle-foreground" />
           <Input placeholder="Search vendors..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
         </div>
         <Button className="flex items-center gap-2" onClick={() => setModal({ open: true, mode: 'create' })}>
@@ -92,18 +92,18 @@ export default function VendorsPage() {
 
       {/* Mini Dashboard */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600">Vendors</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold">{totals.vendors}</div></CardContent></Card>
-        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600">Purchases</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold">{totals.purchases}</div></CardContent></Card>
-        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600">Total Spent</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold text-blue-600">{formatCurrency(totals.spent, locale as any)}</div></CardContent></Card>
-        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600">Total Due</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold text-amber-600">{formatCurrency(totals.due, locale as any)}</div></CardContent></Card>
+        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Vendors</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold">{totals.vendors}</div></CardContent></Card>
+        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Purchases</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold">{totals.purchases}</div></CardContent></Card>
+        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total Spent</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold text-info">{formatCurrency(totals.spent, locale as any)}</div></CardContent></Card>
+        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total Due</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold text-warning">{formatCurrency(totals.due, locale as any)}</div></CardContent></Card>
       </div>
 
       {filtered.length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="py-16 text-center">
-            <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-linear-to-r from-teal-600 to-teal-500 text-white flex items-center justify-center text-2xl">+</div>
+            <div className="mx-auto mb-4 h-14 w-14 rounded-full gradient-primary text-primary-foreground flex items-center justify-center text-2xl">+</div>
             <h3 className="text-lg font-semibold mb-1">No vendors yet</h3>
-            <p className="text-gray-600 mb-4">Record purchases to build your vendor directory.</p>
+            <p className="text-muted-foreground mb-4">Record purchases to build your vendor directory.</p>
             <Button onClick={() => setModal({ open: true, mode: 'create' })}>Add Vendor</Button>
           </CardContent>
         </Card>
@@ -131,26 +131,26 @@ export default function VendorsPage() {
                         </div>
                         <div>
                           <a href={`/${locale}/vendors/${encodeURIComponent(v.name)}--${encodeURIComponent(v.phone || '')}`}>
-                            <p className="font-medium hover:text-blue-600 cursor-pointer">{v.name}</p>
+                            <p className="font-medium hover:text-info cursor-pointer">{v.name}</p>
                           </a>
-                          <p className="text-sm text-gray-500">Since {v.since ? formatDate(v.since, locale as any) : '-'}</p>
+                          <p className="text-sm text-subtle-foreground">Since {v.since ? formatDate(v.since, locale as any) : '-'}</p>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1 text-gray-600">
+                      <div className="flex items-center gap-1 text-muted-foreground">
                         <Phone className="h-3 w-3" />
                         {v.phone || '-'}
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1 text-gray-600">
+                      <div className="flex items-center gap-1 text-muted-foreground">
                         <MapPin className="h-3 w-3" />
                         {v.address || '-'}
                       </div>
                     </TableCell>
                     <TableCell className="text-center">
-                      <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700">{v.purchases}</span>
+                      <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full bg-info-subtle text-info">{v.purchases}</span>
                     </TableCell>
                     <TableCell className="text-right font-medium">{formatCurrency(v.totalSpent, locale as any)}</TableCell>
                     <TableCell className="text-right">
@@ -164,7 +164,7 @@ export default function VendorsPage() {
                         }}>
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="text-red-600" title="Delete" onClick={() => {
+                        <Button variant="ghost" size="sm" className="text-danger" title="Delete" onClick={() => {
                           const match = vendorsState.find(x => x.name === v.name && x.phone === v.phone)
                           if (match) setVendorToDelete(match)
                         }}>

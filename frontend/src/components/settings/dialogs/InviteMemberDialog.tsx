@@ -133,7 +133,7 @@ export function InviteMemberDialog({ open, onOpenChange, isOwner, onSubmit }: In
                                 Generate
                             </Button>
                         </div>
-                        <p className="text-xs text-gray-500 mt-1">Share this password securely with the teammate.</p>
+                        <p className="text-xs text-subtle-foreground mt-1">Share this password securely with the teammate.</p>
                     </div>
                     <div>
                         <Label htmlFor="invite-role">Role</Label>
@@ -141,7 +141,7 @@ export function InviteMemberDialog({ open, onOpenChange, isOwner, onSubmit }: In
                             id="invite-role"
                             value={form.role}
                             onChange={(e) => setForm((prev) => ({ ...prev, role: e.target.value as TeamMemberRole }))}
-                            className="w-full rounded border border-gray-200 bg-white px-3 py-2 text-sm focus:border-teal-500 focus:outline-none"
+                            className="w-full rounded border border-border-subtle bg-surface px-3 py-2 text-sm focus:border-primary focus:outline-none"
                         >
                             {roleOptions.map((option) => (
                                 <option key={option.value} value={option.value} disabled={!isOwner && option.value === 'owner'}>

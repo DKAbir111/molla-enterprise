@@ -11,13 +11,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         className={cn(
-          "inline-flex items-center justify-center rounded-lg font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+          "inline-flex items-center justify-center rounded-lg font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
           {
-            'bg-linear-to-r from-teal-600 to-teal-500 text-white hover:from-teal-700 hover:to-teal-600': variant === 'default',
-            'bg-gray-100 text-gray-900 hover:bg-gray-200': variant === 'secondary',
-            'border border-gray-300 bg-transparent hover:bg-gray-100': variant === 'outline',
-            'hover:bg-gray-100': variant === 'ghost',
-            'bg-red-500 text-white hover:bg-red-600': variant === 'destructive',
+            'gradient-primary text-primary-foreground hover:opacity-90': variant === 'default',
+            'bg-surface-muted text-foreground hover:bg-surface-hover': variant === 'secondary',
+            'border border-border bg-transparent text-foreground hover:bg-surface-hover': variant === 'outline',
+            'text-foreground hover:bg-surface-hover': variant === 'ghost',
+            'bg-danger text-danger-foreground hover:bg-danger-hover': variant === 'destructive',
           },
           {
             'h-10 px-4 py-2 text-sm': size === 'default',

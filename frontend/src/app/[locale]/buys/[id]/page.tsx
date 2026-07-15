@@ -35,7 +35,7 @@ export default function BuyDetailsPage() {
     return { itemsTotal, discount, transport, grand, paid, due }
   }, [buy])
 
-  if (!buy) return <div className="flex items-center justify-center h-64 text-gray-500">Loading purchase...</div>
+  if (!buy) return <div className="flex items-center justify-center h-64 text-subtle-foreground">Loading purchase...</div>
 
   return (
     <div className="space-y-6">
@@ -43,7 +43,7 @@ export default function BuyDetailsPage() {
         <Button variant="ghost" onClick={() => router.back()} className="flex items-center gap-1"><ChevronLeft className="h-5 w-5" /> Back</Button>
         <div className="text-center">
           <h1 className="text-2xl font-bold">{buy.vendorName || 'Vendor'}</h1>
-          <p className="text-gray-600">{formatDate(buy.createdAt, locale as any)}</p>
+          <p className="text-muted-foreground">{formatDate(buy.createdAt, locale as any)}</p>
         </div>
         <div className="flex gap-2"><Button variant="outline" onClick={handlePrint}>Print</Button></div>
       </div>

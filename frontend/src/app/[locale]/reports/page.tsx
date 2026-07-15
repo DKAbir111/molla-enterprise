@@ -121,7 +121,7 @@ export default function ReportsPage() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">{t('title')}</h1>
+        <h1 className="text-3xl font-bold text-foreground">{t('title')}</h1>
         <Button className="flex items-center gap-2">
           <Download className="h-4 w-4" />
           {t('export')}
@@ -134,7 +134,7 @@ export default function ReportsPage() {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-medium">{t('salesReport')}</CardTitle>
-              <FileText className="h-4 w-4 text-teal-600" />
+              <FileText className="h-4 w-4 text-primary" />
             </div>
           </CardHeader>
           <CardContent>
@@ -148,7 +148,7 @@ export default function ReportsPage() {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-medium">{t('inventoryReport')}</CardTitle>
-              <BarChart3 className="h-4 w-4 text-blue-600" />
+              <BarChart3 className="h-4 w-4 text-info" />
             </div>
           </CardHeader>
           <CardContent>
@@ -162,7 +162,7 @@ export default function ReportsPage() {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-medium">{t('customerReport')}</CardTitle>
-              <PieChart className="h-4 w-4 text-green-600" />
+              <PieChart className="h-4 w-4 text-success" />
             </div>
           </CardHeader>
           <CardContent>
@@ -176,7 +176,7 @@ export default function ReportsPage() {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-medium">Financial Report</CardTitle>
-              <TrendingUp className="h-4 w-4 text-orange-600" />
+              <TrendingUp className="h-4 w-4 text-warning" />
             </div>
           </CardHeader>
           <CardContent>
@@ -276,17 +276,17 @@ export default function ReportsPage() {
             {topProducts.map((product, index) => (
               <div key={index} className="flex items-center justify-between p-4 rounded-lg border">
                 <div className="flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-full bg-linear-to-r from-teal-600 to-teal-500 flex items-center justify-center text-white font-semibold">
+                  <div className="h-10 w-10 rounded-full gradient-primary flex items-center justify-center text-primary-foreground font-semibold">
                     {index + 1}
                   </div>
                   <div>
                     <p className="font-medium">{product.name}</p>
-                    <p className="text-sm text-gray-500">{product.sales} {t('unitsSold')}</p>
+                    <p className="text-sm text-subtle-foreground">{product.sales} {t('unitsSold')}</p>
                   </div>
                 </div>
                 <div className="text-right">
                   <p className="font-medium">{formatCurrency(product.revenue, locale)}</p>
-                  <p className="text-sm text-gray-500">{t('revenue')}</p>
+                  <p className="text-sm text-subtle-foreground">{t('revenue')}</p>
                 </div>
               </div>
             ))}

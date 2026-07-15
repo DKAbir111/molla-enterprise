@@ -149,7 +149,7 @@ export function Header() {
 
 
   return (
-    <header className="relative z-100 h-16 px-6 flex items-center justify-between border-b border-(--card-border) bg-(--card-bg)/90 backdrop-blur-md">
+    <header className="relative z-100 h-16 px-6 flex items-center justify-between border-b border-border-subtle bg-surface/90 backdrop-blur-md">
       <div className="flex items-center gap-3">
         <Button
           variant="ghost"
@@ -160,7 +160,7 @@ export function Header() {
         >
           <Menu className="h-5 w-5" />
         </Button>
-        <h1 className="text-lg font-semibold text-(--text)">{pageTitle}</h1>
+        <h1 className="text-lg font-semibold text-foreground">{pageTitle}</h1>
       </div>
 
       <div className="flex items-center gap-3">
@@ -174,24 +174,24 @@ export function Header() {
             variant="ghost"
             size="sm"
             onClick={() => setNotifOpen(!notifOpen)}
-            className="relative hover:bg-gray-100 transition-colors"
+            className="relative hover:bg-surface-hover transition-colors"
           >
             <Bell className="h-4 w-4" />
             {badgeCount > 0 && (
-              <span className="absolute -top-1 -right-1 h-5 min-w-5 px-1.5 rounded-full bg-red-500 text-white text-[10px] font-semibold flex items-center justify-center shadow-sm">
+              <span className="absolute -top-1 -right-1 h-5 min-w-5 px-1.5 rounded-full bg-danger text-white text-[10px] font-semibold flex items-center justify-center shadow-sm">
                 {badgeCount > 9 ? '9+' : badgeCount}
               </span>
             )}
           </Button>
 
           {notifOpen && (
-            <div className="absolute right-0 mt-2 w-96 rounded-xl border border-gray-200 bg-white shadow-2xl z-9999 overflow-hidden">
+            <div className="absolute right-0 mt-2 w-96 rounded-xl border border-border-subtle bg-surface shadow-2xl z-9999 overflow-hidden">
               {/* Header */}
-              <div className="px-5 py-4 border-b border-gray-100 bg-linear-to-r from-gray-50 to-white">
+              <div className="px-5 py-4 border-b border-border-subtle bg-surface-muted">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-gray-900 text-base">Notifications</h3>
+                  <h3 className="font-semibold text-foreground text-base">Notifications</h3>
                   {badgeCount > 0 && (
-                    <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
+                    <span className="text-xs font-medium text-subtle-foreground bg-surface-hover px-2.5 py-1 rounded-full">
                       {badgeCount} active
                     </span>
                   )}
@@ -202,8 +202,8 @@ export function Header() {
               <div className="max-h-128 overflow-y-auto p-3 space-y-2">
                 {!alerts && (
                   <div className="flex flex-col items-center justify-center py-12">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-                    <p className="text-sm text-gray-500 mt-3">Loading notifications...</p>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    <p className="text-sm text-subtle-foreground mt-3">Loading notifications...</p>
                   </div>
                 )}
 
@@ -211,24 +211,24 @@ export function Header() {
                   <>
                     {/* Low Stock Items */}
                     {alerts.lowStock?.items.map((p: any) => (
-                      <div key={p.id} className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
+                      <div key={p.id} className="bg-surface border border-border-subtle rounded-lg p-3 hover:shadow-md transition-shadow">
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2 flex-1 min-w-0">
-                            <div className="p-1.5 rounded-lg bg-amber-50 shrink-0">
-                              <TriangleAlert className="h-4 w-4 text-amber-600" />
+                            <div className="p-1.5 rounded-lg bg-warning-subtle shrink-0">
+                              <TriangleAlert className="h-4 w-4 text-warning" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h3 className="font-semibold text-gray-900 text-sm truncate">{p.name}</h3>
-                              <p className="text-xs text-gray-600">Running low on inventory</p>
+                              <h3 className="font-semibold text-foreground text-sm truncate">{p.name}</h3>
+                              <p className="text-xs text-muted-foreground">Running low on inventory</p>
                             </div>
                           </div>
-                          <span className="font-bold text-base text-amber-600 ml-2 shrink-0">{p.stock} left</span>
+                          <span className="font-bold text-base text-warning ml-2 shrink-0">{p.stock} left</span>
                         </div>
 
                         <div className="flex items-center gap-2">
                           <button
                             type="button"
-                            className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                            className="flex items-center gap-1 px-2 py-1 text-xs text-muted-foreground border border-border rounded hover:bg-surface-hover transition-colors"
                             onClick={() => {
                               const snapshot = JSON.stringify(alerts)
                               removeItem('lowStock', p.id)
@@ -242,7 +242,7 @@ export function Header() {
                           </button>
                           <button
                             type="button"
-                            className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                            className="flex items-center gap-1 px-2 py-1 text-xs text-muted-foreground border border-border rounded hover:bg-surface-hover transition-colors"
                             onClick={() => {
                               const snapshot = JSON.stringify(alerts)
                               removeItem('lowStock', p.id)
@@ -260,24 +260,24 @@ export function Header() {
 
                     {/* Pending Orders */}
                     {alerts.pendingOrders?.items.map((o: any) => (
-                      <div key={o.id} className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
+                      <div key={o.id} className="bg-surface border border-border-subtle rounded-lg p-3 hover:shadow-md transition-shadow">
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2 flex-1 min-w-0">
-                            <div className="p-1.5 rounded-lg bg-blue-50 shrink-0">
-                              <Clock className="h-4 w-4 text-blue-600" />
+                            <div className="p-1.5 rounded-lg bg-info-subtle shrink-0">
+                              <Clock className="h-4 w-4 text-info" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h3 className="font-semibold text-gray-900 text-sm truncate">Order #{o.id.slice(0, 6)}</h3>
-                              <p className="text-xs text-gray-600 truncate">{o.customerName}</p>
+                              <h3 className="font-semibold text-foreground text-sm truncate">Order #{o.id.slice(0, 6)}</h3>
+                              <p className="text-xs text-muted-foreground truncate">{o.customerName}</p>
                             </div>
                           </div>
-                          <span className="font-bold text-base text-blue-600 ml-2 shrink-0">{o.ageHours}h</span>
+                          <span className="font-bold text-base text-info ml-2 shrink-0">{o.ageHours}h</span>
                         </div>
 
                         <div className="flex items-center gap-2">
                           <button
                             type="button"
-                            className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                            className="flex items-center gap-1 px-2 py-1 text-xs text-muted-foreground border border-border rounded hover:bg-surface-hover transition-colors"
                             onClick={() => {
                               const snapshot = JSON.stringify(alerts)
                               removeItem('pendingOrder', o.id)
@@ -291,7 +291,7 @@ export function Header() {
                           </button>
                           <button
                             type="button"
-                            className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                            className="flex items-center gap-1 px-2 py-1 text-xs text-muted-foreground border border-border rounded hover:bg-surface-hover transition-colors"
                             onClick={() => {
                               const snapshot = JSON.stringify(alerts)
                               removeItem('pendingOrder', o.id)
@@ -309,18 +309,18 @@ export function Header() {
 
                     {/* Receivables */}
                     {alerts.receivables?.items.map((r: any) => (
-                      <div key={r.id} className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
+                      <div key={r.id} className="bg-surface border border-border-subtle rounded-lg p-3 hover:shadow-md transition-shadow">
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2 flex-1 min-w-0">
-                            <div className="p-1.5 rounded-lg bg-emerald-50 shrink-0">
-                              <CircleDollarSign className="h-4 w-4 text-emerald-600" />
+                            <div className="p-1.5 rounded-lg bg-success-subtle shrink-0">
+                              <CircleDollarSign className="h-4 w-4 text-success" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h3 className="font-semibold text-gray-900 text-sm truncate">{r.customerName}</h3>
-                              <p className="text-xs text-gray-600">Outstanding receivable</p>
+                              <h3 className="font-semibold text-foreground text-sm truncate">{r.customerName}</h3>
+                              <p className="text-xs text-muted-foreground">Outstanding receivable</p>
                             </div>
                           </div>
-                          <span className="font-bold text-base text-emerald-600 ml-2 shrink-0">
+                          <span className="font-bold text-base text-success ml-2 shrink-0">
                             {formatCurrency(Number(r.due || 0), String(locale))}
                           </span>
                         </div>
@@ -328,7 +328,7 @@ export function Header() {
                         <div className="flex items-center gap-2">
                           <button
                             type="button"
-                            className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                            className="flex items-center gap-1 px-2 py-1 text-xs text-muted-foreground border border-border rounded hover:bg-surface-hover transition-colors"
                             onClick={() => {
                               const snapshot = JSON.stringify(alerts)
                               removeItem('receivable', r.id)
@@ -342,7 +342,7 @@ export function Header() {
                           </button>
                           <button
                             type="button"
-                            className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                            className="flex items-center gap-1 px-2 py-1 text-xs text-muted-foreground border border-border rounded hover:bg-surface-hover transition-colors"
                             onClick={() => {
                               const snapshot = JSON.stringify(alerts)
                               removeItem('receivable', r.id)
@@ -360,18 +360,18 @@ export function Header() {
 
                     {/* Payables */}
                     {alerts.payables?.items.map((r: any) => (
-                      <div key={r.id} className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
+                      <div key={r.id} className="bg-surface border border-border-subtle rounded-lg p-3 hover:shadow-md transition-shadow">
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2 flex-1 min-w-0">
-                            <div className="p-1.5 rounded-lg bg-rose-50 shrink-0">
-                              <Receipt className="h-4 w-4 text-rose-600" />
+                            <div className="p-1.5 rounded-lg bg-danger-subtle shrink-0">
+                              <Receipt className="h-4 w-4 text-danger" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h3 className="font-semibold text-gray-900 text-sm truncate">{r.vendorName}</h3>
-                              <p className="text-xs text-gray-600">Outstanding payable</p>
+                              <h3 className="font-semibold text-foreground text-sm truncate">{r.vendorName}</h3>
+                              <p className="text-xs text-muted-foreground">Outstanding payable</p>
                             </div>
                           </div>
-                          <span className="font-bold text-base text-rose-600 ml-2 shrink-0">
+                          <span className="font-bold text-base text-danger ml-2 shrink-0">
                             {formatCurrency(Number(r.due || 0), String(locale))}
                           </span>
                         </div>
@@ -379,7 +379,7 @@ export function Header() {
                         <div className="flex items-center gap-2">
                           <button
                             type="button"
-                            className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                            className="flex items-center gap-1 px-2 py-1 text-xs text-muted-foreground border border-border rounded hover:bg-surface-hover transition-colors"
                             onClick={() => {
                               const snapshot = JSON.stringify(alerts)
                               removeItem('payable', r.id)
@@ -393,7 +393,7 @@ export function Header() {
                           </button>
                           <button
                             type="button"
-                            className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                            className="flex items-center gap-1 px-2 py-1 text-xs text-muted-foreground border border-border rounded hover:bg-surface-hover transition-colors"
                             onClick={() => {
                               const snapshot = JSON.stringify(alerts)
                               removeItem('payable', r.id)
@@ -411,11 +411,11 @@ export function Header() {
 
                     {badgeCount === 0 && (
                       <div className="flex flex-col items-center justify-center py-16">
-                        <div className="w-16 h-16 rounded-full bg-linear-to-br from-emerald-100 to-emerald-50 flex items-center justify-center mb-4">
+                        <div className="w-16 h-16 rounded-full bg-success-subtle flex items-center justify-center mb-4">
                           <span className="text-3xl">✓</span>
                         </div>
-                        <p className="text-sm font-medium text-gray-900">All Caught Up!</p>
-                        <p className="text-xs text-gray-500 mt-1">No pending notifications</p>
+                        <p className="text-sm font-medium text-foreground">All Caught Up!</p>
+                        <p className="text-xs text-subtle-foreground mt-1">No pending notifications</p>
                       </div>
                     )}
                   </>

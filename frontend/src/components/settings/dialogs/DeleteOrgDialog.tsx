@@ -60,7 +60,7 @@ export function DeleteOrgDialog({ open, onOpenChange, organizationName, organiza
         <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle className="text-red-700 flex items-center gap-2">
+                    <DialogTitle className="text-danger flex items-center gap-2">
                         <AlertTriangle className="h-5 w-5" />
                         Delete Organization
                     </DialogTitle>
@@ -76,7 +76,7 @@ export function DeleteOrgDialog({ open, onOpenChange, organizationName, organiza
                     className="space-y-4"
                 >
                     <div>
-                        <p className="text-sm text-gray-600 mb-2">
+                        <p className="text-sm text-muted-foreground mb-2">
                             To confirm, type the organization name <strong>{organizationName}</strong>
                         </p>
                         <Input
@@ -84,7 +84,7 @@ export function DeleteOrgDialog({ open, onOpenChange, organizationName, organiza
                             value={confirm}
                             onChange={(e) => setConfirm(e.target.value)}
                             placeholder={organizationName}
-                            className="border-red-300 focus:border-red-500 focus:ring-red-500"
+                            className="border-danger focus:border-danger focus:ring-danger"
                         />
                     </div>
                     <DialogFooter>

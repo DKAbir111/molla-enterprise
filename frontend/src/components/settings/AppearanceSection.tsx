@@ -17,7 +17,7 @@ export function AppearanceSection() {
                 <CardContent>
                     <div className="grid gap-4">
                         {[
-                            { id: 'default', name: 'Default', desc: 'Light theme with teal accents', colors: ['bg-teal-600', 'bg-teal-500', 'bg-gray-200'] },
+                            { id: 'default', name: 'Default', desc: 'Light theme with teal accents', colors: ['bg-primary', 'bg-primary', 'bg-surface-hover'] },
                             { id: 'dark', name: 'Dark Mode', desc: 'Easy on the eyes', colors: ['bg-gray-900', 'bg-gray-800', 'bg-gray-700'] },
                         ].map((t) => (
                             <button
@@ -25,18 +25,18 @@ export function AppearanceSection() {
                                 type="button"
                                 onClick={() => setTheme(t.id as any)}
                                 className={`p-4 rounded-xl border-2 text-left transition-all ${theme === t.id
-                                    ? 'border-teal-600 bg-teal-50 shadow-md'
-                                    : 'border-gray-200 hover:border-gray-300 hover:shadow'
+                                    ? 'border-primary bg-primary-subtle shadow-md'
+                                    : 'border-border-subtle hover:border-border hover:shadow'
                                     }`}
                             >
                                 <div className="flex items-center justify-between mb-3">
-                                    <h4 className="font-semibold text-gray-900">{t.name}</h4>
-                                    {theme === t.id && <Check className="h-5 w-5 text-teal-600" />}
+                                    <h4 className="font-semibold text-foreground">{t.name}</h4>
+                                    {theme === t.id && <Check className="h-5 w-5 text-primary" />}
                                 </div>
-                                <p className="text-sm text-gray-600 mb-4">{t.desc}</p>
+                                <p className="text-sm text-muted-foreground mb-4">{t.desc}</p>
                                 <div className="flex gap-2">
                                     {t.colors.map((color, i) => (
-                                        <div key={i} className={`h-8 w-8 rounded ${color} ${color === 'bg-white' ? 'border-2 border-gray-300' : ''}`}></div>
+                                        <div key={i} className={`h-8 w-8 rounded ${color} ${color === 'bg-surface' ? 'border-2 border-border' : ''}`}></div>
                                     ))}
                                 </div>
                             </button>
@@ -61,10 +61,10 @@ export function AppearanceSection() {
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                         <div>
-                            <label className="text-sm font-medium text-gray-700">Invoice Prefix</label>
+                            <label className="text-sm font-medium text-muted-foreground">Invoice Prefix</label>
                             <Input placeholder="INV" disabled className="mt-1" />
                         </div>
-                        <label className="flex items-center gap-2 text-sm text-gray-700">
+                        <label className="flex items-center gap-2 text-sm text-muted-foreground">
                             <input type="checkbox" disabled className="h-4 w-4" />
                             Show logo on invoice
                         </label>

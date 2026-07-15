@@ -116,12 +116,12 @@ export default function SettingsPage() {
     <div className="max-w-6xl mx-auto">
       {/* Disabled Organization Banner */}
       {isOrgDisabled && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+        <div className="mb-6 p-4 bg-danger-subtle border border-danger rounded-lg">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
+            <AlertTriangle className="h-5 w-5 text-danger shrink-0 mt-0.5" />
             <div>
-              <h3 className="font-semibold text-red-900">Organization Disabled</h3>
-              <p className="text-sm text-red-700 mt-1">
+              <h3 className="font-semibold text-danger">Organization Disabled</h3>
+              <p className="text-sm text-danger mt-1">
                 This organization is currently disabled. Only read-only operations are allowed.
                 Contact the owner or administrator to re-enable it.
               </p>
@@ -130,15 +130,15 @@ export default function SettingsPage() {
         </div>
       )}
       {/* Tab Navigation */}
-      <div className="mb-6 border-b border-gray-200">
+      <div className="mb-6 border-b border-border-subtle">
         <nav className="flex gap-1 overflow-x-auto">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => switchTab(tab.id)}
               className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${activeTab === tab.id
-                ? 'border-teal-600 text-teal-600'
-                : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
                 }`}
             >
               <tab.icon className="h-4 w-4" />

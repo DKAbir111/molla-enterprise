@@ -75,7 +75,7 @@ export default function OrganizationPage() {
   }
 
   if (loading) {
-    return <div className="text-gray-600">Checking organization...</div>
+    return <div className="text-muted-foreground">Checking organization...</div>
   }
 
   return (
@@ -84,7 +84,7 @@ export default function OrganizationPage() {
         <div className="glass rounded-xl p-8 shadow-xl">
           <div className="mb-6">
             <h1 className="text-2xl font-bold gradient-text">Create your organization</h1>
-            <p className="text-sm text-gray-600 mt-1">Provide business details to get started</p>
+            <p className="text-sm text-muted-foreground mt-1">Provide business details to get started</p>
           </div>
           <form onSubmit={onSubmit} className="space-y-4">
           <div>
@@ -107,7 +107,7 @@ export default function OrganizationPage() {
             <Label htmlFor="logo">Logo (optional)</Label>
             <Input id="logo" type="file" accept="image/*" onChange={(e) => setLogoFile(e.target.files?.[0] || null)} />
           </div>
-          {error && <p className="text-red-600 text-sm">{error}</p>}
+          {error && <p className="text-danger text-sm">{error}</p>}
           <div className="flex justify-end">
             <Button type="submit" disabled={submitting}>
               {submitting ? 'Creating...' : 'Create Organization'}

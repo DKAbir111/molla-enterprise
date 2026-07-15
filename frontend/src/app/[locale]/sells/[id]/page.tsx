@@ -38,7 +38,7 @@ export default function SellDetailsPage() {
 
   if (!sell) {
     return (
-      <div className="flex items-center justify-center h-64 text-gray-500">Loading invoice...</div>
+      <div className="flex items-center justify-center h-64 text-subtle-foreground">Loading invoice...</div>
     )
   }
 
@@ -48,7 +48,7 @@ export default function SellDetailsPage() {
         <Button variant="ghost" onClick={() => router.back()} className="flex items-center gap-1"><ChevronLeft className="h-5 w-5" /> Back</Button>
         <div className="text-center">
           <h1 className="text-2xl font-bold">{formatOrderCode(sell.id, sell.createdAt)}</h1>
-          <p className="text-gray-600">{formatDate(sell.createdAt, locale as any)}</p>
+          <p className="text-muted-foreground">{formatDate(sell.createdAt, locale as any)}</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handlePrint}>Print</Button>
@@ -62,9 +62,9 @@ export default function SellDetailsPage() {
         <CardContent>
           <div className="flex items-start justify-between mb-4">
             <div>
-              <div className="text-sm text-gray-500">Customer</div>
+              <div className="text-sm text-subtle-foreground">Customer</div>
               <div className="font-semibold">{sell.customer?.name || 'Customer'}</div>
-              <div className="text-sm text-gray-500">{sell.deliveryAddress || '-'}</div>
+              <div className="text-sm text-subtle-foreground">{sell.deliveryAddress || '-'}</div>
             </div>
           </div>
           <Table>

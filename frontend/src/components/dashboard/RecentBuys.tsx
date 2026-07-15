@@ -41,14 +41,14 @@ export function RecentBuys() {
             const grand = Math.max(0, itemsTotal + transport - discount)
             return (
               <Link key={b.id} href={`/${locale}/buys/${b.id}`} className="block">
-                <div className="flex items-center justify-between p-4 rounded-lg border hover:bg-gray-50">
+                <div className="flex items-center justify-between p-4 rounded-lg border hover:bg-surface-hover">
                   <div className="flex items-center gap-4">
                     <div className="h-10 w-10 rounded-full bg-linear-to-r from-blue-600 to-emerald-600 flex items-center justify-center text-white font-semibold">
                       {(b.vendorName || 'V').charAt(0)}
                     </div>
                     <div>
                       <p className="font-medium">{b.vendorName || 'Vendor'}</p>
-                      <p className="text-sm text-gray-500">{new Date(b.createdAt || Date.now()).toLocaleDateString(locale as any)}</p>
+                      <p className="text-sm text-subtle-foreground">{new Date(b.createdAt || Date.now()).toLocaleDateString(locale as any)}</p>
                     </div>
                   </div>
                   <div className="text-right">

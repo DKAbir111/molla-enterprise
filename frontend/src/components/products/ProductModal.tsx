@@ -181,8 +181,8 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent overlayClassName="bg-black/20 backdrop-blur-none" className="sm:max-w-2xl p-0 bg-white border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
-        <div className="bg-linear-to-r from-teal-600 to-teal-500 px-8 py-6 text-white">
+      <DialogContent overlayClassName="bg-black/20 backdrop-blur-none" className="sm:max-w-2xl p-0 bg-surface border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div className="gradient-primary px-8 py-6 text-primary-foreground">
           <DialogHeader className="space-y-2">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
@@ -208,13 +208,13 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
                     onClick={() => fileInputRef.current?.click()}
                     onDragOver={(e) => { e.preventDefault(); e.stopPropagation() }}
                     onDrop={(e) => { e.preventDefault(); handlePickFile(e.dataTransfer.files?.[0]) }}
-                    className="group relative h-40 w-[150px] rounded-xl border border-gray-300 overflow-hidden bg-gray-50 flex items-center justify-center shadow-sm hover:shadow-md transition cursor-pointer"
+                    className="group relative h-40 w-[150px] rounded-xl border border-border overflow-hidden bg-surface-muted flex items-center justify-center shadow-sm hover:shadow-md transition cursor-pointer"
                     aria-label="Upload product image"
                   >
                     {imagePreview ? (
                       <img src={imagePreview} alt="Preview" className="h-full w-full object-cover" />
                     ) : (
-                      <span className="text-sm text-gray-400">No image</span>
+                      <span className="text-sm text-subtle-foreground">No image</span>
                     )}
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition" />
                     {imagePreview && (
@@ -223,10 +223,10 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
                         tabIndex={0}
                         onClick={(e) => { e.stopPropagation(); revokePreview(imagePreview); setImagePreview(null); setImageFile(null) }}
                         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); revokePreview(imagePreview); setImagePreview(null); setImageFile(null) } }}
-                        className="absolute top-1.5 right-1.5 inline-flex items-center justify-center h-6 w-6 rounded-full bg-white/95 border border-gray-300 shadow hover:bg-red-50 cursor-pointer"
+                        className="absolute top-1.5 right-1.5 inline-flex items-center justify-center h-6 w-6 rounded-full bg-white/95 border border-border shadow hover:bg-danger-subtle cursor-pointer"
                         aria-label="Remove image"
                       >
-                        <X className="h-4 w-4 text-gray-700" />
+                        <X className="h-4 w-4 text-muted-foreground" />
                       </span>
                     )}
                   </button>
@@ -243,17 +243,17 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
 
               <div className="space-y-5 self-start min-w-0 md:flex-1">
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="text-sm font-medium text-gray-700">{t('productName')}</Label>
-                  <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required className="h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500" placeholder={t('enterProductName')} />
+                  <Label htmlFor="name" className="text-sm font-medium text-muted-foreground">{t('productName')}</Label>
+                  <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required className="h-11 border-border focus:border-primary focus:ring-ring" placeholder={t('enterProductName')} />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div className="space-y-2">
-                    <Label htmlFor="type" className="text-sm font-medium text-gray-700">{t('productType')}</Label>
-                    <Input id="type" value={type} onChange={(e) => setType(e.target.value)} required className="h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500" placeholder={t('exampleProductType')} />
+                    <Label htmlFor="type" className="text-sm font-medium text-muted-foreground">{t('productType')}</Label>
+                    <Input id="type" value={type} onChange={(e) => setType(e.target.value)} required className="h-11 border-border focus:border-primary focus:ring-ring" placeholder={t('exampleProductType')} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="grade" className="text-sm font-medium text-gray-700">{t('productGrade')}</Label>
-                    <Input id="grade" value={grade} onChange={(e) => setGrade(e.target.value)} className="h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500" placeholder={t('exampleProductGrade')} />
+                    <Label htmlFor="grade" className="text-sm font-medium text-muted-foreground">{t('productGrade')}</Label>
+                    <Input id="grade" value={grade} onChange={(e) => setGrade(e.target.value)} className="h-11 border-border focus:border-primary focus:ring-ring" placeholder={t('exampleProductGrade')} />
                   </div>
                 </div>
               </div>
@@ -261,12 +261,12 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-2">
-                <Label htmlFor="unit" className="text-sm font-medium text-gray-700">{t('unit')}</Label>
+                <Label htmlFor="unit" className="text-sm font-medium text-muted-foreground">{t('unit')}</Label>
                 <Select onValueChange={setUnit} value={unit || undefined} required>
-                  <SelectTrigger className="h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500 bg-white">
+                  <SelectTrigger className="h-11 border-border focus:border-primary focus:ring-ring bg-surface">
                     <SelectValue placeholder={t('selectUnit')} />
                   </SelectTrigger>
-                  <SelectContent className="max-h-60 bg-white border border-gray-200 shadow-lg">
+                  <SelectContent className="max-h-60 bg-surface border border-border-subtle shadow-lg">
                     {units.map((u) => (
                       <SelectItem key={u} value={u}>{t(u)}</SelectItem>
                     ))}
@@ -274,32 +274,32 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="stock" className="text-sm font-medium text-gray-700">{t('stock')}</Label>
-                <Input id="stock" type="number" value={stock} onChange={(e) => setStock(parseFloat(e.target.value) || 0)} required className="h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500" min="0" />
+                <Label htmlFor="stock" className="text-sm font-medium text-muted-foreground">{t('stock')}</Label>
+                <Input id="stock" type="number" value={stock} onChange={(e) => setStock(parseFloat(e.target.value) || 0)} required className="h-11 border-border focus:border-primary focus:ring-ring" min="0" />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">Buy Price / Unit ({t('currencySymbol')})</Label>
-                <Input type="number" value={buyPrice} onChange={(e) => setBuyPrice(parseFloat(e.target.value) || 0)} className="h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500" placeholder="0.00" min={0} step="0.01" />
+                <Label className="text-sm font-medium text-muted-foreground">Buy Price / Unit ({t('currencySymbol')})</Label>
+                <Input type="number" value={buyPrice} onChange={(e) => setBuyPrice(parseFloat(e.target.value) || 0)} className="h-11 border-border focus:border-primary focus:ring-ring" placeholder="0.00" min={0} step="0.01" />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">Other Cost / Unit ({t('currencySymbol')})</Label>
-                <Input type="number" value={otherCostPerUnit} onChange={(e) => setOtherCostPerUnit(parseFloat(e.target.value) || 0)} className="h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500" placeholder="0.00" min={0} step="0.01" />
+                <Label className="text-sm font-medium text-muted-foreground">Other Cost / Unit ({t('currencySymbol')})</Label>
+                <Input type="number" value={otherCostPerUnit} onChange={(e) => setOtherCostPerUnit(parseFloat(e.target.value) || 0)} className="h-11 border-border focus:border-primary focus:ring-ring" placeholder="0.00" min={0} step="0.01" />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">Sell Price / Unit ({t('currencySymbol')})</Label>
-                <Input type="number" value={price} onChange={(e) => setPrice(parseFloat(e.target.value) || 0)} required className="h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500" placeholder="0.00" min={0} step="0.01" />
+                <Label className="text-sm font-medium text-muted-foreground">Sell Price / Unit ({t('currencySymbol')})</Label>
+                <Input type="number" value={price} onChange={(e) => setPrice(parseFloat(e.target.value) || 0)} required className="h-11 border-border focus:border-primary focus:ring-ring" placeholder="0.00" min={0} step="0.01" />
               </div>
             </div>
 
             {isEdit && (
-              <div className="space-y-3 pt-4 border-t border-gray-200">
-                <div className="text-base font-semibold text-gray-900">Drying Gain</div>
+              <div className="space-y-3 pt-4 border-t border-border-subtle">
+                <div className="text-base font-semibold text-foreground">Drying Gain</div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-end">
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">Add Quantity ({product?.unit})</Label>
+                    <Label className="text-sm font-medium text-muted-foreground">Add Quantity ({product?.unit})</Label>
                     <Input
                       type="number"
                       min={0}
@@ -309,18 +309,18 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
                         const n = Math.max(0, parseInt(e.target.value || '0', 10) || 0)
                         setDgQty(n)
                       }}
-                      className="h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
+                      className="h-11 border-border focus:border-primary focus:ring-ring"
                       placeholder="0"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">After-dry Unit Price (auto)</Label>
-                    <div className="h-11 px-3 rounded-md border border-gray-200 bg-gray-50 flex items-center font-medium">
+                    <Label className="text-sm font-medium text-muted-foreground">After-dry Unit Price (auto)</Label>
+                    <div className="h-11 px-3 rounded-md border border-border-subtle bg-surface-muted flex items-center font-medium">
                       {formatCurrency(afterDryUnitPrice, locale)}
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700 opacity-0 select-none">Action</Label>
+                    <Label className="text-sm font-medium text-muted-foreground opacity-0 select-none">Action</Label>
                     <Button type="button" className="h-11" disabled={dgSaving || dgQty <= 0} onClick={async () => {
                       if (!product || dgQty <= 0) return
                       setDgSaving(true)
@@ -337,7 +337,7 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
                 </div>
                 {dryingGains.length > 0 && (
                   <div className="border rounded-lg">
-                    <div className="px-3 py-2 text-sm text-gray-600 border-b bg-gray-50">Recent Gains</div>
+                    <div className="px-3 py-2 text-sm text-muted-foreground border-b bg-surface-muted">Recent Gains</div>
                     <div className="max-h-40 overflow-y-auto divide-y">
                       {dryingGains.slice(0, 5).map((g) => (
                         <div key={g.id} className="px-3 py-2 text-sm flex justify-between">
@@ -353,15 +353,15 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-1">
-                <Label className="text-sm font-medium text-gray-700">Total Cost (BDT)</Label>
-                <div className="h-11 px-3 rounded-md border border-gray-200 bg-gray-50 flex items-center font-medium">
+                <Label className="text-sm font-medium text-muted-foreground">Total Cost (BDT)</Label>
+                <div className="h-11 px-3 rounded-md border border-border-subtle bg-surface-muted flex items-center font-medium">
                   {formatCurrency(totalCost, locale)}
                 </div>
-                <div className="text-xs text-gray-500">Auto = (buy + other) × (stock − drying gains)</div>
+                <div className="text-xs text-subtle-foreground">Auto = (buy + other) × (stock − drying gains)</div>
               </div>
               <div className="space-y-1">
-                <Label className="text-sm font-medium text-gray-700">Total Sell Value (BDT)</Label>
-                <div className="h-11 px-3 rounded-md border border-gray-200 bg-gray-50 flex items-center font-medium">
+                <Label className="text-sm font-medium text-muted-foreground">Total Sell Value (BDT)</Label>
+                <div className="h-11 px-3 rounded-md border border-border-subtle bg-surface-muted flex items-center font-medium">
                   {formatCurrency(totalSell, locale)}
                 </div>
               </div>
@@ -369,22 +369,22 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
 
             {isEdit && (
               <div className="flex items-center gap-3">
-                <Label className="text-sm font-medium text-gray-700">Active</Label>
+                <Label className="text-sm font-medium text-muted-foreground">Active</Label>
                 <button
                   type="button"
                   onClick={() => setActive((v) => !v)}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${active ? 'bg-teal-600' : 'bg-gray-200'}`}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${active ? 'bg-primary' : 'bg-surface-hover'}`}
                 >
-                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${active ? 'translate-x-6' : 'translate-x-1'}`} />
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-surface transition-transform ${active ? 'translate-x-6' : 'translate-x-1'}`} />
                 </button>
               </div>
             )}
 
-            <div className="flex gap-3 pt-6 border-t border-gray-200">
-              <Button type="button" variant="outline" onClick={handleClose} className="flex-1 h-11 border-gray-300 hover:bg-gray-50" disabled={isLoading}>
+            <div className="flex gap-3 pt-6 border-t border-border-subtle">
+              <Button type="button" variant="outline" onClick={handleClose} className="flex-1 h-11 border-border hover:bg-surface-hover" disabled={isLoading}>
                 {t('cancel')}
               </Button>
-              <Button type="submit" className="flex-1 h-11 bg-linear-to-r from-teal-600 to-teal-500 text-white" disabled={isLoading}>
+              <Button type="submit" className="flex-1 h-11 gradient-primary text-primary-foreground" disabled={isLoading}>
                 {isLoading ? (
                   <div className="flex items-center gap-2">
                     <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>

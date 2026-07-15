@@ -78,7 +78,7 @@ export default function CustomersPage() {
       {/* Controls */}
       <div className="flex justify-between items-center">
         <div className="relative w-full max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-subtle-foreground" />
           <Input
             placeholder={t('search')}
             value={searchQuery}
@@ -96,7 +96,7 @@ export default function CustomersPage() {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Total Customers</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Customers</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.total}</div>
@@ -104,23 +104,23 @@ export default function CustomersPage() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Active Customers</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Active Customers</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.active}</div>
+            <div className="text-2xl font-bold text-success">{stats.active}</div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Total Revenue</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Revenue</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{formatCurrency(stats.totalRevenue, locale)}</div>
+            <div className="text-2xl font-bold text-info">{formatCurrency(stats.totalRevenue, locale)}</div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Avg. Order Value</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Avg. Order Value</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(stats.avgOrderValue, locale)}</div>
@@ -132,9 +132,9 @@ export default function CustomersPage() {
       {filteredCustomers.length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="py-16 text-center">
-            <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-linear-to-r from-teal-600 to-teal-500 text-white flex items-center justify-center text-2xl">+</div>
+            <div className="mx-auto mb-4 h-14 w-14 rounded-full gradient-primary text-primary-foreground flex items-center justify-center text-2xl">+</div>
             <h3 className="text-lg font-semibold mb-1">{t('emptyTitle')}</h3>
-            <p className="text-gray-600 mb-4">{t('emptyDescription')}</p>
+            <p className="text-muted-foreground mb-4">{t('emptyDescription')}</p>
             <Button onClick={() => setModal({ open: true, mode: 'create' })}>{t('addCustomer')}</Button>
           </CardContent>
         </Card>
@@ -159,35 +159,35 @@ export default function CustomersPage() {
                     <TableRow key={`${customer.id}-${idx}`}>
                       <TableCell className="font-medium">
                         <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-full bg-linear-to-r from-teal-600 to-teal-500 flex items-center justify-center text-white font-semibold">
+                          <div className="h-10 w-10 rounded-full gradient-primary flex items-center justify-center text-primary-foreground font-semibold">
                             {customer.name.charAt(0)}
                           </div>
                           <div>
                             <Link href={`/customers/${customer.id}`}>
-                              <p className="font-medium hover:text-blue-600 cursor-pointer">
+                              <p className="font-medium hover:text-info cursor-pointer">
                                 {customer.name}
                               </p>
                             </Link>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-subtle-foreground">
                               Since {formatDate(customer.createdAt, locale)}
                             </p>
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-1 text-gray-600">
+                        <div className="flex items-center gap-1 text-muted-foreground">
                           <Phone className="h-3 w-3" />
                           {customer.phone}
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-1 text-gray-600">
+                        <div className="flex items-center gap-1 text-muted-foreground">
                           <MapPin className="h-3 w-3" />
                           {customer.address}
                         </div>
                       </TableCell>
                       <TableCell className="text-center">
-                        <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700">
+                        <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full bg-info-subtle text-info">
                           {customer.totalOrders}
                         </span>
                       </TableCell>
@@ -204,7 +204,7 @@ export default function CustomersPage() {
                           <Button variant="ghost" size="sm" title={t('edit')} onClick={() => setModal({ open: true, mode: 'edit', customer })}>
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700" title={t('delete')} onClick={() => setCustomerToDelete(customer)}>
+                          <Button variant="ghost" size="sm" className="text-danger hover:text-danger" title={t('delete')} onClick={() => setCustomerToDelete(customer)}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>

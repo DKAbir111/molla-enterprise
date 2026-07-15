@@ -49,7 +49,7 @@ export function DisableOrgDialog({ open, onOpenChange, organizationName, organiz
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle className="text-red-700 flex items-center gap-2">
+                    <DialogTitle className="text-danger flex items-center gap-2">
                         <AlertTriangle className="h-5 w-5" />
                         Disable Organization
                     </DialogTitle>
@@ -57,8 +57,8 @@ export function DisableOrgDialog({ open, onOpenChange, organizationName, organiz
                         This will temporarily disable {organizationName}.
                     </DialogDescription>
                     <div className="mt-4 space-y-2">
-                        <p className="text-sm font-semibold text-gray-900">When disabled:</p>
-                        <ul className="list-disc list-inside text-xs text-gray-700 space-y-1">
+                        <p className="text-sm font-semibold text-foreground">When disabled:</p>
+                        <ul className="list-disc list-inside text-xs text-muted-foreground space-y-1">
                             <li>Users can only view/read information</li>
                             <li>No one can create, edit, or delete anything</li>
                             <li>All write operations are blocked</li>

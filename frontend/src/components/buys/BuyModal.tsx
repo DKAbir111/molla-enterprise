@@ -232,7 +232,7 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
 
     return (
         <Dialog open={open} onOpenChange={handleClose}>
-            <DialogContent overlayClassName="bg-black/20 backdrop-blur-none" className="sm:max-w-6xl p-0 bg-white border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent overlayClassName="bg-black/20 backdrop-blur-none" className="sm:max-w-6xl p-0 bg-surface border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
                 <div className="bg-linear-to-r from-emerald-600 to-teal-600 px-8 py-6 text-white">
                     <DialogHeader className="space-y-2">
                         <div className="flex items-center gap-3">
@@ -253,15 +253,15 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {/* Vendor Information Section */}
                         <div className="space-y-4">
-                            <div className="flex items-center gap-2 text-base font-semibold text-gray-900 pb-2 border-b">
-                                <Building2 className="h-5 w-5 text-emerald-600" />
+                            <div className="flex items-center gap-2 text-base font-semibold text-foreground pb-2 border-b">
+                                <Building2 className="h-5 w-5 text-success" />
                                 <span>Vendor Information</span>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                                 <div className="space-y-2">
-                                    <Label htmlFor="vendor" className="text-sm font-medium text-gray-700">Vendor</Label>
+                                    <Label htmlFor="vendor" className="text-sm font-medium text-muted-foreground">Vendor</Label>
                                     <div className="relative">
-                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 z-10" />
+                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-subtle-foreground z-10" />
                                         <Input
                                             id="vendor"
                                             placeholder="Search vendor by name..."
@@ -270,46 +270,46 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                                             onFocus={() => setVendorSearchOpen(true)}
                                             onClick={() => setVendorSearchOpen(true)}
                                             onBlur={() => setTimeout(() => setVendorSearchOpen(false), 200)}
-                                            className="pl-10 h-11 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500"
+                                            className="pl-10 h-11 border-border focus:border-success focus:ring-success"
                                             required
                                         />
                                         {vendorSearchOpen && (
-                                            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-20 max-h-60 overflow-y-auto">
+                                            <div className="absolute top-full left-0 right-0 mt-1 bg-surface border border-border-subtle rounded-lg shadow-xl z-20 max-h-60 overflow-y-auto">
                                                 {filteredVendors.map((v: any) => (
-                                                        <div key={v.id} className="p-3 hover:bg-emerald-50 cursor-pointer border-b border-gray-100 last:border-0" onClick={() => selectVendor(v)}>
-                                                            <div className="font-semibold text-gray-900">{v.name}</div>
-                                                            <div className="text-xs text-gray-500">{v.phone || ''}{v.address ? ` • ${v.address}` : ''}</div>
+                                                        <div key={v.id} className="p-3 hover:bg-success-subtle cursor-pointer border-b border-border-subtle last:border-0" onClick={() => selectVendor(v)}>
+                                                            <div className="font-semibold text-foreground">{v.name}</div>
+                                                            <div className="text-xs text-subtle-foreground">{v.phone || ''}{v.address ? ` • ${v.address}` : ''}</div>
                                                         </div>
                                                     ))}
                                                 {filteredVendors.length === 0 && (
-                                                    <div className="p-3 text-sm text-gray-500">No vendors found</div>
+                                                    <div className="p-3 text-sm text-subtle-foreground">No vendors found</div>
                                                 )}
                                             </div>
                                         )}
                                     </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-sm font-medium text-gray-700">Phone</Label>
-                                    <Input value={vendorPhone} onChange={(e) => setVendorPhone(e.target.value)} className="h-11 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500" placeholder="e.g., +880 1XXXXXXXXX" />
+                                    <Label className="text-sm font-medium text-muted-foreground">Phone</Label>
+                                    <Input value={vendorPhone} onChange={(e) => setVendorPhone(e.target.value)} className="h-11 border-border focus:border-success focus:ring-success" placeholder="e.g., +880 1XXXXXXXXX" />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-sm font-medium text-gray-700">Address</Label>
-                                    <Input value={vendorAddress} onChange={(e) => setVendorAddress(e.target.value)} className="h-11 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500" placeholder="Street, City, Country" />
+                                    <Label className="text-sm font-medium text-muted-foreground">Address</Label>
+                                    <Input value={vendorAddress} onChange={(e) => setVendorAddress(e.target.value)} className="h-11 border-border focus:border-success focus:ring-success" placeholder="Street, City, Country" />
                                 </div>
                             </div>
                         </div>
 
                         {/* Products Section */}
                         <div className="space-y-4">
-                            <div className="flex items-center gap-2 text-base font-semibold text-gray-900 pb-2 border-b">
-                                <Package className="h-5 w-5 text-emerald-600" />
+                            <div className="flex items-center gap-2 text-base font-semibold text-foreground pb-2 border-b">
+                                <Package className="h-5 w-5 text-success" />
                                 <span>Products</span>
                             </div>
                             {!isEdit && (
                                 <div className="space-y-2">
-                                    <Label className="text-sm font-medium text-gray-700">Search & Add Products</Label>
+                                    <Label className="text-sm font-medium text-muted-foreground">Search & Add Products</Label>
                                     <div className="relative">
-                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 z-10" />
+                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-subtle-foreground z-10" />
                                         <Input
                                             placeholder="Search products to add..."
                                             value={productSearch}
@@ -319,18 +319,18 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                                             }}
                                             onClick={() => setShowProductDropdown(true)}
                                             onBlur={() => setTimeout(() => setShowProductDropdown(false), 200)}
-                                            className="pl-10 h-11 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500"
+                                            className="pl-10 h-11 border-border focus:border-success focus:ring-success"
                                         />
                                         {showProductDropdown && filteredProducts.length > 0 && (
-                                            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-20 max-h-60 overflow-y-auto">
+                                            <div className="absolute top-full left-0 right-0 mt-1 bg-surface border border-border-subtle rounded-lg shadow-xl z-20 max-h-60 overflow-y-auto">
                                                 {filteredProducts.map(p => (
                                                     <div
                                                         key={p.id}
-                                                        className="p-3 hover:bg-emerald-50 cursor-pointer border-b border-gray-100 last:border-0"
+                                                        className="p-3 hover:bg-success-subtle cursor-pointer border-b border-border-subtle last:border-0"
                                                         onClick={() => addProductToOrder(p)}
                                                     >
-                                                        <div className="font-semibold text-gray-900">{p.name}</div>
-                                                        <div className="text-xs text-gray-500">
+                                                        <div className="font-semibold text-foreground">{p.name}</div>
+                                                        <div className="text-xs text-subtle-foreground">
                                                             Buy: {formatCurrency((p.buyPrice || p.price || 0), locale)} per {p.unit}
                                                         </div>
                                                     </div>
@@ -342,10 +342,10 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                             )}
 
                             {orderItems.length > 0 ? (
-                                <div className="border border-gray-200 rounded-lg overflow-hidden">
+                                <div className="border border-border-subtle rounded-lg overflow-hidden">
                                     <Table>
                                         <TableHeader>
-                                            <TableRow className="bg-gray-50">
+                                            <TableRow className="bg-surface-muted">
                                                 <TableHead className="font-semibold">Product</TableHead>
                                                 <TableHead className="text-center font-semibold">Quantity</TableHead>
                                                 <TableHead className="text-right font-semibold">Unit Cost</TableHead>
@@ -386,7 +386,7 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                                                             <Plus className="h-3 w-3" />
                                                         </Button>
                                                         {/* show unit to the right */}
-                                                        <span className="ml-2 text-xs text-gray-500 whitespace-nowrap">
+                                                        <span className="ml-2 text-xs text-subtle-foreground whitespace-nowrap">
                                                             {(() => {
                                                                 const p = products.find(p => p.id === item.productId)
                                                                 return p?.unit ? p.unit : ''
@@ -404,9 +404,9 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                                                         min="0"
                                                     />
                                                 </TableCell>
-                                                <TableCell className="text-right font-semibold text-gray-900">
+                                                <TableCell className="text-right font-semibold text-foreground">
                                                     <div>{formatCurrency(item.total, locale)}</div>
-                                                    <div className="text-xs text-gray-500 font-normal">
+                                                    <div className="text-xs text-subtle-foreground font-normal">
                                                         {formatCurrency(item.price, locale)} × {item.quantity}
                                                     </div>
                                                 </TableCell>
@@ -415,7 +415,7 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                                                             type="button"
                                                             variant="ghost"
                                                             size="icon"
-                                                            className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                                            className="h-8 w-8 text-danger hover:text-danger hover:bg-danger-subtle"
                                                             onClick={() => updateItemQuantity(item.productId, 0)}
                                                         >
                                                             <X className="h-4 w-4" />
@@ -427,7 +427,7 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                                     </Table>
                                 </div>
                             ) : (
-                                <div className="text-center py-8 text-gray-500 border border-dashed border-gray-300 rounded-lg">
+                                <div className="text-center py-8 text-subtle-foreground border border-dashed border-border rounded-lg">
                                     No products added yet
                                 </div>
                             )}
@@ -435,13 +435,13 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
 
                         {/* Additional Costs Section */}
                         <div className="space-y-4">
-                            <div className="flex items-center gap-2 text-base font-semibold text-gray-900 pb-2 border-b">
-                                <DollarSign className="h-5 w-5 text-emerald-600" />
+                            <div className="flex items-center gap-2 text-base font-semibold text-foreground pb-2 border-b">
+                                <DollarSign className="h-5 w-5 text-success" />
                                 <span>Additional Costs</span>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label className="text-sm font-medium text-gray-700">
+                                    <Label className="text-sm font-medium text-muted-foreground">
                                         <div className="flex items-center gap-2">
                                             <Truck className="h-4 w-4" />
                                             Transport Cost (per trip × trips)
@@ -452,35 +452,35 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                                             type="number"
                                             value={transportPerTrip}
                                             onChange={(e) => setTransportPerTrip(parseFloat(e.target.value) || 0)}
-                                            className="h-11 flex-1 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500"
+                                            className="h-11 flex-1 border-border focus:border-success focus:ring-success"
                                             placeholder="0.00"
                                             min="0"
                                             step="0.01"
                                         />
-                                        <span className="text-gray-500">×</span>
+                                        <span className="text-subtle-foreground">×</span>
                                         <Input
                                             type="number"
                                             value={transportTrips}
                                             onChange={(e) => setTransportTrips(parseInt(e.target.value || '0', 10))}
-                                            className="h-11 w-24 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500"
+                                            className="h-11 w-24 border-border focus:border-success focus:ring-success"
                                             placeholder="0"
                                             min="0"
                                         />
-                                        <div className="min-w-[120px] text-right font-semibold text-gray-900">
+                                        <div className="min-w-[120px] text-right font-semibold text-foreground">
                                             = {formatCurrency(transportTotal, locale)}
                                         </div>
                                     </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-sm font-medium text-gray-700">Other Cost (auto)</Label>
+                                    <Label className="text-sm font-medium text-muted-foreground">Other Cost (auto)</Label>
                                     <Input
                                         type="number"
                                         value={otherCost}
                                         readOnly
                                         disabled
-                                        className="h-11 border-gray-200 bg-gray-50 text-gray-700"
+                                        className="h-11 border-border-subtle bg-surface-muted text-muted-foreground"
                                     />
-                                    <div className="text-xs text-gray-500">Auto = sum(product other cost × quantity)</div>
+                                    <div className="text-xs text-subtle-foreground">Auto = sum(product other cost × quantity)</div>
                                 </div>
                             </div>
                             {/* removed separate other costs input */}
@@ -488,48 +488,48 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
 
                         {/* Summary Section */}
                         <div className="space-y-4">
-                            <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-lg p-5 space-y-3 border border-emerald-200">
+                            <div className="bg-success-subtle rounded-lg p-5 space-y-3 border border-success">
                                 <div className="flex justify-between items-center text-sm">
-                                    <span className="text-gray-600">Products Subtotal</span>
-                                    <span className="font-semibold text-gray-900">{formatCurrency(subtotal, locale)}</span>
+                                    <span className="text-muted-foreground">Products Subtotal</span>
+                                    <span className="font-semibold text-foreground">{formatCurrency(subtotal, locale)}</span>
                                 </div>
                                 <div className="flex justify-between items-center text-sm">
-                                    <span className="text-gray-600">Transport Cost</span>
-                                    <span className="font-semibold text-gray-900">{formatCurrency(transportTotal, locale)}</span>
+                                    <span className="text-muted-foreground">Transport Cost</span>
+                                    <span className="font-semibold text-foreground">{formatCurrency(transportTotal, locale)}</span>
                                 </div>
                                 <div className="flex justify-between items-center text-sm">
-                                    <span className="text-gray-600">Other Cost</span>
-                                    <span className="font-semibold text-gray-900">{formatCurrency(otherCost, locale)}</span>
+                                    <span className="text-muted-foreground">Other Cost</span>
+                                    <span className="font-semibold text-foreground">{formatCurrency(otherCost, locale)}</span>
                                 </div>
-                                <div className="border-t border-emerald-200 pt-3 flex justify-between items-center">
-                                    <span className="text-lg font-bold text-gray-900">Total Purchase Cost</span>
-                                    <span className="text-2xl font-bold text-emerald-600">{formatCurrency(grandTotal, locale)}</span>
+                                <div className="border-t border-success pt-3 flex justify-between items-center">
+                                    <span className="text-lg font-bold text-foreground">Total Purchase Cost</span>
+                                    <span className="text-2xl font-bold text-success">{formatCurrency(grandTotal, locale)}</span>
                                 </div>
                                 <div className="flex items-center gap-3 pt-2">
-                                    <Label className="text-sm font-medium text-gray-700 whitespace-nowrap">Paid Amount</Label>
+                                    <Label className="text-sm font-medium text-muted-foreground whitespace-nowrap">Paid Amount</Label>
                                     <Input
                                         type="number"
                                         value={paidAmount}
                                         onChange={(e) => setPaidAmount(parseFloat(e.target.value) || 0)}
-                                        className="h-10 flex-1 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500"
+                                        className="h-10 flex-1 border-border focus:border-success focus:ring-success"
                                         placeholder="0.00"
                                         min="0"
                                         step="0.01"
                                     />
                                     <div className="min-w-[150px] text-right">
-                                        <span className="text-sm text-gray-600">Due: </span>
-                                        <span className="text-lg font-bold text-red-600">{formatCurrency(due, locale)}</span>
+                                        <span className="text-sm text-muted-foreground">Due: </span>
+                                        <span className="text-lg font-bold text-danger">{formatCurrency(due, locale)}</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="flex gap-3 pt-6 border-t border-gray-200">
+                        <div className="flex gap-3 pt-6 border-t border-border-subtle">
                             <Button
                                 type="button"
                                 variant="outline"
                                 onClick={handleClose}
-                                className="flex-1 h-11 border-gray-300 hover:bg-gray-50"
+                                className="flex-1 h-11 border-border hover:bg-surface-hover"
                                 disabled={isLoading}
                             >
                                 Cancel

@@ -56,7 +56,7 @@ export default function SellsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
         <div className="relative w-full max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-subtle-foreground" />
           <Input placeholder={t('search')} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10" />
         </div>
         <Button className="flex items-center gap-2" onClick={() => setModalOpen(true)}>
@@ -67,33 +67,33 @@ export default function SellsPage() {
       {/* Mini Dashboard */}
       <div className="grid gap-4 md:grid-cols-5">
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600">Total</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total</CardTitle></CardHeader>
           <CardContent><div className="text-2xl font-bold">{stats.total}</div></CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600">Pending</CardTitle></CardHeader>
-          <CardContent><div className="text-2xl font-bold text-yellow-600">{stats.pending}</div></CardContent>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Pending</CardTitle></CardHeader>
+          <CardContent><div className="text-2xl font-bold text-warning">{stats.pending}</div></CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600">Processing</CardTitle></CardHeader>
-          <CardContent><div className="text-2xl font-bold text-blue-600">{stats.processing}</div></CardContent>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Processing</CardTitle></CardHeader>
+          <CardContent><div className="text-2xl font-bold text-info">{stats.processing}</div></CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600">Delivered</CardTitle></CardHeader>
-          <CardContent><div className="text-2xl font-bold text-green-600">{stats.delivered}</div></CardContent>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Delivered</CardTitle></CardHeader>
+          <CardContent><div className="text-2xl font-bold text-success">{stats.delivered}</div></CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600">Cancelled</CardTitle></CardHeader>
-          <CardContent><div className="text-2xl font-bold text-red-600">{stats.cancelled}</div></CardContent>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Cancelled</CardTitle></CardHeader>
+          <CardContent><div className="text-2xl font-bold text-danger">{stats.cancelled}</div></CardContent>
         </Card>
       </div>
 
       {filtered.length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="py-16 text-center">
-            <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-linear-to-r from-teal-600 to-teal-500 text-white flex items-center justify-center text-2xl">+</div>
+            <div className="mx-auto mb-4 h-14 w-14 rounded-full gradient-primary text-primary-foreground flex items-center justify-center text-2xl">+</div>
             <h3 className="text-lg font-semibold mb-1">{t('emptyTitle')}</h3>
-            <p className="text-gray-600 mb-4">{t('emptyDescription')}</p>
+            <p className="text-muted-foreground mb-4">{t('emptyDescription')}</p>
             <Button onClick={() => setModalOpen(true)}>{t('newOrder')}</Button>
           </CardContent>
         </Card>

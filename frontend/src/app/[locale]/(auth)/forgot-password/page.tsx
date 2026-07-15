@@ -39,7 +39,7 @@ export default function ForgotPasswordPage() {
         <div className="glass rounded-xl p-8 shadow-xl">
           <div className="mb-6">
             <h1 className="text-2xl font-bold gradient-text">Forgot password</h1>
-            <p className="text-sm text-gray-600 mt-1">We’ll send a reset link to your email</p>
+            <p className="text-sm text-muted-foreground mt-1">We’ll send a reset link to your email</p>
           </div>
           <form onSubmit={onSubmit} className="space-y-4">
           <div>
@@ -53,7 +53,7 @@ export default function ForgotPasswordPage() {
         {message && <p className="text-sm mt-3">{message}</p>}
         {devToken && (
           <p className="text-xs mt-2">
-            Dev token: <a className="text-blue-600 underline" href={`/${locale}/reset-password?token=${devToken}`}>open reset</a>
+            Dev token: <a className="text-info underline" href={`/${locale}/reset-password?token=${devToken}`}>open reset</a>
           </p>
         )}
         </div>

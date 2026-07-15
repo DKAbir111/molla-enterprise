@@ -63,12 +63,12 @@ export function BusinessInfoSection({
                 </CardHeader>
                 <CardContent className="space-y-6">
                     {/* Logo Section */}
-                    <div className="flex items-start gap-6 p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-start gap-6 p-4 bg-surface-muted rounded-lg">
                         <button
                             type="button"
                             aria-label="Upload logo"
                             disabled={isDisabled}
-                            className={`relative h-32 w-32 rounded-xl border-2 border-dashed border-gray-300 bg-white overflow-hidden hover:border-teal-400 transition-colors group ${isDisabled ? 'opacity-60 cursor-not-allowed' : ''
+                            className={`relative h-32 w-32 rounded-xl border-2 border-dashed border-border bg-surface overflow-hidden hover:border-primary transition-colors group ${isDisabled ? 'opacity-60 cursor-not-allowed' : ''
                                 }`}
                         >
                             {logoPreview ? (
@@ -80,7 +80,7 @@ export function BusinessInfoSection({
                                     </div>
                                 </>
                             ) : (
-                                <div className="h-full w-full flex flex-col items-center justify-center text-gray-400">
+                                <div className="h-full w-full flex flex-col items-center justify-center text-subtle-foreground">
                                     <Camera className="h-8 w-8 mb-2" />
                                     <span className="text-xs">Upload Logo</span>
                                 </div>
@@ -94,8 +94,8 @@ export function BusinessInfoSection({
                             onChange={onLogoSelected}
                         />
                         <div className="flex-1">
-                            <h4 className="font-semibold text-gray-900 mb-1">Organization Logo</h4>
-                            <p className="text-sm text-gray-600 mb-3">
+                            <h4 className="font-semibold text-foreground mb-1">Organization Logo</h4>
+                            <p className="text-sm text-muted-foreground mb-3">
                                 Upload your business logo. Recommended size: 512x512px. Max file size: 2MB.
                             </p>
                             <Button variant="outline" size="sm" onClick={onPickLogo}>
@@ -108,7 +108,7 @@ export function BusinessInfoSection({
                     {/* Form Fields */}
                     <div className="grid gap-6">
                         <div>
-                            <label className="text-sm font-semibold text-gray-700 mb-2 block">Business Name *</label>
+                            <label className="text-sm font-semibold text-muted-foreground mb-2 block">Business Name *</label>
                             <Input
                                 value={businessInfo.name}
                                 onChange={(e) => setBusinessInfo({ ...businessInfo, name: e.target.value })}
@@ -116,9 +116,9 @@ export function BusinessInfoSection({
                             />
                         </div>
                         <div>
-                            <label className="text-sm font-semibold text-gray-700 mb-2 block">Email Address</label>
+                            <label className="text-sm font-semibold text-muted-foreground mb-2 block">Email Address</label>
                             <div className="relative">
-                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-subtle-foreground" />
                                 <Input
                                     value={businessInfo.email}
                                     onChange={(e) => setBusinessInfo({ ...businessInfo, email: e.target.value })}
@@ -129,9 +129,9 @@ export function BusinessInfoSection({
                             </div>
                         </div>
                         <div>
-                            <label className="text-sm font-semibold text-gray-700 mb-2 block">Phone Number</label>
+                            <label className="text-sm font-semibold text-muted-foreground mb-2 block">Phone Number</label>
                             <div className="relative">
-                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-subtle-foreground" />
                                 <Input
                                     value={businessInfo.phone}
                                     onChange={(e) => setBusinessInfo({ ...businessInfo, phone: e.target.value })}
@@ -141,9 +141,9 @@ export function BusinessInfoSection({
                             </div>
                         </div>
                         <div>
-                            <label className="text-sm font-semibold text-gray-700 mb-2 block">Business Address</label>
+                            <label className="text-sm font-semibold text-muted-foreground mb-2 block">Business Address</label>
                             <div className="relative">
-                                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-subtle-foreground" />
                                 <Input
                                     value={businessInfo.address}
                                     onChange={(e) => setBusinessInfo({ ...businessInfo, address: e.target.value })}
@@ -171,18 +171,18 @@ export function BusinessInfoSection({
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div>
-                        <label className="text-sm font-semibold text-gray-700 mb-2 block">Website</label>
+                        <label className="text-sm font-semibold text-muted-foreground mb-2 block">Website</label>
                         <Input placeholder="https://example.com" />
                     </div>
                     <div>
-                        <label className="text-sm font-semibold text-gray-700 mb-2 block">VAT/GST Number</label>
+                        <label className="text-sm font-semibold text-muted-foreground mb-2 block">VAT/GST Number</label>
                         <Input placeholder="e.g., 123456789" />
                     </div>
                     <div>
-                        <label className="text-sm font-semibold text-gray-700 mb-2 block">Trade License / Registration No.</label>
+                        <label className="text-sm font-semibold text-muted-foreground mb-2 block">Trade License / Registration No.</label>
                         <Input placeholder="e.g., ABC-2024-001" />
                     </div>
-                    <p className="text-xs text-gray-500">These fields will be saved in a future update.</p>
+                    <p className="text-xs text-subtle-foreground">These fields will be saved in a future update.</p>
                 </CardContent>
             </Card>
         </div>

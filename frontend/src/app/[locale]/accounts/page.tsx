@@ -148,8 +148,8 @@ export default function AccountsPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">{t('title')}</h1>
-          <p className="text-gray-500 mt-2">Loading financial insights...</p>
+          <h1 className="text-3xl font-bold text-foreground">{t('title')}</h1>
+          <p className="text-subtle-foreground mt-2">Loading financial insights...</p>
         </div>
       </div>
     )
@@ -167,7 +167,7 @@ export default function AccountsPage() {
             <Label htmlFor="quick-type">Type</Label>
             <select
               id="quick-type"
-              className="mt-1 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="mt-1 w-full rounded-md border border-border-subtle bg-surface px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               value={quickForm.type}
               onChange={(e) => setQuickForm((prev) => ({ ...prev, type: e.target.value as 'income' | 'expense' }))}
             >
@@ -209,8 +209,8 @@ export default function AccountsPage() {
         <div className="space-y-6">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">{t('title')}</h1>
-              <p className="text-gray-600 mt-2">{t('emptyDescription') || 'Record income or expenses to see analytics.'}</p>
+              <h1 className="text-3xl font-bold text-foreground">{t('title')}</h1>
+              <p className="text-muted-foreground mt-2">{t('emptyDescription') || 'Record income or expenses to see analytics.'}</p>
             </div>
             <DialogTrigger asChild>
               <Button className="w-full md:w-auto">+ Quick Entry</Button>
@@ -218,9 +218,9 @@ export default function AccountsPage() {
           </div>
           <Card className="border-dashed">
             <CardContent className="py-16 text-center">
-              <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-linear-to-r from-teal-600 to-teal-500 text-white flex items-center justify-center text-2xl">+</div>
+              <div className="mx-auto mb-4 h-14 w-14 rounded-full gradient-primary text-primary-foreground flex items-center justify-center text-2xl">+</div>
               <h3 className="text-lg font-semibold mb-1">{t('emptyTitle') || 'No transactions yet'}</h3>
-              <p className="text-gray-600">Use quick entries for ad-hoc cash flow or create sells/buys to populate this dashboard.</p>
+              <p className="text-muted-foreground">Use quick entries for ad-hoc cash flow or create sells/buys to populate this dashboard.</p>
               <Button variant="outline" className="mt-6" onClick={() => setQuickOpen(true)}>Add quick income / expense</Button>
             </CardContent>
           </Card>
@@ -234,8 +234,8 @@ export default function AccountsPage() {
       <div className="space-y-6">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">{t('title')}</h1>
-            <p className="text-gray-600 mt-2">Monitor income, expenses, and ad-hoc memos in one place.</p>
+            <h1 className="text-3xl font-bold text-foreground">{t('title')}</h1>
+            <p className="text-muted-foreground mt-2">Monitor income, expenses, and ad-hoc memos in one place.</p>
           </div>
           <DialogTrigger asChild>
             <Button className="w-full md:w-auto">+ Quick Entry</Button>
@@ -246,17 +246,17 @@ export default function AccountsPage() {
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 {t('totalIncome')}
               </CardTitle>
-              <TrendingUp className="h-4 w-4 text-green-600" />
+              <TrendingUp className="h-4 w-4 text-success" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-2xl font-bold text-success">
                 {formatCurrency(totalIncome, locale)}
               </div>
               {prevIncome > 0 && (
-                <div className="flex items-center text-xs text-green-600 mt-1">
+                <div className="flex items-center text-xs text-success mt-1">
                   <ArrowUpRight className="h-3 w-3 mr-1" />
                   <span>{`${incomePct >= 0 ? '+' : ''}${incomePct.toFixed(1)}%`} {t('fromLastMonth')}</span>
                 </div>
@@ -266,17 +266,17 @@ export default function AccountsPage() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 {t('totalExpenses')}
               </CardTitle>
-              <TrendingDown className="h-4 w-4 text-red-600" />
+              <TrendingDown className="h-4 w-4 text-danger" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600">
+              <div className="text-2xl font-bold text-danger">
                 {formatCurrency(totalExpenses, locale)}
               </div>
               {prevExpense > 0 && (
-                <div className="flex items-center text-xs text-red-600 mt-1">
+                <div className="flex items-center text-xs text-danger mt-1">
                   <ArrowUpRight className="h-3 w-3 mr-1" />
                   <span>{`${expensePct >= 0 ? '+' : ''}${expensePct.toFixed(1)}%`} {t('fromLastMonth')}</span>
                 </div>
@@ -286,17 +286,17 @@ export default function AccountsPage() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 {t('netProfit')}
               </CardTitle>
-              <DollarSign className="h-4 w-4 text-teal-600" />
+              <DollarSign className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-teal-600">
+              <div className="text-2xl font-bold text-primary">
                 {formatCurrency(netProfit, locale)}
               </div>
               {prevProfit > 0 && (
-                <div className="flex items-center text-xs text-teal-600 mt-1">
+                <div className="flex items-center text-xs text-primary mt-1">
                   <ArrowUpRight className="h-3 w-3 mr-1" />
                   <span>{`${profitPct >= 0 ? '+' : ''}${profitPct.toFixed(1)}%`} {t('fromLastMonth')}</span>
                 </div>
@@ -396,14 +396,14 @@ export default function AccountsPage() {
                   .slice(0, 10)
                   .map((transaction, idx) => (
                     <TableRow key={`${transaction.id}-${idx}`}>
-                      <TableCell className="text-sm text-gray-600">
+                      <TableCell className="text-sm text-muted-foreground">
                         {formatDate(transaction.date as any, locale)}
                       </TableCell>
                       <TableCell>{transaction.description}</TableCell>
                       <TableCell>
                         <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full ${transaction.type === 'income'
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-red-100 text-red-700'
+                          ? 'bg-success-subtle text-success'
+                          : 'bg-danger-subtle text-danger'
                           }`}>
                           {transaction.type === 'income' ? (
                             <ArrowUpRight className="h-3 w-3" />
@@ -413,7 +413,7 @@ export default function AccountsPage() {
                           {t(transaction.type)}
                         </span>
                       </TableCell>
-                      <TableCell className={`text-right font-medium ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
+                      <TableCell className={`text-right font-medium ${transaction.type === 'income' ? 'text-success' : 'text-danger'
                         }`}>
                         {transaction.type === 'income' ? '+' : '-'}
                         {formatCurrency(transaction.amount, locale)}

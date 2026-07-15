@@ -95,8 +95,8 @@ export default function VendorDetailsPage() {
           </Button>
         </div>
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">{vendorName}</h1>
-          <p className="text-gray-600">Vendor Details</p>
+          <h1 className="text-3xl font-bold text-foreground">{vendorName}</h1>
+          <p className="text-muted-foreground">Vendor Details</p>
         </div>
         <div className="flex gap-2">
           <Button onClick={handlePrint} variant="outline">{t('print')}</Button>
@@ -107,20 +107,20 @@ export default function VendorDetailsPage() {
       {/* Summary cards */}
       <div className="grid gap-6 md:grid-cols-4">
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-600">{t('phone')}</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">{t('phone')}</CardTitle></CardHeader>
           <CardContent><div className="text-xl font-bold">{vendorPhone || '-'}</div></CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2"><Calendar className="h-4 w-4" />Vendor Since</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2"><Calendar className="h-4 w-4" />Vendor Since</CardTitle></CardHeader>
           <CardContent><div className="text-xl font-bold">{meta.vendorSince ? formatDate(meta.vendorSince, locale as string) : '-'}</div></CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-600">Total Purchases</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">Total Purchases</CardTitle></CardHeader>
           <CardContent><div className="text-2xl font-bold">{meta.totalPurchases}</div></CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-600">Total Spent</CardTitle></CardHeader>
-          <CardContent><div className="text-2xl font-bold text-blue-600">{formatCurrency(meta.totalSpent, locale as string)}</div></CardContent>
+          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">Total Spent</CardTitle></CardHeader>
+          <CardContent><div className="text-2xl font-bold text-info">{formatCurrency(meta.totalSpent, locale as string)}</div></CardContent>
         </Card>
       </div>
 
@@ -149,7 +149,7 @@ export default function VendorDetailsPage() {
                 </TableRow>
               ))}
               {Object.keys(productSummary).length === 0 && (
-                <TableRow><TableCell colSpan={4} className="text-center text-gray-500 py-8">No products yet</TableCell></TableRow>
+                <TableRow><TableCell colSpan={4} className="text-center text-subtle-foreground py-8">No products yet</TableCell></TableRow>
               )}
             </TableBody>
           </Table>
@@ -182,11 +182,11 @@ export default function VendorDetailsPage() {
                     <TableCell className="text-center">{item.quantity}</TableCell>
                     <TableCell className="text-right">{formatCurrency(item.price, locale as string)}</TableCell>
                     <TableCell className="text-right font-medium">{formatCurrency(item.total, locale as string)}</TableCell>
-                    <TableCell className="text-center"><span className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700">{item.purchaseId}</span></TableCell>
+                    <TableCell className="text-center"><span className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full bg-surface-hover text-muted-foreground">{item.purchaseId}</span></TableCell>
                   </TableRow>
                 ))}
                 {history.length === 0 && (
-                  <TableRow><TableCell colSpan={6} className="text-center text-gray-500 py-8">No purchases yet</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={6} className="text-center text-subtle-foreground py-8">No purchases yet</TableCell></TableRow>
                 )}
               </TableBody>
             </Table>

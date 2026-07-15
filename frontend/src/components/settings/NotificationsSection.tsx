@@ -82,10 +82,10 @@ export function NotificationsSection({ orgId }: NotificationsSectionProps) {
                         { key: 'emailAlerts', label: 'Email Notifications', desc: 'Receive alerts via email' },
                         { key: 'smsAlerts', label: 'SMS Notifications', desc: 'Get text message alerts (coming soon)', disabled: true },
                     ].map(({ key, label, desc, disabled }) => (
-                        <div key={key} className={`flex items-center justify-between p-4 rounded-lg border hover:bg-gray-50 transition-colors ${disabled ? 'opacity-50' : ''}`}>
+                        <div key={key} className={`flex items-center justify-between p-4 rounded-lg border hover:bg-surface-hover transition-colors ${disabled ? 'opacity-50' : ''}`}>
                             <div className="flex-1">
-                                <div className="font-medium text-gray-900">{label}</div>
-                                <div className="text-sm text-gray-600">{desc}</div>
+                                <div className="font-medium text-foreground">{label}</div>
+                                <div className="text-sm text-muted-foreground">{desc}</div>
                             </div>
                             <button
                                 onClick={async () => {
@@ -103,9 +103,9 @@ export function NotificationsSection({ orgId }: NotificationsSectionProps) {
                                     }
                                 }}
                                 disabled={disabled}
-                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${(notifications as any)[key] ? 'bg-teal-600' : 'bg-gray-300'} ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${(notifications as any)[key] ? 'bg-primary' : 'bg-gray-300'} ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                             >
-                                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${(notifications as any)[key] ? 'translate-x-6' : 'translate-x-1'}`} />
+                                <span className={`inline-block h-4 w-4 transform rounded-full bg-surface transition-transform ${(notifications as any)[key] ? 'translate-x-6' : 'translate-x-1'}`} />
                             </button>
                         </div>
                     ))}
@@ -120,44 +120,44 @@ export function NotificationsSection({ orgId }: NotificationsSectionProps) {
                 <CardContent>
                     <div className="grid gap-6">
                         <div>
-                            <label className="text-sm font-semibold text-gray-700 mb-2 block">Low Stock Threshold</label>
+                            <label className="text-sm font-semibold text-muted-foreground mb-2 block">Low Stock Threshold</label>
                             <Input
                                 type="number"
                                 min={0}
                                 value={thresholds.lowStockThreshold}
                                 onChange={(e) => setThresholds({ ...thresholds, lowStockThreshold: Number(e.target.value || 0) })}
                             />
-                            <p className="text-xs text-gray-500 mt-1">Alert when stock falls below this quantity</p>
+                            <p className="text-xs text-subtle-foreground mt-1">Alert when stock falls below this quantity</p>
                         </div>
                         <div>
-                            <label className="text-sm font-semibold text-gray-700 mb-2 block">Order Aging (hours)</label>
+                            <label className="text-sm font-semibold text-muted-foreground mb-2 block">Order Aging (hours)</label>
                             <Input
                                 type="number"
                                 min={0}
                                 value={thresholds.pendingOrderAgingHours}
                                 onChange={(e) => setThresholds({ ...thresholds, pendingOrderAgingHours: Number(e.target.value || 0) })}
                             />
-                            <p className="text-xs text-gray-500 mt-1">Alert for orders pending longer than this</p>
+                            <p className="text-xs text-subtle-foreground mt-1">Alert for orders pending longer than this</p>
                         </div>
                         <div>
-                            <label className="text-sm font-semibold text-gray-700 mb-2 block">Receivable Reminder (days)</label>
+                            <label className="text-sm font-semibold text-muted-foreground mb-2 block">Receivable Reminder (days)</label>
                             <Input
                                 type="number"
                                 min={0}
                                 value={thresholds.receivableReminderDays}
                                 onChange={(e) => setThresholds({ ...thresholds, receivableReminderDays: Number(e.target.value || 0) })}
                             />
-                            <p className="text-xs text-gray-500 mt-1">Remind for unpaid invoices after this period</p>
+                            <p className="text-xs text-subtle-foreground mt-1">Remind for unpaid invoices after this period</p>
                         </div>
                         <div>
-                            <label className="text-sm font-semibold text-gray-700 mb-2 block">Payable Reminder (days)</label>
+                            <label className="text-sm font-semibold text-muted-foreground mb-2 block">Payable Reminder (days)</label>
                             <Input
                                 type="number"
                                 min={0}
                                 value={thresholds.payableReminderDays}
                                 onChange={(e) => setThresholds({ ...thresholds, payableReminderDays: Number(e.target.value || 0) })}
                             />
-                            <p className="text-xs text-gray-500 mt-1">Remind for unpaid bills after this period</p>
+                            <p className="text-xs text-subtle-foreground mt-1">Remind for unpaid bills after this period</p>
                         </div>
                     </div>
 
@@ -185,22 +185,22 @@ export function NotificationsSection({ orgId }: NotificationsSectionProps) {
                     <CardDescription>Manage alerts you&apos;ve temporarily muted</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    {snoozeLoading && <div className="text-sm text-gray-500 py-8 text-center">Loading...</div>}
+                    {snoozeLoading && <div className="text-sm text-subtle-foreground py-8 text-center">Loading...</div>}
                     {!snoozeLoading && (snoozes?.length || 0) === 0 && (
                         <div className="text-center py-8">
-                            <Bell className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                            <p className="text-sm text-gray-600">No snoozed alerts</p>
+                            <Bell className="h-12 w-12 text-subtle-foreground mx-auto mb-3" />
+                            <p className="text-sm text-muted-foreground">No snoozed alerts</p>
                         </div>
                     )}
                     {!snoozeLoading && (snoozes && snoozes.length > 0) && (
                         <div className="space-y-2">
                             {snoozes.map((s) => (
-                                <div key={s.id} className="flex items-center justify-between p-4 rounded-lg border bg-gray-50">
+                                <div key={s.id} className="flex items-center justify-between p-4 rounded-lg border bg-surface-muted">
                                     <div className="flex-1 min-w-0">
-                                        <div className="font-medium text-gray-900 truncate">{s.label || s.refId}</div>
+                                        <div className="font-medium text-foreground truncate">{s.label || s.refId}</div>
                                         <div className="flex items-center gap-3 mt-1">
-                                            <span className="text-xs px-2 py-1 rounded bg-white border text-gray-600">{s.type}</span>
-                                            <span className="text-xs text-gray-600">
+                                            <span className="text-xs px-2 py-1 rounded bg-surface border text-muted-foreground">{s.type}</span>
+                                            <span className="text-xs text-muted-foreground">
                                                 {s.permanent ? 'Muted permanently' : `Until ${s.until ? new Date(s.until).toLocaleString() : '—'}`}
                                             </span>
                                         </div>

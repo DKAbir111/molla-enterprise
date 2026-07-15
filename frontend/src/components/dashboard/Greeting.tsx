@@ -21,10 +21,10 @@ export function Greeting() {
 
   return (
     <div className="flex items-center gap-3">
-      <div className="rounded-full bg-linear-to-r from-teal-600 to-teal-500 h-9 w-9 text-white flex items-center justify-center text-lg">👋</div>
+      <div className="rounded-full gradient-primary h-9 w-9 text-primary-foreground flex items-center justify-center text-lg">👋</div>
       <div className="leading-tight">
-        <div className="text-sm text-gray-500">{t(key)}</div>
-        <div className="text-lg font-semibold text-gray-800">{name || t('there')}</div>
+        <div className="text-sm text-subtle-foreground">{t(key)}</div>
+        <div className="text-lg font-semibold text-foreground">{name || t('there')}</div>
       </div>
     </div>
   )
