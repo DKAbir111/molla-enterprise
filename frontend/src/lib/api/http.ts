@@ -53,9 +53,24 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (err?.response?.status === 401) {
-      // Optionally clear on unauthorized
-      // clearAuthToken()
+    // A 401 means the token is gone or expired (they last 7d). Without this the
+    // stale token stays in storage, every later request fails, and the user is
+    // stranded on a silently broken screen with no way back to login.
+    //
+    // Only act when a token actually existed: a logged-out visitor also gets
+    // 401s, and telling them their "session expired" would be a lie. Let
+    // AppShell's own no-token redirect handle that case.
+    if (err?.response?.status === 401 && isBrowser && getAuthToken()) {
+      const onAuthPage = /\/(login|register|forgot-password|reset-password)(\/|$|\?)/.test(
+        window.location.pathname,
+      )
+      if (!onAuthPage) {
+        clearAuthToken()
+        // Preserve where they were so login can send them back.
+        const from = encodeURIComponent(window.location.pathname + window.location.search)
+        const locale = window.location.pathname.split('/')[1] || 'en'
+        window.location.replace(`/${locale}/login?session=expired&from=${from}`)
+      }
     }
     return Promise.reject(err)
   },

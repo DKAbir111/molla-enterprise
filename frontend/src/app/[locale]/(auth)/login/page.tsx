@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useLocale } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -12,6 +12,10 @@ import { toast } from 'sonner'
 export default function LoginPage() {
   const router = useRouter()
   const locale = useLocale()
+  const searchParams = useSearchParams()
+  // Set by the 401 interceptor so an expired session explains itself here
+  // rather than looking like a random logout.
+  const sessionExpired = searchParams.get('session') === 'expired'
   const [email, setEmail] = React.useState('')
   const [password, setPassword] = React.useState('')
   const [loading, setLoading] = React.useState(false)
@@ -45,6 +49,14 @@ export default function LoginPage() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/conix.png" alt="Conix Logo" className="h-16 w-auto" />
           </div>
+          {sessionExpired && (
+            <div
+              role="status"
+              className="mb-6 rounded-lg border border-warning bg-warning-subtle px-4 py-3 text-sm text-foreground"
+            >
+              Your session expired. Please sign in again.
+            </div>
+          )}
           <div className="mb-6 text-center">
             <h1 className="text-2xl font-bold gradient-text">Welcome back</h1>
             <p className="text-sm text-muted-foreground mt-1">Sign in to your account</p>
@@ -63,11 +75,11 @@ export default function LoginPage() {
               {loading ? 'Signing in...' : 'Login'}
             </Button>
             <div className="text-sm">
-              <a href={`/${locale}/forgot-password`} className="text-info hover:underline">Forgot password?</a>
+              <a href={`/${locale}/forgot-password`} className="text-primary hover:underline">Forgot password?</a>
             </div>
           </div>
           <div className="text-sm mt-4 text-muted-foreground">
-            New here? <a href={`/${locale}/register`} className="text-info hover:underline">Create account</a>
+            New here? <a href={`/${locale}/register`} className="text-primary hover:underline">Create account</a>
           </div>
         </form>
         </div>

@@ -57,7 +57,13 @@ export function Sidebar({ onNavigate }: SidebarProps) {
       <div className="flex h-full flex-col">
         <div className="flex h-16 items-center gap-2 px-4 border-b border-border-subtle">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={logoUrl} alt="Logo" className="h-8 w-8 rounded-md object-contain" />
+          <img
+            src={logoUrl}
+            alt=""
+            aria-hidden="true"
+            className="h-8 w-8 shrink-0 rounded-md object-contain"
+            onError={(e) => { e.currentTarget.style.display = 'none' }}
+          />
           <h2 className="text-base font-semibold text-foreground truncate" title={orgName}>{orgName}</h2>
         </div>
 

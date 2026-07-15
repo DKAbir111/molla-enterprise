@@ -53,7 +53,7 @@ export default function ForgotPasswordPage() {
         {message && <p className="text-sm mt-3">{message}</p>}
         {devToken && (
           <p className="text-xs mt-2">
-            Dev token: <a className="text-info underline" href={`/${locale}/reset-password?token=${devToken}`}>open reset</a>
+            Dev token: <a className="text-primary underline" href={`/${locale}/reset-password?token=${devToken}`}>open reset</a>
           </p>
         )}
         </div>

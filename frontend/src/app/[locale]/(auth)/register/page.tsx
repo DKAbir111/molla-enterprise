@@ -70,7 +70,7 @@ export default function RegisterPage() {
               {loading ? 'Creating...' : 'Register'}
             </Button>
             <div className="text-sm">
-              <a href={`/${locale}/login`} className="text-info hover:underline">Already have an account?</a>
+              <a href={`/${locale}/login`} className="text-primary hover:underline">Already have an account?</a>
             </div>
           </div>
         </form>
