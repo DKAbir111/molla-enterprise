@@ -21,11 +21,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const { sidebarOpen, closeSidebar } = useUI()
 
   const base = `/${locale}`
+  // Public routes: no auth gate, no sidebar/header. Legal pages belong here —
+  // they are linked from the signup consent line, before any account exists.
   const authRoutes = new Set([
     `${base}/login`,
     `${base}/register`,
     `${base}/forgot-password`,
     `${base}/reset-password`,
+    `${base}/terms`,
+    `${base}/privacy`,
   ])
   const isAuthRoute = authRoutes.has(pathname)
   const isOrgRoute = pathname === `${base}/organization`
@@ -65,6 +69,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       router.replace(`/${locale}/organization`)
     }
   }, [isAuthRoute, isOrgRoute, organization, fetchOrganization, router, locale])
+
+  // Auth pages own their full-bleed layout (AuthShell renders its own brand
+  // panel), so they must not be boxed into a centred container.
+  if (isAuthRoute) {
+    return (
+      <>
+        <Toaster position="bottom-right" richColors closeButton />
+        {children}
+      </>
+    )
+  }
 
   if (shouldHide) {
     return (

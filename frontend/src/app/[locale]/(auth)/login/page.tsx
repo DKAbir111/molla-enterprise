@@ -1,11 +1,14 @@
 'use client'
 
 import React from 'react'
+import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useLocale } from 'next-intl'
+import { AlertCircle, Eye, EyeOff, Info, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { AuthShell } from '@/components/auth/AuthShell'
 import { login as apiLogin } from '@/lib/api'
 import { toast } from 'sonner'
 
@@ -16,8 +19,11 @@ export default function LoginPage() {
   // Set by the 401 interceptor so an expired session explains itself here
   // rather than looking like a random logout.
   const sessionExpired = searchParams.get('session') === 'expired'
+  const from = searchParams.get('from')
+
   const [email, setEmail] = React.useState('')
   const [password, setPassword] = React.useState('')
+  const [showPassword, setShowPassword] = React.useState(false)
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
 
@@ -27,13 +33,16 @@ export default function LoginPage() {
     setError(null)
     try {
       if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Enter a valid email')
-      if (!password || password.length < 6) throw new Error('Password must be at least 6 characters')
+      if (!password) throw new Error('Enter your password')
       const res = await apiLogin({ email, password })
       const hasOrg = !!res.user.organizationId
       toast.success('Signed in successfully')
-      router.replace(`/${locale}${hasOrg ? '' : '/organization'}`)
+      // Send them back where the expired session interrupted them.
+      if (hasOrg && from && from.startsWith('/')) router.replace(from)
+      else router.replace(`/${locale}${hasOrg ? '' : '/organization'}`)
     } catch (err: any) {
-      const msg = err?.message || err?.response?.data?.message || 'Login failed'
+      const raw = err?.response?.data?.message || err?.message || 'Login failed'
+      const msg = Array.isArray(raw) ? raw[0] : raw
       setError(msg)
       toast.error(msg)
     } finally {
@@ -42,48 +51,87 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="w-full max-w-md">
-      <div className="gradient-border rounded-xl">
-        <div className="glass rounded-xl p-8 shadow-xl">
-          <div className="flex justify-center mb-6">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/conix.png" alt="Conix Logo" className="h-16 w-auto" />
+    <AuthShell
+      title="Welcome back"
+      subtitle="Sign in to your account to continue."
+      altAction={{ label: 'New here?', href: `/${locale}/register`, cta: 'Create account' }}
+    >
+      <form onSubmit={onSubmit} className="space-y-5" noValidate>
+        {sessionExpired && !error && (
+          <div
+            role="status"
+            className="flex items-start gap-2 rounded-lg border border-warning bg-warning-subtle px-3 py-2.5 text-sm text-foreground"
+          >
+            <Info className="mt-0.5 h-4 w-4 shrink-0 text-warning" aria-hidden="true" />
+            <span>Your session expired. Please sign in again.</span>
           </div>
-          {sessionExpired && (
-            <div
-              role="status"
-              className="mb-6 rounded-lg border border-warning bg-warning-subtle px-4 py-3 text-sm text-foreground"
-            >
-              Your session expired. Please sign in again.
-            </div>
-          )}
-          <div className="mb-6 text-center">
-            <h1 className="text-2xl font-bold gradient-text">Welcome back</h1>
-            <p className="text-sm text-muted-foreground mt-1">Sign in to your account</p>
+        )}
+
+        {error && (
+          <div
+            role="alert"
+            className="flex items-start gap-2 rounded-lg border border-danger bg-danger-subtle px-3 py-2.5 text-sm text-foreground"
+          >
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-danger" aria-hidden="true" />
+            <span>{error}</span>
           </div>
-          <form onSubmit={onSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          </div>
-          <div>
-            <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-          </div>
-          <div className="flex justify-between items-center">
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Signing in...' : 'Login'}
-            </Button>
-            <div className="text-sm">
-              <a href={`/${locale}/forgot-password`} className="text-primary hover:underline">Forgot password?</a>
-            </div>
-          </div>
-          <div className="text-sm mt-4 text-muted-foreground">
-            New here? <a href={`/${locale}/register`} className="text-primary hover:underline">Create account</a>
-          </div>
-        </form>
+        )}
+
+        <div className="space-y-1.5">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            type="email"
+            autoComplete="email"
+            placeholder="you@company.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
         </div>
-      </div>
-    </div>
+
+        <div className="space-y-1.5">
+          <div className="flex items-baseline justify-between">
+            <Label htmlFor="password">Password</Label>
+            <Link
+              href={`/${locale}/forgot-password`}
+              className="text-xs font-medium text-primary underline-offset-4 hover:underline"
+            >
+              Forgot password?
+            </Link>
+          </div>
+          <div className="relative">
+            <Input
+              id="password"
+              type={showPassword ? 'text' : 'password'}
+              autoComplete="current-password"
+              className="pr-10"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((s) => !s)}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              className="absolute inset-y-0 right-0 flex w-10 items-center justify-center rounded-r-lg text-subtle-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+          </div>
+        </div>
+
+        <Button type="submit" size="lg" className="w-full" disabled={loading}>
+          {loading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+              Signing in…
+            </>
+          ) : (
+            'Sign in'
+          )}
+        </Button>
+      </form>
+    </AuthShell>
   )
 }
