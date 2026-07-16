@@ -3,6 +3,7 @@
 import React from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { useLocale } from 'next-intl'
+import { Loader2 } from 'lucide-react'
 import { Header } from './header'
 import { Sidebar } from './sidebar'
 import { getAuthToken, logout } from '@/lib/api'
@@ -11,6 +12,15 @@ import { Toaster } from 'sonner'
 import { useOrganizationStore } from '@/store/useOrganization'
 import { useUI } from '@/store/useUI'
 import { cn } from '@/lib/utils'
+
+function FullScreenLoader() {
+  return (
+    <div className="flex min-h-screen items-center justify-center app-bg" role="status" aria-label="Loading">
+      <Loader2 className="h-6 w-6 animate-spin text-primary" aria-hidden="true" />
+      <span className="sr-only">Loading…</span>
+    </div>
+  )
+}
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -35,10 +45,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const isOrgRoute = pathname === `${base}/organization`
   const shouldHide = isAuthRoute || isOrgRoute
 
+  // Computed synchronously so protected content is NEVER rendered before we know
+  // the user is allowed to see it. Middleware already blocks the no-cookie case
+  // before this component mounts; this covers "token present but org not yet
+  // fetched / invalid". Org route needs only a token; app routes need an org.
+  const token = typeof window !== 'undefined' ? getAuthToken() : null
+  const authorized = isAuthRoute
+    ? true
+    : isOrgRoute
+      ? !!token
+      : !!token && !!organization
+
   React.useEffect(() => {
     if (isAuthRoute) return
 
-    const token = getAuthToken()
     if (!token) {
       router.replace(`/${locale}/login`)
       return
@@ -68,7 +88,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     if (!organization && !isOrgRoute) {
       router.replace(`/${locale}/organization`)
     }
-  }, [isAuthRoute, isOrgRoute, organization, fetchOrganization, router, locale])
+  }, [isAuthRoute, isOrgRoute, organization, fetchOrganization, router, locale, token])
 
   // Auth pages own their full-bleed layout (AuthShell renders its own brand
   // panel), so they must not be boxed into a centred container.
@@ -79,6 +99,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         {children}
       </>
     )
+  }
+
+  // Protected route, not yet cleared: show a loader, never the real content.
+  // The effect above is meanwhile redirecting or fetching the org.
+  if (!authorized) {
+    return <FullScreenLoader />
   }
 
   if (shouldHide) {
