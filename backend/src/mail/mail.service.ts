@@ -44,7 +44,7 @@ export class MailService {
     const tx = this.getTransport();
     if (!tx) return false;
 
-    const appUrl = (this.config.get<string>('APP_PUBLIC_URL') || 'http://localhost:3000').replace(/\/$/, '');
+    const appUrl = (this.config.get<string>('FRONTEND_ORIGIN') || 'http://localhost:3000').replace(/\/$/, '');
     const resetUrl = `${appUrl}/en/reset-password?token=${encodeURIComponent(token)}`;
 
     const html = `

@@ -29,7 +29,7 @@ const storage = diskStorage({
 function toPublicUrl(p?: string) {
   if (!p) return p as any;
   if (/^https?:\/\//i.test(p)) return p;
-  const base = (process.env.PUBLIC_BASE_URL || process.env.API_PUBLIC_BASE || 'http://localhost:4000').replace(/\/$/, '');
+  const base = (process.env.PUBLIC_BASE_URL || 'http://localhost:4000').replace(/\/$/, '');
   const pathPart = p.startsWith('/') ? p : `/${p}`;
   return `${base}${pathPart}`;
 }

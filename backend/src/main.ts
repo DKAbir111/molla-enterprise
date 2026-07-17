@@ -10,7 +10,7 @@ import * as path from 'path';
 let cachedServer;
 
 // Allowed origins
-const FRONTEND_URL = process.env.FRONTEND_ORIGIN || process.env.APP_PUBLIC_URL || 'http://localhost:3000';
+const FRONTEND_URL = process.env.FRONTEND_ORIGIN || 'http://localhost:3000';
 const ALLOWED_ORIGIN = FRONTEND_URL.endsWith('/') ? FRONTEND_URL.slice(0, -1) : FRONTEND_URL;
 
 // Function to create and initialize the NestJS application
