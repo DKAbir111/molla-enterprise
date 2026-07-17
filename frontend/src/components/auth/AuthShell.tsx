@@ -2,14 +2,8 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { Check } from 'lucide-react'
-
-const VALUE_PROPS = [
-  'Track stock, purchases and sales in one place',
-  'Know your true cost and margin on every order',
-  'Low-stock alerts before you run out',
-]
 
 /**
  * Auth/onboarding layout: brand panel + form column.
@@ -32,6 +26,8 @@ export function AuthShell({
   altAction?: { label: string; href: string; cta: string }
 }) {
   const locale = useLocale()
+  const t = useTranslations('auth')
+  const valueProps = [t('prop1'), t('prop2'), t('prop3')]
 
   return (
     <div className="min-h-screen w-full lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
@@ -56,20 +52,19 @@ export function AuthShell({
             className="h-10 w-10 rounded-lg bg-white/90 object-contain p-1"
             onError={(e) => { e.currentTarget.style.display = 'none' }}
           />
-          <span className="text-lg font-semibold text-white">Molla Enterprise</span>
+          <span className="text-lg font-semibold text-white">{t('brand')}</span>
         </Link>
 
         <div className="relative max-w-md">
           <h2 className="text-4xl font-bold leading-tight text-white">
-            Inventory that actually adds up.
+            {t('panelHeadline')}
           </h2>
           <p className="mt-4 text-base leading-relaxed text-white/80">
-            Stop guessing what you have and what it cost you. Run stock, purchases,
-            sales and cash from a single system.
+            {t('panelSubhead')}
           </p>
 
           <ul className="mt-8 space-y-3">
-            {VALUE_PROPS.map((v) => (
+            {valueProps.map((v) => (
               <li key={v} className="flex items-start gap-3">
                 <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/20">
                   <Check className="h-3 w-3 text-white" aria-hidden="true" />
@@ -83,11 +78,10 @@ export function AuthShell({
         <div className="relative">
           <div className="h-px w-full bg-white/20" />
           <p className="mt-6 text-sm leading-relaxed text-white/80">
-            “We stopped losing track of stock between the yard and the office.
-            Everything reconciles now.”
+            {t('quote')}
           </p>
           <p className="mt-3 text-xs font-medium text-white/60">
-            Operations lead · construction supplies
+            {t('quoteAuthor')}
           </p>
         </div>
       </aside>
@@ -105,7 +99,7 @@ export function AuthShell({
               className="h-8 w-8 rounded-md object-contain"
               onError={(e) => { e.currentTarget.style.display = 'none' }}
             />
-            <span className="text-sm font-semibold text-foreground">Molla Enterprise</span>
+            <span className="text-sm font-semibold text-foreground">{t('brand')}</span>
           </Link>
 
           {altAction && (

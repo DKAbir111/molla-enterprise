@@ -3,7 +3,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { AlertCircle, Eye, EyeOff, Info, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -15,6 +15,7 @@ import { toast } from 'sonner'
 export default function LoginPage() {
   const router = useRouter()
   const locale = useLocale()
+  const t = useTranslations('auth')
   const searchParams = useSearchParams()
   // Set by the 401 interceptor so an expired session explains itself here
   // rather than looking like a random logout.
@@ -32,16 +33,16 @@ export default function LoginPage() {
     setLoading(true)
     setError(null)
     try {
-      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Enter a valid email')
-      if (!password) throw new Error('Enter your password')
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error(t('enterValidEmail'))
+      if (!password) throw new Error(t('enterPassword'))
       const res = await apiLogin({ email, password })
       const hasOrg = !!res.user.organizationId
-      toast.success('Signed in successfully')
+      toast.success(t('signedIn'))
       // Send them back where the expired session interrupted them.
       if (hasOrg && from && from.startsWith('/')) router.replace(from)
       else router.replace(`/${locale}${hasOrg ? '' : '/organization'}`)
     } catch (err: any) {
-      const raw = err?.response?.data?.message || err?.message || 'Login failed'
+      const raw = err?.response?.data?.message || err?.message || t('loginFailed')
       const msg = Array.isArray(raw) ? raw[0] : raw
       setError(msg)
       toast.error(msg)
@@ -52,9 +53,9 @@ export default function LoginPage() {
 
   return (
     <AuthShell
-      title="Welcome back"
-      subtitle="Sign in to your account to continue."
-      altAction={{ label: 'New here?', href: `/${locale}/register`, cta: 'Create account' }}
+      title={t('loginTitle')}
+      subtitle={t('loginSubtitle')}
+      altAction={{ label: t('newHere'), href: `/${locale}/register`, cta: t('createAccount') }}
     >
       <form onSubmit={onSubmit} className="space-y-5" noValidate>
         {sessionExpired && !error && (
@@ -63,7 +64,7 @@ export default function LoginPage() {
             className="flex items-start gap-2 rounded-lg border border-warning bg-warning-subtle px-3 py-2.5 text-sm text-foreground"
           >
             <Info className="mt-0.5 h-4 w-4 shrink-0 text-warning" aria-hidden="true" />
-            <span>Your session expired. Please sign in again.</span>
+            <span>{t('sessionExpired')}</span>
           </div>
         )}
 
@@ -78,12 +79,12 @@ export default function LoginPage() {
         )}
 
         <div className="space-y-1.5">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{t('email')}</Label>
           <Input
             id="email"
             type="email"
             autoComplete="email"
-            placeholder="you@company.com"
+            placeholder={t('emailPlaceholder')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -92,12 +93,12 @@ export default function LoginPage() {
 
         <div className="space-y-1.5">
           <div className="flex items-baseline justify-between">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">{t('password')}</Label>
             <Link
               href={`/${locale}/forgot-password`}
               className="text-xs font-medium text-primary underline-offset-4 hover:underline"
             >
-              Forgot password?
+              {t('forgotPassword')}
             </Link>
           </div>
           <div className="relative">
@@ -113,7 +114,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => setShowPassword((s) => !s)}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              aria-label={showPassword ? t('hidePassword') : t('showPassword')}
               className="absolute inset-y-0 right-0 flex w-10 items-center justify-center rounded-r-lg text-subtle-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -125,10 +126,10 @@ export default function LoginPage() {
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
-              Signing in…
+              {t('signingIn')}
             </>
           ) : (
-            'Sign in'
+            t('signIn')
           )}
         </Button>
       </form>

@@ -3,7 +3,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { AlertCircle, Eye, EyeOff, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -16,6 +16,7 @@ import { toast } from 'sonner'
 export default function RegisterPage() {
   const router = useRouter()
   const locale = useLocale()
+  const t = useTranslations('auth')
   const [name, setName] = React.useState('')
   const [email, setEmail] = React.useState('')
   const [password, setPassword] = React.useState('')
@@ -31,16 +32,16 @@ export default function RegisterPage() {
     setLoading(true)
     setError(null)
     try {
-      if (!name.trim()) throw new Error('Name is required')
-      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Enter a valid email')
+      if (!name.trim()) throw new Error(t('nameRequired'))
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error(t('enterValidEmail'))
       // 8 is the floor; the meter nudges toward better.
-      if (!password || password.length < 8) throw new Error('Password must be at least 8 characters')
-      if (password !== confirmPassword) throw new Error('Passwords do not match')
+      if (!password || password.length < 8) throw new Error(t('passwordMin'))
+      if (password !== confirmPassword) throw new Error(t('passwordsNoMatch'))
       await apiRegister({ name, email, password })
-      toast.success('Account created successfully')
+      toast.success(t('accountCreated'))
       router.replace(`/${locale}/organization`)
     } catch (err: any) {
-      const raw = err?.response?.data?.message || err?.message || 'Registration failed'
+      const raw = err?.response?.data?.message || err?.message || t('registrationFailed')
       const msg = Array.isArray(raw) ? raw[0] : raw
       setError(msg)
       toast.error(msg)
@@ -51,9 +52,9 @@ export default function RegisterPage() {
 
   return (
     <AuthShell
-      title="Create your account"
-      subtitle="Free to start. No credit card required."
-      altAction={{ label: 'Already have an account?', href: `/${locale}/login`, cta: 'Sign in' }}
+      title={t('registerTitle')}
+      subtitle={t('registerSubtitle')}
+      altAction={{ label: t('haveAccount'), href: `/${locale}/login`, cta: t('signIn') }}
     >
       <form onSubmit={onSubmit} className="space-y-5" noValidate>
         {error && (
@@ -67,11 +68,11 @@ export default function RegisterPage() {
         )}
 
         <div className="space-y-1.5">
-          <Label htmlFor="name">Full name</Label>
+          <Label htmlFor="name">{t('fullName')}</Label>
           <Input
             id="name"
             autoComplete="name"
-            placeholder="Karim Rahman"
+            placeholder={t('namePlaceholder')}
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
@@ -79,12 +80,12 @@ export default function RegisterPage() {
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="email">Work email</Label>
+          <Label htmlFor="email">{t('workEmail')}</Label>
           <Input
             id="email"
             type="email"
             autoComplete="email"
-            placeholder="you@company.com"
+            placeholder={t('emailPlaceholder')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -92,7 +93,7 @@ export default function RegisterPage() {
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">{t('password')}</Label>
           <div className="relative">
             <Input
               id="password"
@@ -107,7 +108,7 @@ export default function RegisterPage() {
             <button
               type="button"
               onClick={() => setShowPassword((s) => !s)}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              aria-label={showPassword ? t('hidePassword') : t('showPassword')}
               className="absolute inset-y-0 right-0 flex w-10 items-center justify-center rounded-r-lg text-subtle-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -119,7 +120,7 @@ export default function RegisterPage() {
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="confirmPassword">Confirm password</Label>
+          <Label htmlFor="confirmPassword">{t('confirmPassword')}</Label>
           <Input
             id="confirmPassword"
             type={showPassword ? 'text' : 'password'}
@@ -130,7 +131,7 @@ export default function RegisterPage() {
             required
           />
           {mismatch && (
-            <p className="text-xs text-danger" role="alert">Passwords do not match.</p>
+            <p className="text-xs text-danger" role="alert">{t('passwordsNoMatch')}</p>
           )}
         </div>
 
@@ -140,22 +141,22 @@ export default function RegisterPage() {
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
-              Creating account…
+              {t('creatingAccount')}
             </>
           ) : (
-            'Create account'
+            t('createAccount')
           )}
         </Button>
 
         {/* Consent, as any sellable SaaS needs. */}
         <p className="text-center text-xs leading-relaxed text-subtle-foreground">
-          By creating an account you agree to our{' '}
+          {t('consentPre')}{' '}
           <Link href={`/${locale}/terms`} className="text-primary underline-offset-4 hover:underline">
-            Terms of Service
+            {t('termsOfService')}
           </Link>{' '}
-          and{' '}
+          {t('and')}{' '}
           <Link href={`/${locale}/privacy`} className="text-primary underline-offset-4 hover:underline">
-            Privacy Policy
+            {t('privacyPolicy')}
           </Link>
           .
         </p>

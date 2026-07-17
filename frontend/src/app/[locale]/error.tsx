@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { useTranslations } from 'next-intl'
 import { AlertTriangle, RotateCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -15,6 +16,8 @@ export default function LocaleError({
   error: Error & { digest?: string }
   reset: () => void
 }) {
+  const t = useTranslations('errorPages')
+
   React.useEffect(() => {
     // Replace with a real reporter (Sentry et al.) when one is wired up.
     console.error('Unhandled route error:', error)
@@ -26,23 +29,20 @@ export default function LocaleError({
         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-danger-subtle">
           <AlertTriangle className="h-6 w-6 text-danger" aria-hidden="true" />
         </div>
-        <h1 className="text-xl font-semibold text-foreground">Something went wrong</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          An unexpected error occurred. You can retry, and if it keeps happening the
-          reference below helps us track it down.
-        </p>
+        <h1 className="text-xl font-semibold text-foreground">{t('somethingWrong')}</h1>
+        <p className="mt-2 text-sm text-muted-foreground">{t('errorBody')}</p>
         {error.digest && (
           <p className="mt-3 font-mono text-xs text-subtle-foreground">
-            Reference: {error.digest}
+            {t('reference')} {error.digest}
           </p>
         )}
         <div className="mt-6 flex justify-center gap-3">
           <Button onClick={reset}>
             <RotateCw className="mr-2 h-4 w-4" aria-hidden="true" />
-            Try again
+            {t('tryAgain')}
           </Button>
           <Button variant="outline" onClick={() => (window.location.href = '/')}>
-            Go to dashboard
+            {t('goToDashboard')}
           </Button>
         </div>
       </div>

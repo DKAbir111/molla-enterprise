@@ -2,7 +2,7 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { AlertCircle, ArrowLeft, Loader2, MailCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,6 +13,7 @@ import { toast } from 'sonner'
 
 export default function ForgotPasswordPage() {
   const locale = useLocale()
+  const t = useTranslations('auth')
   const [email, setEmail] = React.useState('')
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
@@ -24,20 +25,20 @@ export default function ForgotPasswordPage() {
     setLoading(true)
     setError(null)
     try {
-      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Enter a valid email')
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error(t('enterValidEmail'))
       const res = await forgotPassword({ email })
       // Always report success — never reveal whether an account exists.
       setSent(true)
-      toast.success('If an account exists, a reset link has been sent.')
+      toast.success(t('genericSent'))
       if (res?.token) setDevToken(res.token)
     } catch (err: any) {
       // A genuine validation error (bad email) is worth surfacing; a lookup
       // miss is not, so the API's own not-found still resolves to "sent".
-      if (err?.message === 'Enter a valid email') {
+      if (err?.message === t('enterValidEmail')) {
         setError(err.message)
       } else {
         setSent(true)
-        toast.success('If an account exists, a reset link has been sent.')
+        toast.success(t('genericSent'))
       }
     } finally {
       setLoading(false)
@@ -46,35 +47,30 @@ export default function ForgotPasswordPage() {
 
   return (
     <AuthShell
-      title={sent ? 'Check your email' : 'Forgot password?'}
-      subtitle={
-        sent
-          ? undefined
-          : "Enter your email and we'll send you a link to reset your password."
-      }
-      altAction={{ label: 'Remembered it?', href: `/${locale}/login`, cta: 'Sign in' }}
+      title={sent ? t('checkEmail') : t('forgotTitle')}
+      subtitle={sent ? undefined : t('forgotSubtitle')}
+      altAction={{ label: t('rememberedIt'), href: `/${locale}/login`, cta: t('signIn') }}
     >
       {sent ? (
         <div className="space-y-6">
           <div className="flex items-start gap-3 rounded-lg border border-success bg-success-subtle px-4 py-3">
             <MailCheck className="mt-0.5 h-5 w-5 shrink-0 text-success" aria-hidden="true" />
             <div className="text-sm text-foreground">
-              <p className="font-medium">Reset link sent</p>
+              <p className="font-medium">{t('resetLinkSent')}</p>
               <p className="mt-1 text-muted-foreground">
-                If an account exists for <span className="font-medium text-foreground">{email}</span>,
-                a password reset link is on its way. Check your inbox and spam folder.
+                {t('resetLinkSentBody', { email })}
               </p>
             </div>
           </div>
 
           {devToken && (
             <p className="text-xs text-subtle-foreground">
-              Dev shortcut:{' '}
+              {t('devShortcut')}{' '}
               <Link
                 className="text-primary underline underline-offset-4"
                 href={`/${locale}/reset-password?token=${devToken}`}
               >
-                open reset page
+                {t('openResetPage')}
               </Link>
             </p>
           )}
@@ -84,7 +80,7 @@ export default function ForgotPasswordPage() {
             className="inline-flex items-center gap-2 text-sm font-medium text-primary underline-offset-4 hover:underline"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            Back to sign in
+            {t('backToSignIn')}
           </Link>
         </div>
       ) : (
@@ -100,12 +96,12 @@ export default function ForgotPasswordPage() {
           )}
 
           <div className="space-y-1.5">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t('email')}</Label>
             <Input
               id="email"
               type="email"
               autoComplete="email"
-              placeholder="you@company.com"
+              placeholder={t('emailPlaceholder')}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -116,10 +112,10 @@ export default function ForgotPasswordPage() {
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
-                Sending…
+                {t('sending')}
               </>
             ) : (
-              'Send reset link'
+              t('sendResetLink')
             )}
           </Button>
 
@@ -128,7 +124,7 @@ export default function ForgotPasswordPage() {
             className="inline-flex items-center gap-2 text-sm font-medium text-primary underline-offset-4 hover:underline"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            Back to sign in
+            {t('backToSignIn')}
           </Link>
         </form>
       )}
