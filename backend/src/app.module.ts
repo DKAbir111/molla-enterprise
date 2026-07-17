@@ -20,12 +20,14 @@ import { AlertsModule } from './alerts/alerts.module';
 import { MailModule } from './mail/mail.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { OrgDisabledGuard } from './common/guards/org-disabled.guard';
+import { UploadModule } from './common/upload/upload.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     ScheduleModule.forRoot(),
-    // ServeStaticModule removed - use cloud storage for Vercel
+    // ServeStaticModule removed - uploads go to Cloudinary (see UploadModule)
+    UploadModule,
     PrismaModule,
     AuthModule,
     UsersModule,

@@ -5,24 +5,7 @@ import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import * as path from 'path';
-import * as fs from 'fs';
-
-const productStorage = diskStorage({
-  destination: (_req, _file, cb) => {
-    const parent = path.resolve(__dirname, '..'); // dev: backend, prod: backend/dist
-    const isDist = path.basename(parent) === 'dist';
-    const backendRoot = isDist ? path.resolve(parent, '..') : parent; // -> backend
-    const dir = path.resolve(backendRoot, 'uploads', 'products');
-    try { fs.mkdirSync(dir, { recursive: true }); } catch {}
-    cb(null, dir);
-  },
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname) || '.png';
-    cb(null, `product-${Date.now()}${ext}`);
-  },
-});
+import { CloudinaryService } from '../common/upload/cloudinary.service';
 
 function toPublicUrl(p?: string | null) {
   if (!p) return p as any;
@@ -42,7 +25,10 @@ function withPublicImage<T extends { imageUrl?: string | null }>(obj: T): T {
 @UseGuards(JwtAuthGuard)
 @Controller('products')
 export class ProductsController {
-  constructor(private products: ProductsService) {}
+  constructor(
+    private products: ProductsService,
+    private cloudinary: CloudinaryService,
+  ) {}
 
   @Get()
   list(@Req() req: any) {
@@ -67,9 +53,9 @@ export class ProductsController {
   @Patch(':id/image')
   @ApiConsumes('multipart/form-data')
   @ApiBody({ schema: { type: 'object', properties: { image: { type: 'string', format: 'binary' } } } })
-  @UseInterceptors(FileInterceptor('image', { storage: productStorage }))
+  @UseInterceptors(FileInterceptor('image'))
   async uploadImage(@Req() req: any, @Param('id') id: string, @UploadedFile() file?: Express.Multer.File) {
-    const imagePath = file ? '/uploads/products/' + path.basename(file.path) : undefined;
+    const imagePath = file ? await this.cloudinary.uploadImage(file, 'products') : undefined;
     const updated = await this.products.update(req.user.organizationId, id, { } as any, imagePath)
     return withPublicImage(updated as any)
   }

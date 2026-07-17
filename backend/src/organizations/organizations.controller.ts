@@ -1,30 +1,12 @@
 import { Body, Controller, Get, Param, Patch, Post, Delete, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import * as path from 'path';
-import * as fs from 'fs';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { CloudinaryService } from '../common/upload/cloudinary.service';
 import { OrganizationsService } from './organizations.service';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { Req } from '@nestjs/common';
-
-const storage = diskStorage({
-  destination: (_req, _file, cb) => {
-    // Save under backend/uploads for both dev (src) and prod (dist/src)
-    const parent = path.resolve(__dirname, '..'); // dev: backend, prod: backend/dist
-    const isDist = path.basename(parent) === 'dist';
-    const backendRoot = isDist ? path.resolve(parent, '..') : parent; // -> backend
-    const dir = path.resolve(backendRoot, 'uploads');
-    try { fs.mkdirSync(dir, { recursive: true }); } catch { }
-    cb(null, dir);
-  },
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname) || '.png';
-    cb(null, `org-${Date.now()}${ext}`);
-  },
-});
 
 function toPublicUrl(p?: string) {
   if (!p) return p as any;
@@ -44,15 +26,18 @@ function withPublicLogo<T extends { logoUrl?: string | null }>(obj: T): T {
 @UseGuards(JwtAuthGuard)
 @Controller('organizations')
 export class OrganizationsController {
-  constructor(private orgs: OrganizationsService) { }
+  constructor(
+    private orgs: OrganizationsService,
+    private cloudinary: CloudinaryService,
+  ) { }
 
   @Post()
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: CreateOrganizationDto })
-  @UseInterceptors(FileInterceptor('logo', { storage }))
-  create(@Req() req: any, @Body() dto: CreateOrganizationDto, @UploadedFile() file?: Express.Multer.File) {
-    const logoPath = file ? '/uploads/' + path.basename(file.path) : undefined;
-    return this.orgs.create(req.user.userId, dto, logoPath).then(withPublicLogo);
+  @UseInterceptors(FileInterceptor('logo'))
+  async create(@Req() req: any, @Body() dto: CreateOrganizationDto, @UploadedFile() file?: Express.Multer.File) {
+    const logoPath = file ? await this.cloudinary.uploadImage(file, 'organizations') : undefined;
+    return withPublicLogo(await this.orgs.create(req.user.userId, dto, logoPath));
   }
 
   @Get('me')
@@ -68,15 +53,15 @@ export class OrganizationsController {
   @Patch(':id')
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: UpdateOrganizationDto })
-  @UseInterceptors(FileInterceptor('logo', { storage }))
-  update(
+  @UseInterceptors(FileInterceptor('logo'))
+  async update(
     @Req() req: any,
     @Param('id') id: string,
     @Body() dto: UpdateOrganizationDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
-    const logoPath = file ? '/uploads/' + path.basename(file.path) : undefined;
-    return this.orgs.update(req.user.userId, id, dto, logoPath).then(withPublicLogo);
+    const logoPath = file ? await this.cloudinary.uploadImage(file, 'organizations') : undefined;
+    return withPublicLogo(await this.orgs.update(req.user.userId, id, dto, logoPath));
   }
 
   @Patch(':id/settings')

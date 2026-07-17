@@ -2,8 +2,7 @@ import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/commo
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
-import * as fs from 'fs';
-import * as path from 'path';
+import { CloudinaryService } from '../common/upload/cloudinary.service';
 import { Organization } from '@prisma/client';
 
 @Injectable()
@@ -14,7 +13,10 @@ export class OrganizationsService {
     0,
   );
 
-  constructor(private prisma: PrismaService) { }
+  constructor(
+    private prisma: PrismaService,
+    private cloudinary: CloudinaryService,
+  ) { }
 
   async create(userId: string, dto: CreateOrganizationDto, logoPath?: string) {
     // Prevent creating multiple orgs for minimal design; extend later if needed
@@ -191,18 +193,15 @@ export class OrganizationsService {
     });
   }
 
-  private async saveBase64(b64: string, basename: string) {
+  private async saveBase64(b64: string, _basename: string) {
     const match = b64.match(/^data:(.+);base64,(.*)$/);
+    const mimetype = match ? match[1] : 'image/png';
     const data = match ? match[2] : b64;
     const buffer = Buffer.from(data, 'base64');
-    const parent = path.resolve(__dirname, '..'); // dev: backend, prod: backend/dist
-    const isDist = path.basename(parent) === 'dist';
-    const backendRoot = isDist ? path.resolve(parent, '..') : parent; // -> backend
-    const dir = path.resolve(backendRoot, 'uploads');
-    await fs.promises.mkdir(dir, { recursive: true });
-    const file = path.join(dir, `${basename}-${Date.now()}.png`);
-    await fs.promises.writeFile(file, buffer);
-    return '/uploads/' + path.basename(file);
+    return this.cloudinary.uploadImage(
+      { buffer, mimetype, size: buffer.length } as Express.Multer.File,
+      'organizations',
+    );
   }
 
   private getCachedOrg(userId: string) {

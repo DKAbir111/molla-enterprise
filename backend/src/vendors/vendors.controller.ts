@@ -3,24 +3,7 @@ import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { VendorsService } from './vendors.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import * as path from 'path';
-import * as fs from 'fs';
-
-const vendorStorage = diskStorage({
-  destination: (_req, _file, cb) => {
-    const parent = path.resolve(__dirname, '..');
-    const isDist = path.basename(parent) === 'dist';
-    const backendRoot = isDist ? path.resolve(parent, '..') : parent;
-    const dir = path.resolve(backendRoot, 'uploads', 'vendors');
-    try { fs.mkdirSync(dir, { recursive: true }); } catch {}
-    cb(null, dir);
-  },
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname) || '.png';
-    cb(null, `vendor-${Date.now()}${ext}`);
-  },
-});
+import { CloudinaryService } from '../common/upload/cloudinary.service';
 
 function toPublicUrl(p?: string | null) {
   if (!p) return p as any;
@@ -39,7 +22,10 @@ function withPublicAvatar<T extends { avatarUrl?: string | null }>(obj: T): T {
 @UseGuards(JwtAuthGuard)
 @Controller('vendors')
 export class VendorsController {
-  constructor(private vendors: VendorsService) {}
+  constructor(
+    private vendors: VendorsService,
+    private cloudinary: CloudinaryService,
+  ) {}
 
   @Get()
   list(@Req() req: any) { return this.vendors.findAll(req.user.organizationId).then(items => items.map(withPublicAvatar)) }
@@ -59,9 +45,9 @@ export class VendorsController {
   @Patch(':id/avatar')
   @ApiConsumes('multipart/form-data')
   @ApiBody({ schema: { type: 'object', properties: { avatar: { type: 'string', format: 'binary' } } } })
-  @UseInterceptors(FileInterceptor('avatar', { storage: vendorStorage }))
+  @UseInterceptors(FileInterceptor('avatar'))
   async uploadAvatar(@Req() req: any, @Param('id') id: string, @UploadedFile() file?: Express.Multer.File) {
-    const p = file ? '/uploads/vendors/' + path.basename(file.path) : undefined
+    const p = file ? await this.cloudinary.uploadImage(file, 'vendors') : undefined
     const updated = await this.vendors.update(req.user.organizationId, id, { avatarUrl: p } as any)
     return withPublicAvatar(updated as any)
   }

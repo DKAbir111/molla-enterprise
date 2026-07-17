@@ -5,24 +5,7 @@ import { CustomersService } from './customers.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import * as path from 'path';
-import * as fs from 'fs';
-
-const avatarStorage = diskStorage({
-  destination: (_req, _file, cb) => {
-    const parent = path.resolve(__dirname, '..'); // dev: backend, prod: backend/dist
-    const isDist = path.basename(parent) === 'dist';
-    const backendRoot = isDist ? path.resolve(parent, '..') : parent; // -> backend
-    const dir = path.resolve(backendRoot, 'uploads', 'customers');
-    try { fs.mkdirSync(dir, { recursive: true }); } catch {}
-    cb(null, dir);
-  },
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname) || '.png';
-    cb(null, `customer-${Date.now()}${ext}`);
-  },
-});
+import { CloudinaryService } from '../common/upload/cloudinary.service';
 
 function toPublicUrl(p?: string | null) {
   if (!p) return p as any;
@@ -41,7 +24,10 @@ function withPublicAvatar<T extends { avatarUrl?: string | null }>(obj: T): T {
 @UseGuards(JwtAuthGuard)
 @Controller('customers')
 export class CustomersController {
-  constructor(private customers: CustomersService) {}
+  constructor(
+    private customers: CustomersService,
+    private cloudinary: CloudinaryService,
+  ) {}
 
   @Get()
   list(@Req() req: any) {
@@ -71,9 +57,9 @@ export class CustomersController {
   @Patch(':id/avatar')
   @ApiConsumes('multipart/form-data')
   @ApiBody({ schema: { type: 'object', properties: { avatar: { type: 'string', format: 'binary' } } } })
-  @UseInterceptors(FileInterceptor('avatar', { storage: avatarStorage }))
+  @UseInterceptors(FileInterceptor('avatar'))
   async uploadAvatar(@Req() req: any, @Param('id') id: string, @UploadedFile() file?: Express.Multer.File) {
-    const avatarPath = file ? '/uploads/customers/' + path.basename(file.path) : undefined;
+    const avatarPath = file ? await this.cloudinary.uploadImage(file, 'customers') : undefined;
     const updated = await this.customers.update(req.user.organizationId, id, { avatarUrl: avatarPath } as any)
     return withPublicAvatar(updated as any)
   }

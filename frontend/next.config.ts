@@ -6,6 +6,7 @@ const withNextIntl = createNextIntlPlugin();
 const nextConfig: NextConfig = {
   images: {
     domains: ['localhost'],
+    remotePatterns: [{ protocol: 'https', hostname: 'res.cloudinary.com' }],
   },
   eslint: {
     ignoreDuringBuilds: true,
