@@ -35,9 +35,9 @@ export function RecentOrders({ }: RecentOrdersProps) {
   }, [])
 
   return (
-    <Card>
+    <Card className="rounded-2xl">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>{t('recentSells') || 'Recent Sells'}</CardTitle>
+        <CardTitle className="text-lg">{t('recentSells') || 'Recent Sells'}</CardTitle>
         <Link href={`/${locale}/sells`}>
           <Button variant="outline" size="sm">
             {t('viewAll')}
@@ -45,35 +45,39 @@ export function RecentOrders({ }: RecentOrdersProps) {
         </Link>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          {orders.slice(0, 5).map((order) => (
-            <Link key={order.id} href={`/${locale}/sells/${order.id}`} className="block">
-              <div className="flex items-center justify-between p-4 rounded-lg border hover:bg-surface-hover">
-                <div className="flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-full gradient-primary flex items-center justify-center text-primary-foreground font-semibold">
-                    {order.customerName.charAt(0)}
+        {orders.length === 0 ? (
+          <p className="py-8 text-center text-sm text-muted-foreground">{t('noRecentSells')}</p>
+        ) : (
+          <div className="space-y-2">
+            {orders.slice(0, 5).map((order) => (
+              <Link key={order.id} href={`/${locale}/sells/${order.id}`} className="block">
+                <div className="flex items-center justify-between gap-3 rounded-xl border border-border-subtle p-3 transition-colors hover:bg-surface-hover">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl gradient-primary font-semibold text-primary-foreground">
+                      {order.customerName.charAt(0)}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="truncate font-medium text-foreground">{order.customerName}</p>
+                      <p className="truncate text-sm text-subtle-foreground">{`Sell ${formatOrderCode(order.id, order.createdAt)}`}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-medium">{order.customerName}</p>
-                    <p className="text-sm text-subtle-foreground">{`Sell ${formatOrderCode(order.id, order.createdAt)}`}</p>
+                  <div className="shrink-0 text-right">
+                    <p className="font-semibold tabular-nums text-foreground">{formatCurrency(order.total, locale)}</p>
+                    <p className={cn(
+                      "text-xs font-medium",
+                      order.status === 'delivered' ? "text-success" : "",
+                      order.status === 'processing' ? "text-info" : "",
+                      order.status === 'pending' ? "text-warning" : "",
+                      order.status === 'cancelled' ? "text-danger" : ""
+                    )}>
+                      {t(`orderStatus.${order.status}`)}
+                    </p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="font-medium">{formatCurrency(order.total, locale)}</p>
-                  <p className={cn(
-                    "text-sm",
-                    order.status === 'delivered' ? "text-success" : "",
-                    order.status === 'processing' ? "text-info" : "",
-                    order.status === 'pending' ? "text-warning" : "",
-                    order.status === 'cancelled' ? "text-danger" : ""
-                  )}>
-                    {t(`orderStatus.${order.status}`)}
-                  </p>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </CardContent>
     </Card>
   )

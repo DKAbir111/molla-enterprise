@@ -25,40 +25,44 @@ export function RecentBuys() {
   }, [])
 
   return (
-    <Card>
+    <Card className="rounded-2xl">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Recent Purchases</CardTitle>
+        <CardTitle className="text-lg">{t('recentPurchases')}</CardTitle>
         <Link href={`/${locale}/buys`}>
           <Button variant="outline" size="sm">{t('viewAll')}</Button>
         </Link>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          {buys.slice(0, 5).map((b) => {
-            const itemsTotal = (b.items || []).reduce((s: number, it: any) => s + Number(it.total || 0), 0)
-            const discount = Number(b.discount || 0)
-            const transport = Number(b.transportTotal || 0)
-            const grand = Math.max(0, itemsTotal + transport - discount)
-            return (
-              <Link key={b.id} href={`/${locale}/buys/${b.id}`} className="block">
-                <div className="flex items-center justify-between p-4 rounded-lg border hover:bg-surface-hover">
-                  <div className="flex items-center gap-4">
-                    <div className="h-10 w-10 rounded-full bg-linear-to-r from-blue-600 to-emerald-600 flex items-center justify-center text-white font-semibold">
-                      {(b.vendorName || 'V').charAt(0)}
+        {buys.length === 0 ? (
+          <p className="py-8 text-center text-sm text-muted-foreground">{t('noRecentPurchases')}</p>
+        ) : (
+          <div className="space-y-2">
+            {buys.slice(0, 5).map((b) => {
+              const itemsTotal = (b.items || []).reduce((s: number, it: any) => s + Number(it.total || 0), 0)
+              const discount = Number(b.discount || 0)
+              const transport = Number(b.transportTotal || 0)
+              const grand = Math.max(0, itemsTotal + transport - discount)
+              return (
+                <Link key={b.id} href={`/${locale}/buys/${b.id}`} className="block">
+                  <div className="flex items-center justify-between gap-3 rounded-xl border border-border-subtle p-3 transition-colors hover:bg-surface-hover">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-linear-to-r from-blue-600 to-emerald-600 font-semibold text-white">
+                        {(b.vendorName || 'V').charAt(0)}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate font-medium text-foreground">{b.vendorName || 'Vendor'}</p>
+                        <p className="truncate text-sm text-subtle-foreground">{new Date(b.createdAt || Date.now()).toLocaleDateString(locale as any)}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium">{b.vendorName || 'Vendor'}</p>
-                      <p className="text-sm text-subtle-foreground">{new Date(b.createdAt || Date.now()).toLocaleDateString(locale as any)}</p>
+                    <div className="shrink-0 text-right">
+                      <p className="font-semibold tabular-nums text-foreground">{formatCurrency(grand, locale as any)}</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-medium">{formatCurrency(grand, locale as any)}</p>
-                  </div>
-                </div>
-              </Link>
-            )
-          })}
-        </div>
+                </Link>
+              )
+            })}
+          </div>
+        )}
       </CardContent>
     </Card>
   )

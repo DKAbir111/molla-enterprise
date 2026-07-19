@@ -2,14 +2,13 @@
 
 import { useTranslations } from 'next-intl'
 import { DateFilter } from '@/components/dashboard/DateFilter'
-import { Greeting } from '@/components/dashboard/Greeting'
 import { RecentOrders } from '@/components/dashboard/RecentOrders'
 import { RecentBuys } from '@/components/dashboard/RecentBuys'
 import { DashboardStatsGrid } from '@/components/dashboard/DashboardStatsGrid'
 import nextDynamic from 'next/dynamic'
 const Charts = nextDynamic(() => import('@/components/dashboard/DashboardCharts').then(m => m.DashboardCharts), { ssr: false })
 import { useLocale } from 'next-intl'
-import { TrendingUp, ShoppingCart, Users, Eye, EyeOff } from 'lucide-react'
+import { ArrowDownToLine, Clock, Eye, EyeOff, Package, Receipt, ShoppingCart, Truck, Users, Wallet } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import React from 'react'
 import { getDashboardData } from '@/lib/api'
@@ -55,57 +54,72 @@ export default function DashboardPage() {
     {
       title: t('totalRevenue'),
       value: formatCurrency(overview.totalRevenue, locale),
-      icon: TrendingUp,
+      icon: Wallet,
+      accent: 'primary' as const,
       change: prev > 0 ? `${revPositive ? '+' : ''}${revChangePct.toFixed(1)}%` : undefined,
       positive: prev > 0 ? revPositive : undefined,
     },
     {
       title: 'Transport Revenue',
       value: formatCurrency((overview as any).transportRevenue || 0, locale),
-      icon: TrendingUp,
+      icon: Truck,
+      accent: 'info' as const,
     },
     {
       title: 'Money Received',
       value: formatCurrency((overview as any).moneyReceived || 0, locale),
-      icon: TrendingUp,
+      icon: ArrowDownToLine,
+      accent: 'success' as const,
     },
     {
       title: 'Money Due',
       value: formatCurrency((overview as any).moneyDue || 0, locale),
-      icon: TrendingUp,
+      icon: Clock,
+      accent: 'danger' as const,
     },
     {
       title: t('activeOrders'),
       value: overview.activeOrders.toString(),
       icon: ShoppingCart,
-      // change omitted until real calc added
+      accent: 'primary' as const,
     },
     {
       title: t('customers'),
       value: overview.customers.toString(),
       icon: Users,
-      // change omitted until real calc added
+      accent: 'info' as const,
     },
     {
       title: t('stockedProductPrice'),
       value: showStockedProductPrice ? formatCurrency(overview.stockedProductValue, locale) : '*****',
-      icon: TrendingUp,
-      // change omitted until real calc added
+      icon: Package,
+      accent: 'warning' as const,
       toggle: () => setShowStockedProductPrice(!showStockedProductPrice),
       toggleIcon: showStockedProductPrice ? EyeOff : Eye,
     },
     {
       title: t('totalExpenses'),
       value: formatCurrency(overview.totalExpenses, locale),
-      icon: TrendingUp,
-      // change omitted until real calc added
+      icon: Receipt,
+      accent: 'danger' as const,
     },
   ]
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <Greeting />
+      {/* Editorial page header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-primary">
+            {t('overviewEyebrow')}
+          </p>
+          <h1 className="mt-1.5 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            {t('title')}
+          </h1>
+          <p className="mt-2 max-w-xl text-sm text-muted-foreground">
+            {t('overviewSubtitle')}
+          </p>
+        </div>
         <DateFilter value={range} onChange={(v) => setRange({ start: v.start, end: v.end })} />
       </div>
 

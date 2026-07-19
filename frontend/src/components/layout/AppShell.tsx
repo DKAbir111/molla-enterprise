@@ -45,19 +45,28 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const isOrgRoute = pathname === `${base}/organization`
   const shouldHide = isAuthRoute || isOrgRoute
 
+  // The token lives in a browser-only store, so it's unreadable during SSR. To
+  // avoid a hydration mismatch, the first client render must match the server's:
+  // both treat the user as unauthorized (loader) until `mounted` flips after
+  // hydration, at which point we read the real token and re-render.
+  const [mounted, setMounted] = React.useState(false)
+  React.useEffect(() => { setMounted(true) }, [])
+
   // Computed synchronously so protected content is NEVER rendered before we know
   // the user is allowed to see it. Middleware already blocks the no-cookie case
   // before this component mounts; this covers "token present but org not yet
   // fetched / invalid". Org route needs only a token; app routes need an org.
-  const token = typeof window !== 'undefined' ? getAuthToken() : null
+  const token = mounted ? getAuthToken() : null
   const authorized = isAuthRoute
     ? true
-    : isOrgRoute
-      ? !!token
-      : !!token && !!organization
+    : !mounted
+      ? false
+      : isOrgRoute
+        ? !!token
+        : !!token && !!organization
 
   React.useEffect(() => {
-    if (isAuthRoute) return
+    if (!mounted || isAuthRoute) return
 
     if (!token) {
       router.replace(`/${locale}/login`)
@@ -88,7 +97,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     if (!organization && !isOrgRoute) {
       router.replace(`/${locale}/organization`)
     }
-  }, [isAuthRoute, isOrgRoute, organization, fetchOrganization, router, locale, token])
+  }, [mounted, isAuthRoute, isOrgRoute, organization, fetchOrganization, router, locale, token])
 
   // Auth pages own their full-bleed layout (AuthShell renders its own brand
   // panel), so they must not be boxed into a centred container.
@@ -107,12 +116,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return <FullScreenLoader />
   }
 
+  // Onboarding (org creation) also owns its full-bleed layout.
   if (shouldHide) {
     return (
-      <div className="min-h-screen flex items-center justify-center app-bg p-6">
+      <>
         <Toaster position="bottom-right" richColors closeButton />
         {children}
-      </div>
+      </>
     )
   }
 

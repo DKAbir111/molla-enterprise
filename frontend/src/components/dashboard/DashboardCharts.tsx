@@ -1,7 +1,7 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { BarChart3, TrendingUp } from 'lucide-react'
 import {
   AreaChart,
@@ -51,12 +51,23 @@ export function DashboardCharts({ revenueData, productData }: DashboardChartsPro
 
   const hasRevenue = revenueData?.some((d) => Number(d.revenue) > 0)
   const hasProducts = productData?.some((d) => Number(d.sales) > 0)
+  const period = revenueData?.at(-1)?.name
 
   return (
     <div className="grid gap-6 md:grid-cols-2">
-      <Card>
+      <Card className="rounded-2xl">
         <CardHeader>
-          <CardTitle>{t('revenueOverview')}</CardTitle>
+          <div className="flex items-start justify-between gap-3">
+            <div className="space-y-1">
+              <CardTitle className="text-lg">{t('revenueOverview')}</CardTitle>
+              <CardDescription>{t('revenueSubtitle')}</CardDescription>
+            </div>
+            {period && (
+              <span className="shrink-0 rounded-full border border-border-subtle bg-surface-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+                {period}
+              </span>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           {!hasRevenue ? (
@@ -109,9 +120,12 @@ export function DashboardCharts({ revenueData, productData }: DashboardChartsPro
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="rounded-2xl">
         <CardHeader>
-          <CardTitle>{t('productSales')}</CardTitle>
+          <div className="space-y-1">
+            <CardTitle className="text-lg">{t('productSales')}</CardTitle>
+            <CardDescription>{t('productSubtitle')}</CardDescription>
+          </div>
         </CardHeader>
         <CardContent>
           {!hasProducts ? (
