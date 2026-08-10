@@ -25,7 +25,9 @@
       "finance": "Finance",
       "system": "System"
     },
-    "dues": "Dues"
+    "dues": "Dues",
+    "receivables": "Receivables",
+    "payables": "Payables"
   },
   "vendors": {
     "search": "Search vendors...",
@@ -730,7 +732,12 @@
     "searchVendors": "Search vendors…",
     "showingCount": "Showing {shown} of {total}",
     "noMatches": "Nothing matches that search.",
-    "showMore": "Show more"
+    "showMore": "Show more",
+    "contactsWithDue": "Contacts with a balance",
+    "oldestOutstanding": "Oldest outstanding",
+    "receivablesTitle": "Money customers owe you",
+    "payablesTitle": "Money you owe vendors",
+    "none": "—"
   },
   "invoice": {
     "invoice": "Invoice",

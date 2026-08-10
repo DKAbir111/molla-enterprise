@@ -25,7 +25,9 @@
       "finance": "আর্থিক",
       "system": "সিস্টেম"
     },
-    "dues": "পাওনা ও দেনা"
+    "dues": "পাওনা ও দেনা",
+    "receivables": "পাওনা",
+    "payables": "দেনা"
   },
   "vendors": {
     "search": "সরবরাহকারী খুঁজুন...",
@@ -730,7 +732,12 @@
     "searchVendors": "সরবরাহকারী খুঁজুন…",
     "showingCount": "{total}টির মধ্যে {shown}টি দেখাচ্ছে",
     "noMatches": "এই খোঁজে কিছু পাওয়া যায়নি।",
-    "showMore": "আরও দেখান"
+    "showMore": "আরও দেখান",
+    "contactsWithDue": "বকেয়াসহ যোগাযোগ",
+    "oldestOutstanding": "সবচেয়ে পুরোনো বকেয়া",
+    "receivablesTitle": "গ্রাহকদের কাছে আপনার পাওনা",
+    "payablesTitle": "সরবরাহকারীদের কাছে আপনার দেনা",
+    "none": "—"
   },
   "invoice": {
     "invoice": "চালান",

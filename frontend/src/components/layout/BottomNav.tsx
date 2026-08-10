@@ -40,8 +40,9 @@ const PRIMARY_TABS = [
    sidebar so the two navigations read as the same app. */
 const MORE_LINKS = [
   { key: 'buys', href: '/buys', icon: Truck },
+  { key: 'receivables', href: '/receivables', icon: HandCoins },
   { key: 'vendors', href: '/vendors', icon: Building2 },
-  { key: 'dues', href: '/dues', icon: HandCoins },
+  { key: 'payables', href: '/payables', icon: Wallet },
   { key: 'quickEntries', href: '/quick-entries', icon: Receipt },
   { key: 'accounts', href: '/accounts', icon: Wallet },
   { key: 'settings', href: '/settings', icon: Settings },

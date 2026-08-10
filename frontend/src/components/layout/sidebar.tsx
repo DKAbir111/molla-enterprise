@@ -42,6 +42,7 @@ const NAV_GROUPS = [
     items: [
       { key: 'sells', href: '/sells', icon: ShoppingCart },
       { key: 'customers', href: '/customers', icon: Users },
+      { key: 'receivables', href: '/receivables', icon: HandCoins },
     ],
   },
   {
@@ -49,12 +50,12 @@ const NAV_GROUPS = [
     items: [
       { key: 'buys', href: '/buys', icon: Truck },
       { key: 'vendors', href: '/vendors', icon: Building2 },
+      { key: 'payables', href: '/payables', icon: Wallet },
     ],
   },
   {
     label: 'finance',
     items: [
-      { key: 'dues', href: '/dues', icon: HandCoins },
       { key: 'quickEntries', href: '/quick-entries', icon: Receipt },
       { key: 'accounts', href: '/accounts', icon: Wallet },
     ],
