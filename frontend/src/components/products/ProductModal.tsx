@@ -6,6 +6,7 @@ import { getMyOrganizationSettings } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
 import {
   Dialog,
   DialogContent,
@@ -381,13 +382,7 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
             {isEdit && (
               <div className="flex items-center gap-3">
                 <Label className="text-sm font-medium text-muted-foreground">{t('active')}</Label>
-                <button
-                  type="button"
-                  onClick={() => setActive((v) => !v)}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${active ? 'bg-primary' : 'bg-surface-hover'}`}
-                >
-                  <span className={`inline-block h-4 w-4 transform rounded-full bg-surface transition-transform ${active ? 'translate-x-6' : 'translate-x-1'}`} />
-                </button>
+                <Switch checked={active} onCheckedChange={setActive} label={t('active')} />
               </div>
             )}
 

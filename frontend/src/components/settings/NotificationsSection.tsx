@@ -7,6 +7,7 @@ import { Bell, Save } from 'lucide-react'
 import { getMyOrganizationSettings, updateOrganizationSettings } from '@/lib/api/organization-api'
 import { listSnoozes, unsnoozeAlert, type SnoozedItem } from '@/lib/api/alerts-api'
 import { toast } from 'sonner'
+import { Switch } from '@/components/ui/switch'
 
 interface NotificationsSectionProps {
     orgId: string | null
@@ -87,10 +88,11 @@ export function NotificationsSection({ orgId }: NotificationsSectionProps) {
                                 <div className="font-medium text-foreground">{label}</div>
                                 <div className="text-sm text-muted-foreground">{desc}</div>
                             </div>
-                            <button
-                                onClick={async () => {
-                                    if (disabled) return
-                                    const next = !(notifications as any)[key]
+                            <Switch
+                                checked={!!(notifications as any)[key]}
+                                disabled={disabled}
+                                label={label}
+                                onCheckedChange={async (next) => {
                                     const prevState = notifications
                                     setNotifications({ ...notifications, [key]: next } as any)
                                     if (!orgId) return
@@ -102,11 +104,7 @@ export function NotificationsSection({ orgId }: NotificationsSectionProps) {
                                         toast.error('Failed to update setting')
                                     }
                                 }}
-                                disabled={disabled}
-                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${(notifications as any)[key] ? 'bg-primary' : 'bg-gray-300'} ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-                            >
-                                <span className={`inline-block h-4 w-4 transform rounded-full bg-surface transition-transform ${(notifications as any)[key] ? 'translate-x-6' : 'translate-x-1'}`} />
-                            </button>
+                            />
                         </div>
                     ))}
                 </CardContent>
