@@ -13,7 +13,11 @@
     "oil": "Oil Business",
     "reports": "Reports",
     "settings": "Settings",
-    "organization": "Organization"
+    "organization": "Organization",
+    "quickEntries": "Quick Entries",
+    "more": "More",
+    "logout": "Log out",
+    "language": "Language"
   },
   "vendors": {
     "search": "Search vendors...",

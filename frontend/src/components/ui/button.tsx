@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils"
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'default' | 'secondary' | 'outline' | 'ghost' | 'destructive'
-  size?: 'default' | 'sm' | 'lg'
+  size?: 'default' | 'sm' | 'lg' | 'icon'
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -23,6 +23,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             'h-10 px-4 py-2 text-sm': size === 'default',
             'h-9 px-3 text-sm': size === 'sm',
             'h-11 px-8 text-base': size === 'lg',
+            // Square icon button. 44px on touch to clear the minimum target
+            // size, tightened to 36px once there is a mouse pointer.
+            'h-11 w-11 shrink-0 p-0 md:h-9 md:w-9': size === 'icon',
           },
           className
         )}

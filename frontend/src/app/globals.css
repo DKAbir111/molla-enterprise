@@ -162,6 +162,15 @@ html.theme-dark {
   --color-border-subtle: var(--border-subtle);
   --color-ring: var(--ring);
 
+  /* Aliases for the shadcn-flavoured names the Radix wrappers were written
+     against (`border-input`, `bg-popover`, ...). Without these the Select
+     trigger renders borderless and its dropdown panel is fully transparent. */
+  --color-input: var(--border);
+  --color-popover: var(--surface);
+  --color-popover-foreground: var(--foreground);
+  --color-accent: var(--surface-hover);
+  --color-accent-foreground: var(--foreground);
+
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
   --color-success-subtle: var(--success-subtle);
@@ -277,6 +286,185 @@ html.theme-dark {
 
   .marquee-paused {
     animation-play-state: paused;
+  }
+}
+
+/* ============================================================================
+   MOBILE APP SHELL
+   ============================================================================
+   The app is mobile-first: a phone gets a bottom tab bar and a compact top bar,
+   a desktop keeps the sidebar. Everything below exists to make the phone build
+   feel native rather than like a shrunken website.
+   ============================================================================ */
+
+:root {
+  /* Height of the bottom tab bar, excluding the home-indicator inset. Pages
+     add `--nav-total` as bottom padding so content never hides behind the bar. */
+  --nav-height: 4rem;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --nav-total: calc(var(--nav-height) + var(--safe-bottom));
+}
+
+@layer base {
+
+  html {
+    /* Stops iOS from re-flowing type when the phone is rotated to landscape. */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    /* Kills the grey flash box iOS paints over every tapped element — the
+       single biggest tell that a page is a website and not an app. */
+    -webkit-tap-highlight-color: transparent;
+    /* No rubber-band overscroll past the ends of the page. */
+    overscroll-behavior-y: none;
+  }
+
+  /* iOS Safari zooms the whole viewport when a focused field's font-size is
+     under 16px, and never zooms back out. The app's fields are text-sm (14px),
+     so below the md breakpoint they are bumped to exactly 16px. Desktop keeps
+     the original 14px because it has no such behaviour. */
+  @media (max-width: 767px) {
+
+    input,
+    select,
+    textarea {
+      font-size: 16px;
+    }
+  }
+
+  /* Touch targets: anything interactive clears the 44px minimum Apple and the
+     WCAG 2.2 target-size rule both ask for. Scoped to coarse pointers so the
+     desktop UI keeps its tighter 36-40px controls. */
+  @media (pointer: coarse) {
+
+    button,
+    [role="button"],
+    a[href],
+    summary {
+      touch-action: manipulation;
+    }
+  }
+}
+
+@layer utilities {
+
+  /* --- Safe area ------------------------------------------------------- */
+  .pb-safe {
+    padding-bottom: var(--safe-bottom);
+  }
+
+  .pt-safe {
+    padding-top: var(--safe-top);
+  }
+
+  /* Bottom padding that clears the tab bar. Applied to the scroll container on
+     mobile; a no-op on desktop where the bar is not rendered. */
+  .pb-nav {
+    padding-bottom: calc(var(--nav-total) + 1rem);
+  }
+
+  /* --- Touch feedback --------------------------------------------------- */
+  /* A press should answer instantly. Transform-only so it runs on the
+     compositor and never triggers layout. */
+  .tap {
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 140ms cubic-bezier(0.2, 0, 0, 1), opacity 140ms ease;
+  }
+
+  .tap:active {
+    transform: scale(0.96);
+  }
+
+  .tap-sm:active {
+    transform: scale(0.98);
+  }
+
+  /* --- Scroll rails ----------------------------------------------------- */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Horizontal card rail: stat tiles and filter chips scroll sideways on a
+     phone instead of stacking into a wall of vertical cards. */
+  .rail {
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    /* Bleed to the screen edges so the rail reads as scrollable, then pad the
+       content back in line with the page gutter. */
+    margin-inline: -1rem;
+    padding-inline: 1rem;
+    padding-bottom: 0.25rem;
+  }
+
+  .rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .rail>* {
+    scroll-snap-align: start;
+    flex: 0 0 auto;
+  }
+
+  /* --- Motion ----------------------------------------------------------- */
+  @keyframes sheet-up {
+    from {
+      transform: translateY(100%);
+    }
+
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  .animate-sheet-up {
+    animation: sheet-up 260ms cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  .animate-fade-in {
+    animation: fade-in 200ms ease-out;
+  }
+}
+
+/* Respect the OS "reduce motion" setting across every animation above. */
+@media (prefers-reduced-motion: reduce) {
+
+  .tap,
+  .tap-sm {
+    transition: none;
+  }
+
+  .tap:active,
+  .tap-sm:active {
+    transform: none;
+  }
+
+  .animate-sheet-up,
+  .animate-fade-in,
+  .animate-float,
+  .marquee-mask {
+    animation: none;
   }
 }
 

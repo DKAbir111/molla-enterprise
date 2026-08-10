@@ -5,21 +5,14 @@ type UIStore = {
   setCustomerSearch: (q: string) => void
   addCustomerOpen: boolean
   setAddCustomerOpen: (v: boolean) => void
-  sidebarOpen: boolean
-  setSidebarOpen: (v: boolean) => void
-  openSidebar: () => void
-  closeSidebar: () => void
-  toggleSidebar: () => void
 }
 
+// The mobile slide-out drawer state that used to live here is gone: phones now
+// navigate through the bottom tab bar (BottomNav), which owns its own open
+// state for the "More" sheet, and desktop renders a permanent sidebar.
 export const useUI = create<UIStore>((set) => ({
   customerSearch: '',
   setCustomerSearch: (q) => set({ customerSearch: q }),
   addCustomerOpen: false,
   setAddCustomerOpen: (v) => set({ addCustomerOpen: v }),
-  sidebarOpen: false,
-  setSidebarOpen: (v) => set({ sidebarOpen: v }),
-  openSidebar: () => set({ sidebarOpen: true }),
-  closeSidebar: () => set({ sidebarOpen: false }),
-  toggleSidebar: () => set((prev) => ({ sidebarOpen: !prev.sidebarOpen })),
 }))

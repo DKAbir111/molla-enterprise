@@ -3,14 +3,13 @@
 import { useLocale, useTranslations } from 'next-intl'
 import { usePathname, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Languages, Bell, User, LogOut, TriangleAlert, Clock, CircleDollarSign, Receipt, Trash2, Menu } from 'lucide-react'
+import { Languages, Bell, User, LogOut, TriangleAlert, Clock, CircleDollarSign, Receipt, Trash2 } from 'lucide-react'
 import { logout } from '@/lib/api'
 import React from 'react'
 import { getAlerts, snoozeAlert } from '@/lib/api/alerts-api'
 import { toast } from 'sonner'
 import { getAuthToken } from '@/lib/api/http'
 import { formatCurrency } from '@/lib/utils'
-import { useUI } from '@/store/useUI'
 
 export function Header() {
   const locale = useLocale()
@@ -46,7 +45,6 @@ export function Header() {
   const [alerts, setAlerts] = React.useState<any | null>(null)
   const prevScoreRef = React.useRef<number>(0)
   const audioRef = React.useRef<AudioContext | null>(null)
-  const { toggleSidebar } = useUI()
 
   const applyIncoming = React.useCallback((data: any) => {
     setAlerts(() => {
@@ -149,34 +147,35 @@ export function Header() {
 
 
   return (
-    <header className="relative z-100 h-16 px-6 flex items-center justify-between border-b border-border-subtle bg-surface/90 backdrop-blur-md">
-      <div className="flex items-center gap-3">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden"
-          onClick={toggleSidebar}
-          aria-label="Toggle navigation"
-        >
-          <Menu className="h-5 w-5" />
-        </Button>
-        <h1 className="text-lg font-semibold text-foreground">{pageTitle}</h1>
-      </div>
+    // `pt-safe` keeps the title clear of the status bar when the app is
+    // launched from the home screen and draws under it (viewport-fit=cover).
+    <header className="relative z-100 shrink-0 border-b border-border-subtle bg-surface/90 pt-safe backdrop-blur-md">
+      <div className="flex h-14 items-center justify-between px-4 md:h-16 md:px-6">
+        {/* Large, left-weighted title — the iOS/Material app-bar convention.
+            Navigation itself lives in the bottom tab bar on mobile. */}
+        <h1 className="truncate text-xl font-semibold tracking-tight text-foreground md:text-lg">
+          {pageTitle}
+        </h1>
 
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="sm" onClick={toggleLocale} className="flex items-center gap-2">
-          <Languages className="h-4 w-4" />
-          {locale === 'en' ? 'বাংলা' : 'English'}
-        </Button>
+        <div className="flex items-center gap-1 md:gap-3">
+          {/* Language, profile and sign-out live in the "More" sheet on mobile,
+              so the app bar stays down to a single control. */}
+          <Button variant="ghost" size="sm" onClick={toggleLocale} className="hidden items-center gap-2 md:flex">
+            <Languages className="h-4 w-4" />
+            {locale === 'en' ? 'বাংলা' : 'English'}
+          </Button>
 
-        <div className="relative" ref={containerRef}>
+          <div className="relative" ref={containerRef}>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setNotifOpen(!notifOpen)}
-            className="relative hover:bg-surface-hover transition-colors"
+            aria-label="Notifications"
+            aria-expanded={notifOpen}
+            /* 44px square on touch so the bell clears the minimum target size. */
+            className="tap relative h-11 w-11 px-0 transition-colors hover:bg-surface-hover md:h-9 md:w-9"
           >
-            <Bell className="h-4 w-4" />
+            <Bell className="h-5 w-5 md:h-4 md:w-4" />
             {badgeCount > 0 && (
               <span className="absolute -top-1 -right-1 h-5 min-w-5 px-1.5 rounded-full bg-danger text-white text-[10px] font-semibold flex items-center justify-center shadow-sm">
                 {badgeCount > 9 ? '9+' : badgeCount}
@@ -185,7 +184,9 @@ export function Header() {
           </Button>
 
           {notifOpen && (
-            <div className="absolute right-0 mt-2 w-96 rounded-xl border border-border-subtle bg-surface shadow-2xl z-9999 overflow-hidden">
+            /* A fixed 24rem panel runs off the side of a 360px phone, so the
+               width tracks the viewport until there is room for the full card. */
+            <div className="absolute right-0 z-9999 mt-2 w-[calc(100vw-1.5rem)] max-w-96 overflow-hidden rounded-xl border border-border-subtle bg-surface shadow-2xl md:w-96">
               {/* Header */}
               <div className="px-5 py-4 border-b border-border-subtle bg-surface-muted">
                 <div className="flex items-center justify-between">
@@ -199,7 +200,7 @@ export function Header() {
               </div>
 
               {/* Content */}
-              <div className="max-h-128 overflow-y-auto p-3 space-y-2">
+              <div className="max-h-[60vh] space-y-2 overflow-y-auto overscroll-contain p-3 md:max-h-128">
                 {!alerts && (
                   <div className="flex flex-col items-center justify-center py-12">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -423,13 +424,27 @@ export function Header() {
               </div>
             </div>
           )}
+          </div>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            aria-label="Organization"
+            className="hidden md:inline-flex"
+            onClick={() => router.push(`/${locale}/organization`)}
+          >
+            <User className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            aria-label="Sign out"
+            className="hidden md:inline-flex"
+            onClick={() => { logout(); router.replace(`/${locale}/login`) }}
+          >
+            <LogOut className="h-4 w-4" />
+          </Button>
         </div>
-        <Button variant="ghost" size="sm" onClick={() => router.push(`/${locale}/organization`)}>
-          <User className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="sm" onClick={() => { logout(); router.replace(`/${locale}/login`) }}>
-          <LogOut className="h-4 w-4" />
-        </Button>
       </div>
     </header>
   )

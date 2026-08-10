@@ -13,7 +13,11 @@
     "oil": "তেলের ব্যবসা",
     "reports": "রিপোর্ট",
     "settings": "সেটিংস",
-    "organization": "প্রতিষ্ঠান"
+    "organization": "প্রতিষ্ঠান",
+    "quickEntries": "দ্রুত এন্ট্রি",
+    "more": "আরও",
+    "logout": "লগ আউট",
+    "language": "ভাষা"
   },
   "vendors": {
     "search": "সরবরাহকারী খুঁজুন...",

@@ -6,12 +6,11 @@ import { useLocale } from 'next-intl'
 import { Loader2 } from 'lucide-react'
 import { Header } from './header'
 import { Sidebar } from './sidebar'
+import { BottomNav } from './BottomNav'
 import { getAuthToken, logout } from '@/lib/api'
 import { useTheme } from '@/store/useTheme'
 import { Toaster } from 'sonner'
 import { useOrganizationStore } from '@/store/useOrganization'
-import { useUI } from '@/store/useUI'
-import { cn } from '@/lib/utils'
 
 function FullScreenLoader() {
   return (
@@ -22,13 +21,27 @@ function FullScreenLoader() {
   )
 }
 
+/**
+ * One Toaster for the whole app. On a phone it is lifted clear of the bottom
+ * tab bar; on desktop it keeps its original bottom-right corner.
+ */
+function AppToaster() {
+  return (
+    <Toaster
+      position="bottom-right"
+      richColors
+      closeButton
+      mobileOffset={{ bottom: 'calc(var(--nav-total) + 0.75rem)', left: '1rem', right: '1rem' }}
+    />
+  )
+}
+
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const locale = useLocale()
   const router = useRouter()
   const { theme } = useTheme()
   const { organization, fetchOrganization } = useOrganizationStore()
-  const { sidebarOpen, closeSidebar } = useUI()
 
   const base = `/${locale}`
   // Public routes: no auth gate, no sidebar/header. Legal pages belong here —
@@ -104,7 +117,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   if (isAuthRoute) {
     return (
       <>
-        <Toaster position="bottom-right" richColors closeButton />
+        <AppToaster />
         {children}
       </>
     )
@@ -120,40 +133,32 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   if (shouldHide) {
     return (
       <>
-        <Toaster position="bottom-right" richColors closeButton />
+        <AppToaster />
         {children}
       </>
     )
   }
 
+  // Mobile gets a bottom tab bar (BottomNav) and no sidebar at all; the phone
+  // navigation is not a shrunken copy of the desktop one. Desktop keeps the
+  // persistent sidebar and never renders the tab bar.
   return (
     <div className="flex h-screen overflow-hidden app-bg">
       <div className="hidden md:block">
         <Sidebar />
       </div>
-      <div
-        className={cn(
-          'fixed inset-y-0 left-0 z-50 w-64 bg-surface shadow-lg transition-transform duration-200 md:hidden',
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        )}
-      >
-        <Sidebar onNavigate={closeSidebar} />
-      </div>
-      {sidebarOpen && (
-        <button
-          type="button"
-          aria-label="Close navigation"
-          className="fixed inset-0 z-40 bg-black/40 md:hidden"
-          onClick={closeSidebar}
-        />
-      )}
-      <div className="flex-1 flex flex-col overflow-hidden">
+
+      <div className="flex flex-1 flex-col overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-y-auto p-6">
-          <Toaster position="bottom-right" richColors closeButton />
+        {/* `pb-nav` reserves the tab bar's height plus the home-indicator inset
+            so the last row of content is always reachable. */}
+        <main className="flex-1 overflow-y-auto overscroll-contain p-4 pb-nav md:p-6">
+          <AppToaster />
           {children}
         </main>
       </div>
+
+      <BottomNav />
     </div>
   )
 }
