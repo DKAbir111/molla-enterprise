@@ -563,7 +563,14 @@
     "last3Months": "Last 3 Months",
     "last6Months": "Last 6 Months",
     "lastYear": "Last Year",
-    "clear": "Clear"
+    "clear": "Clear",
+    "dateRange": "Date range",
+    "allTime": "All time",
+    "custom": "Custom range",
+    "apply": "Apply",
+    "from": "From",
+    "to": "To",
+    "clearRange": "Clear date filter"
   },
   "auth": {
     "brand": "Molla Enterprise",

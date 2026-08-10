@@ -68,20 +68,18 @@ export default function SellsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-3">
-        <div className="relative w-full md:max-w-md">
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative w-full min-w-[12rem] flex-1 md:max-w-md">
           <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-subtle-foreground" />
           <Input type="search" placeholder={t('search')} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="h-12 pl-10 md:h-10" />
         </div>
+        <DateFilter value={range} onChange={(v) => setRange({ start: v.start, end: v.end })} />
+
         {/* Mobile uses the floating action button below instead. */}
-        <Button className="hidden shrink-0 items-center gap-2 md:flex" onClick={() => setModalOpen(true)}>
+        <Button className="hidden shrink-0 items-center gap-2 md:ml-auto md:flex" onClick={() => setModalOpen(true)}>
           <Plus className="h-4 w-4" /> {t('newOrder')}
         </Button>
       </div>
-
-      {/* Its own row: beside the search and Add button there was not enough
-          width for the Bengali labels, and the Clear button wrapped. */}
-      <DateFilter value={range} onChange={(v) => setRange({ start: v.start, end: v.end })} />
 
       {/* Mini Dashboard */}
       <StatRail className="md:grid-cols-5">
