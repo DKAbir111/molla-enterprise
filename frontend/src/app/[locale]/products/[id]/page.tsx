@@ -187,10 +187,10 @@ export default function ProductDetailsPage() {
             <TableBody>
               {gains.map((g) => (
                 <TableRow key={g.id}>
-                  <TableCell>{formatDate(g.createdAt, locale)}</TableCell>
-                  <TableCell className="text-center">{g.quantity} {product?.unit}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(g.unitCost || 0, locale)}</TableCell>
-                  <TableCell className="max-w-[400px] truncate" title={g.note}>{g.note || ''}</TableCell>
+                  <TableCell data-label="Date">{formatDate(g.createdAt, locale)}</TableCell>
+                  <TableCell className="md:text-center" data-label="Quantity">{g.quantity} {product?.unit}</TableCell>
+                  <TableCell className="md:text-right" data-label="Unit Cost">{formatCurrency(g.unitCost || 0, locale)}</TableCell>
+                  <TableCell className="md:max-w-[400px] md:truncate" data-label="Note" title={g.note}>{g.note || ''}</TableCell>
                 </TableRow>
               ))}
               {gains.length === 0 && (
@@ -224,11 +224,11 @@ export default function ProductDetailsPage() {
             <TableBody>
               {sales.map((row) => (
                 <TableRow key={row.id}>
-                  <TableCell>{formatDate(row.date, locale)}</TableCell>
-                  <TableCell className="font-medium">{formatOrderCode(row.orderId, row.date)}</TableCell>
-                  <TableCell className="text-center">{row.quantity}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(row.price, locale)}</TableCell>
-                  <TableCell className="text-right font-semibold">{formatCurrency(row.total, locale)}</TableCell>
+                  <TableCell data-label="Date">{formatDate(row.date, locale)}</TableCell>
+                  <TableCell className="font-medium" data-primary="">{formatOrderCode(row.orderId, row.date)}</TableCell>
+                  <TableCell className="md:text-center" data-label="Quantity">{row.quantity}</TableCell>
+                  <TableCell className="md:text-right" data-label="Price">{formatCurrency(row.price, locale)}</TableCell>
+                  <TableCell className="font-semibold md:text-right" data-label="Total">{formatCurrency(row.total, locale)}</TableCell>
                 </TableRow>
               ))}
               {sales.length === 0 && (

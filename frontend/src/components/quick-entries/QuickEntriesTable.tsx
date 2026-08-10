@@ -46,10 +46,10 @@ export function QuickEntriesTable({ entries, loading, locale, onDelete }: Props)
             )}
             {!loading && entries.map((entry) => (
               <TableRow key={entry.id}>
-                <TableCell>{formatDate(entry.date, locale)}</TableCell>
-                <TableCell>{entry.description}</TableCell>
-                <TableCell>{entry.category}</TableCell>
-                <TableCell>
+                <TableCell data-label="Date">{formatDate(entry.date, locale)}</TableCell>
+                <TableCell data-primary="">{entry.description}</TableCell>
+                <TableCell data-label="Category">{entry.category}</TableCell>
+                <TableCell data-label="Type">
                   <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${entry.type === 'income'
                     ? 'bg-success-subtle text-success'
                     : 'bg-danger-subtle text-danger'}`}>
@@ -57,12 +57,12 @@ export function QuickEntriesTable({ entries, loading, locale, onDelete }: Props)
                     {entry.type}
                   </span>
                 </TableCell>
-                <TableCell className={`text-right font-semibold ${entry.type === 'income' ? 'text-success' : 'text-danger'}`}>
+                <TableCell data-label="Amount" className={`font-semibold md:text-right ${entry.type === 'income' ? 'text-success' : 'text-danger'}`}>
                   {entry.type === 'income' ? '+' : '-'}
                   {formatCurrency(entry.amount, locale)}
                 </TableCell>
-                <TableCell className="text-right">
-                  <Button variant="ghost" size="icon" onClick={() => onDelete(entry.id)}>
+                <TableCell className="md:text-right">
+                  <Button variant="ghost" size="icon" className="tap" aria-label="Delete entry" onClick={() => onDelete(entry.id)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </TableCell>

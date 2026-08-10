@@ -2,9 +2,11 @@
 
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { useTranslations } from 'next-intl'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { StatRail, StatTile } from '@/components/shared/StatRail'
+import { Fab } from '@/components/shared/Fab'
 import {
   Table,
   TableBody,
@@ -76,57 +78,31 @@ export default function CustomersPage() {
   return (
     <div className="space-y-6">
       {/* Controls */}
-      <div className="flex justify-between items-center">
-        <div className="relative w-full max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-subtle-foreground" />
+      <div className="flex items-center justify-between gap-3">
+        <div className="relative w-full md:max-w-md">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle-foreground" />
           <Input
+            type="search"
             placeholder={t('search')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            className="h-12 pl-10 md:h-10"
           />
         </div>
-        <Button className="flex items-center gap-2" onClick={() => setModal({ open: true, mode: 'create' })}>
+        {/* Mobile uses the floating action button below instead. */}
+        <Button className="hidden shrink-0 items-center gap-2 md:flex" onClick={() => setModal({ open: true, mode: 'create' })}>
           <Plus className="h-4 w-4" />
           {t('addCustomer')}
         </Button>
       </div>
 
       {/* Mini Dashboard */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Customers</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Active Customers</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-success">{stats.active}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Revenue</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-info">{formatCurrency(stats.totalRevenue, locale)}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Avg. Order Value</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(stats.avgOrderValue, locale)}</div>
-          </CardContent>
-        </Card>
-      </div>
+      <StatRail>
+        <StatTile label="Total Customers" value={stats.total} />
+        <StatTile label="Active Customers" value={stats.active} tone="text-success" />
+        <StatTile label="Total Revenue" value={formatCurrency(stats.totalRevenue, locale)} tone="text-info" />
+        <StatTile label="Avg. Order Value" value={formatCurrency(stats.avgOrderValue, locale)} />
+      </StatRail>
 
       {/* Empty State */}
       {filteredCustomers.length === 0 ? (
@@ -157,7 +133,9 @@ export default function CustomersPage() {
                 <TableBody>
                   {filteredCustomers.map((customer, idx) => (
                     <TableRow key={`${customer.id}-${idx}`}>
-                      <TableCell className="font-medium">
+                      {/* `data-primary` makes this the card headline on mobile;
+                          `data-label` turns the rest into labelled rows. */}
+                      <TableCell className="font-medium" data-primary="">
                         <div className="flex items-center gap-3">
                           <div className="h-10 w-10 rounded-full gradient-primary flex items-center justify-center text-primary-foreground font-semibold">
                             {customer.name.charAt(0)}
@@ -174,37 +152,37 @@ export default function CustomersPage() {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell>
+                      <TableCell data-label={t('phone')}>
                         <div className="flex items-center gap-1 text-muted-foreground">
-                          <Phone className="h-3 w-3" />
+                          <Phone className="h-3 w-3 shrink-0" />
                           {customer.phone}
                         </div>
                       </TableCell>
-                      <TableCell>
+                      <TableCell data-label={t('address')}>
                         <div className="flex items-center gap-1 text-muted-foreground">
-                          <MapPin className="h-3 w-3" />
+                          <MapPin className="h-3 w-3 shrink-0" />
                           {customer.address}
                         </div>
                       </TableCell>
-                      <TableCell className="text-center">
+                      <TableCell className="md:text-center" data-label={t('totalOrders')}>
                         <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full bg-info-subtle text-info">
                           {customer.totalOrders}
                         </span>
                       </TableCell>
-                      <TableCell className="text-right font-medium">
+                      <TableCell className="font-medium md:text-right" data-label={t('totalSpent')}>
                         {formatCurrency(customer.totalSpent, locale)}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="md:text-right">
                         <div className="flex justify-end gap-2">
                           <Link href={`/customers/${customer.id}`}>
-                            <Button variant="ghost" size="sm" title={t('viewDetails')}>
+                            <Button variant="ghost" size="icon" className="tap" title={t('viewDetails')} aria-label={t('viewDetails')}>
                               <Eye className="h-4 w-4" />
                             </Button>
                           </Link>
-                          <Button variant="ghost" size="sm" title={t('edit')} onClick={() => setModal({ open: true, mode: 'edit', customer })}>
+                          <Button variant="ghost" size="icon" className="tap" title={t('edit')} aria-label={t('edit')} onClick={() => setModal({ open: true, mode: 'edit', customer })}>
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="sm" className="text-danger hover:text-danger" title={t('delete')} onClick={() => setCustomerToDelete(customer)}>
+                          <Button variant="ghost" size="icon" className="tap text-danger hover:text-danger" title={t('delete')} aria-label={t('delete')} onClick={() => setCustomerToDelete(customer)}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
@@ -217,6 +195,8 @@ export default function CustomersPage() {
           </Card>
         </>
       )}
+      <Fab onClick={() => setModal({ open: true, mode: 'create' })} label={t('addCustomer')} />
+
       <CustomerModal open={modal.open} mode={modal.mode} customer={modal.customer || null} onClose={() => setModal((m) => ({ ...m, open: false }))} />
       {customerToDelete && (
         <DeleteConfirmationModal isOpen={!!customerToDelete} onClose={() => setCustomerToDelete(null)} onConfirm={async () => {

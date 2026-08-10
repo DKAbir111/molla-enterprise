@@ -320,14 +320,14 @@ export function OtherSection() {
                                         const canDeleteThisMember = canManageMembers && !isSelf && (member.role !== 'owner' || isOwner)
                                         return (
                                             <TableRow key={member.id}>
-                                                <TableCell>
+                                                <TableCell data-primary="">
                                                     <div className="font-medium text-foreground flex items-center gap-2">
                                                         {member.name}
                                                         {isSelf && <span className="text-[11px] px-2 py-0.5 rounded-full bg-primary-subtle text-primary">You</span>}
                                                     </div>
-                                                    <div className="text-xs text-subtle-foreground">{member.email}</div>
+                                                    <div className="text-xs text-subtle-foreground break-all">{member.email}</div>
                                                 </TableCell>
-                                                <TableCell>
+                                                <TableCell data-label="Role">
                                                     {canManageMembers ? (
                                                         <div className="flex items-center gap-2">
                                                             <select
@@ -352,10 +352,10 @@ export function OtherSection() {
                                                         <span className="text-sm text-muted-foreground capitalize">{member.role}</span>
                                                     )}
                                                 </TableCell>
-                                                <TableCell>
+                                                <TableCell data-label="Last Active">
                                                     <span className="text-sm text-muted-foreground">{formatDateTime(member.lastLoginAt)}</span>
                                                 </TableCell>
-                                                <TableCell className="text-right">
+                                                <TableCell className="md:text-right">
                                                     {canDeleteThisMember ? (
                                                         <Button
                                                             variant="ghost"

@@ -2,10 +2,12 @@
 
 import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { StatRail, StatTile } from '@/components/shared/StatRail'
+import { Fab } from '@/components/shared/Fab'
 import { listBuys } from '@/lib/api/buy-api'
 import { listVendors, deleteVendor } from '@/lib/api/vendor-api'
 import { VendorModal } from '@/components/vendors/VendorModal'
@@ -81,22 +83,23 @@ export default function VendorsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
-        <div className="relative w-full max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-subtle-foreground" />
-          <Input placeholder="Search vendors..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
+        <div className="relative w-full md:max-w-md">
+          <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-subtle-foreground" />
+          <Input type="search" placeholder="Search vendors..." value={search} onChange={(e) => setSearch(e.target.value)} className="h-12 pl-10 md:h-10" />
         </div>
-        <Button className="flex items-center gap-2" onClick={() => setModal({ open: true, mode: 'create' })}>
+        {/* Mobile uses the floating action button below instead. */}
+        <Button className="hidden shrink-0 items-center gap-2 md:flex" onClick={() => setModal({ open: true, mode: 'create' })}>
           <Plus className="h-4 w-4" /> Add Vendor
         </Button>
       </div>
 
       {/* Mini Dashboard */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Vendors</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold">{totals.vendors}</div></CardContent></Card>
-        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Purchases</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold">{totals.purchases}</div></CardContent></Card>
-        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total Spent</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold text-info">{formatCurrency(totals.spent, locale as any)}</div></CardContent></Card>
-        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total Due</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold text-warning">{formatCurrency(totals.due, locale as any)}</div></CardContent></Card>
-      </div>
+      <StatRail>
+        <StatTile label="Vendors" value={totals.vendors} />
+        <StatTile label="Purchases" value={totals.purchases} />
+        <StatTile label="Total Spent" value={formatCurrency(totals.spent, locale as any)} tone="text-info" />
+        <StatTile label="Total Due" value={formatCurrency(totals.due, locale as any)} tone="text-warning" />
+      </StatRail>
 
       {filtered.length === 0 ? (
         <Card className="border-dashed">
@@ -124,7 +127,7 @@ export default function VendorsPage() {
               <TableBody>
                 {filtered.map((v, idx) => (
                   <TableRow key={`${v.name}-${idx}`}>
-                    <TableCell className="font-medium">
+                    <TableCell className="font-medium" data-primary="">
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 rounded-full bg-linear-to-r from-emerald-600 to-blue-600 flex items-center justify-center text-white font-semibold">
                           {v.name.charAt(0)}
@@ -137,34 +140,34 @@ export default function VendorsPage() {
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell data-label="Phone">
                       <div className="flex items-center gap-1 text-muted-foreground">
-                        <Phone className="h-3 w-3" />
+                        <Phone className="h-3 w-3 shrink-0" />
                         {v.phone || '-'}
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell data-label="Address">
                       <div className="flex items-center gap-1 text-muted-foreground">
-                        <MapPin className="h-3 w-3" />
+                        <MapPin className="h-3 w-3 shrink-0" />
                         {v.address || '-'}
                       </div>
                     </TableCell>
-                    <TableCell className="text-center">
+                    <TableCell className="md:text-center" data-label="Total Purchases">
                       <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full bg-info-subtle text-info">{v.purchases}</span>
                     </TableCell>
-                    <TableCell className="text-right font-medium">{formatCurrency(v.totalSpent, locale as any)}</TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="font-medium md:text-right" data-label="Total Spent">{formatCurrency(v.totalSpent, locale as any)}</TableCell>
+                    <TableCell className="md:text-right">
                       <div className="flex justify-end gap-2">
                         <a href={`/${locale}/vendors/${encodeURIComponent(v.name)}--${encodeURIComponent(v.phone || '')}`}>
-                          <Button variant="ghost" size="sm" title="View"><Eye className="h-4 w-4" /></Button>
+                          <Button variant="ghost" size="icon" className="tap" title="View" aria-label="View"><Eye className="h-4 w-4" /></Button>
                         </a>
-                        <Button variant="ghost" size="sm" title="Edit" onClick={() => {
+                        <Button variant="ghost" size="icon" className="tap" title="Edit" aria-label="Edit" onClick={() => {
                           const match = vendorsState.find(x => x.name === v.name && x.phone === v.phone)
                           if (match) { setModal({ open: true, mode: 'edit', vendor: match }) }
                         }}>
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="text-danger" title="Delete" onClick={() => {
+                        <Button variant="ghost" size="icon" className="tap text-danger" title="Delete" aria-label="Delete" onClick={() => {
                           const match = vendorsState.find(x => x.name === v.name && x.phone === v.phone)
                           if (match) setVendorToDelete(match)
                         }}>
@@ -179,6 +182,8 @@ export default function VendorsPage() {
           </CardContent>
         </Card>
       )}
+      <Fab onClick={() => setModal({ open: true, mode: 'create' })} label="Add Vendor" />
+
       <VendorModal
         open={modal.open}
         mode={modal.mode}

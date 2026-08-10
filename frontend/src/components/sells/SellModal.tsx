@@ -373,8 +373,8 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                                         <TableBody>
                                             {orderItems.map(item => (
                                                 <TableRow key={item.productId}>
-                                                    <TableCell className="font-medium">{item.productName}</TableCell>
-                                                    <TableCell>
+                                                    <TableCell className="font-medium" data-primary="">{item.productName}</TableCell>
+                                                    <TableCell data-label="Quantity">
                                                         <div className="flex items-center justify-center gap-2">
                                                             <Button
                                                                 type="button"
@@ -403,7 +403,7 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                                                             </Button>
                                                         </div>
                                                     </TableCell>
-                                                    <TableCell className="text-right">
+                                                    <TableCell className="md:text-right" data-label="Price/Unit">
                                                         <Input
                                                             type="number"
                                                             step="0.01"
@@ -413,10 +413,10 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                                                             min="0"
                                                         />
                                                     </TableCell>
-                                                    <TableCell className="text-right font-semibold text-foreground">
+                                                    <TableCell className="font-semibold text-foreground md:text-right" data-label="Total">
                                                         {formatCurrency(item.total, locale)}
                                                     </TableCell>
-                                                    <TableCell className="text-right">
+                                                    <TableCell className="md:text-right">
                                                         <Button
                                                             type="button"
                                                             variant="ghost"

@@ -292,16 +292,16 @@ export default function CustomerDetailsPage() {
               <TableBody>
                 {Object.entries(productSummary).map(([productName, data]) => (
                   <TableRow key={productName}>
-                    <TableCell className="font-medium">{productName}</TableCell>
-                    <TableCell className="text-center">
+                    <TableCell className="font-medium" data-primary="">{productName}</TableCell>
+                    <TableCell className="md:text-center" data-label={t('totalQuantity')}>
                       {data.quantity} {data.unit}
                     </TableCell>
-                    <TableCell className="text-center">
+                    <TableCell className="md:text-center" data-label={t('transactions')}>
                       <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full bg-info-subtle text-info">
                         {data.transactions}
                       </span>
                     </TableCell>
-                    <TableCell className="text-right font-medium">
+                    <TableCell className="font-medium md:text-right" data-label={t('totalAmount')}>
                       {formatCurrency(data.totalAmount, locale)}
                     </TableCell>
                   </TableRow>
@@ -334,22 +334,22 @@ export default function CustomerDetailsPage() {
               <TableBody>
                 {purchaseHistory.map((item) => (
                   <TableRow key={item.id}>
-                    <TableCell>
+                    <TableCell data-label={t('date')}>
                       {formatDate(item.date, locale)}
                     </TableCell>
-                    <TableCell className="font-medium">
+                    <TableCell className="font-medium" data-primary="">
                       {item.productName}
                     </TableCell>
-                    <TableCell className="text-center">
+                    <TableCell className="md:text-center" data-label={t('quantity')}>
                       {item.quantity}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="md:text-right" data-label={t('price')}>
                       {formatCurrency(item.price, locale)}
                     </TableCell>
-                    <TableCell className="text-right font-medium">
+                    <TableCell className="font-medium md:text-right" data-label={t('total')}>
                       {formatCurrency(item.total, locale)}
                     </TableCell>
-                    <TableCell className="text-center">
+                    <TableCell className="md:text-center" data-label={t('invoice')}>
                       <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full bg-surface-hover text-muted-foreground">
                         {item.invoiceId}
                       </span>

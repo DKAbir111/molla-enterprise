@@ -51,7 +51,7 @@ export default function BuyDetailsPage() {
       <Card ref={ref}>
         <CardHeader><CardTitle>Purchase</CardTitle></CardHeader>
         <CardContent>
-          <Table>
+          <Table stacked={false}>
             <TableHeader>
               <TableRow><TableHead>Product</TableHead><TableHead className="text-center">Qty</TableHead><TableHead className="text-right">Price</TableHead><TableHead className="text-right">Total</TableHead></TableRow>
             </TableHeader>

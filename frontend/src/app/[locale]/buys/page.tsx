@@ -2,10 +2,12 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { StatRail, StatTile } from '@/components/shared/StatRail'
+import { Fab } from '@/components/shared/Fab'
 import { formatCurrency } from '@/lib/utils'
 import { Plus, Search, Eye, Edit, Printer } from 'lucide-react'
 import { listBuys } from '@/lib/api/buy-api'
@@ -55,22 +57,23 @@ export default function BuysPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
-        <div className="relative w-full max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-subtle-foreground" />
-          <Input placeholder={t('search')} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
+        <div className="relative w-full md:max-w-md">
+          <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-subtle-foreground" />
+          <Input type="search" placeholder={t('search')} value={search} onChange={(e) => setSearch(e.target.value)} className="h-12 pl-10 md:h-10" />
         </div>
-        <Button className="flex items-center gap-2" onClick={() => setOpen(true)}>
+        {/* Mobile uses the floating action button below instead. */}
+        <Button className="hidden shrink-0 items-center gap-2 md:flex" onClick={() => setOpen(true)}>
           <Plus className="h-4 w-4" /> {t('new')}
         </Button>
       </div>
 
       {/* Mini Dashboard like Sells */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total Purchases</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold">{stats.total}</div></CardContent></Card>
-        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total Spent</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold text-info">{formatCurrency(stats.spent, locale)}</div></CardContent></Card>
-        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total Paid</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold text-success">{formatCurrency(stats.paid, locale)}</div></CardContent></Card>
-        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total Due</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold text-warning">{formatCurrency(stats.due, locale)}</div></CardContent></Card>
-      </div>
+      <StatRail>
+        <StatTile label="Total Purchases" value={stats.total} />
+        <StatTile label="Total Spent" value={formatCurrency(stats.spent, locale)} tone="text-info" />
+        <StatTile label="Total Paid" value={formatCurrency(stats.paid, locale)} tone="text-success" />
+        <StatTile label="Total Due" value={formatCurrency(stats.due, locale)} tone="text-warning" />
+      </StatRail>
 
       {filtered.length === 0 ? (
         <Card className="border-dashed"><CardContent className="py-16 text-center"><div className="mx-auto mb-4 h-14 w-14 rounded-full gradient-primary text-primary-foreground flex items-center justify-center text-2xl">+</div><h3 className="text-lg font-semibold mb-1">{t('emptyTitle')}</h3><p className="text-muted-foreground mb-4">{t('emptyDescription')}</p><Button onClick={() => setOpen(true)}>{t('new')}</Button></CardContent></Card>
@@ -97,22 +100,22 @@ export default function BuysPage() {
                   const due = Math.max(0, grand - paid)
                   return (
                     <TableRow key={`${b.id}-${idx}`}>
-                      <TableCell className="font-medium">{b.vendorName || '-'}</TableCell>
-                      <TableCell>{new Date(b.createdAt).toLocaleDateString()}</TableCell>
-                      <TableCell className="text-right">{formatCurrency(paid, locale)} / {formatCurrency(due, locale)}</TableCell>
-                      <TableCell className="text-right font-medium">{formatCurrency(grand, locale)}</TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="font-medium" data-primary="">{b.vendorName || '-'}</TableCell>
+                      <TableCell data-label={t('date')}>{new Date(b.createdAt).toLocaleDateString()}</TableCell>
+                      <TableCell className="md:text-right" data-label="Paid / Due">{formatCurrency(paid, locale)} / {formatCurrency(due, locale)}</TableCell>
+                      <TableCell className="font-medium md:text-right" data-label={t('total')}>{formatCurrency(grand, locale)}</TableCell>
+                      <TableCell className="md:text-right">
                         <div className="flex justify-end gap-1">
                           <a href={`/${locale}/buys/${b.id}`}>
-                            <Button variant="ghost" size="sm" title="View">
+                            <Button variant="ghost" size="icon" className="tap" title="View" aria-label="View">
                               <Eye className="h-4 w-4" />
                             </Button>
                           </a>
-                          <Button variant="ghost" size="sm" title="Edit" onClick={() => { setSelectedBuy(b); setShowEdit(true) }}>
+                          <Button variant="ghost" size="icon" className="tap" title="Edit" aria-label="Edit" onClick={() => { setSelectedBuy(b); setShowEdit(true) }}>
                             <Edit className="h-4 w-4" />
                           </Button>
                           <a href={`/${locale}/buys/${b.id}`}>
-                            <Button variant="ghost" size="sm" title="Print">
+                            <Button variant="ghost" size="icon" className="tap" title="Print" aria-label="Print">
                               <Printer className="h-4 w-4" />
                             </Button>
                           </a>
@@ -126,6 +129,8 @@ export default function BuysPage() {
           </CardContent>
         </Card>
       )}
+
+      <Fab onClick={() => setOpen(true)} label={t('new')} />
 
       {open && (
         <BuyModal open={open} mode="create" onClose={() => setOpen(false)} onSaved={(b) => {

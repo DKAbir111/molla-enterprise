@@ -142,10 +142,10 @@ export default function VendorDetailsPage() {
             <TableBody>
               {Object.entries(productSummary).map(([name, data]) => (
                 <TableRow key={name}>
-                  <TableCell className="font-medium">{name}</TableCell>
-                  <TableCell className="text-center">{data.transactions}</TableCell>
-                  <TableCell className="text-center">{data.quantity}</TableCell>
-                  <TableCell className="text-right font-medium">{formatCurrency(data.totalAmount, locale as string)}</TableCell>
+                  <TableCell className="font-medium" data-primary="">{name}</TableCell>
+                  <TableCell className="md:text-center" data-label="Transactions">{data.transactions}</TableCell>
+                  <TableCell className="md:text-center" data-label="Total Qty">{data.quantity}</TableCell>
+                  <TableCell className="font-medium md:text-right" data-label="Total Spent">{formatCurrency(data.totalAmount, locale as string)}</TableCell>
                 </TableRow>
               ))}
               {Object.keys(productSummary).length === 0 && (
@@ -177,12 +177,12 @@ export default function VendorDetailsPage() {
               <TableBody>
                 {history.map((item) => (
                   <TableRow key={item.id}>
-                    <TableCell>{formatDate(item.date, locale as string)}</TableCell>
-                    <TableCell className="font-medium">{item.productName}</TableCell>
-                    <TableCell className="text-center">{item.quantity}</TableCell>
-                    <TableCell className="text-right">{formatCurrency(item.price, locale as string)}</TableCell>
-                    <TableCell className="text-right font-medium">{formatCurrency(item.total, locale as string)}</TableCell>
-                    <TableCell className="text-center"><span className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full bg-surface-hover text-muted-foreground">{item.purchaseId}</span></TableCell>
+                    <TableCell data-label={t('date')}>{formatDate(item.date, locale as string)}</TableCell>
+                    <TableCell className="font-medium" data-primary="">{item.productName}</TableCell>
+                    <TableCell className="md:text-center" data-label={t('quantity')}>{item.quantity}</TableCell>
+                    <TableCell className="md:text-right" data-label={t('price')}>{formatCurrency(item.price, locale as string)}</TableCell>
+                    <TableCell className="font-medium md:text-right" data-label={t('total')}>{formatCurrency(item.total, locale as string)}</TableCell>
+                    <TableCell className="md:text-center" data-label="Purchase"><span className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full bg-surface-hover text-muted-foreground">{item.purchaseId}</span></TableCell>
                   </TableRow>
                 ))}
                 {history.length === 0 && (

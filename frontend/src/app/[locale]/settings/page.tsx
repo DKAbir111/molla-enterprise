@@ -131,12 +131,14 @@ export default function SettingsPage() {
       )}
       {/* Tab Navigation */}
       <div className="mb-6 border-b border-border-subtle">
-        <nav className="flex gap-1 overflow-x-auto">
+        {/* `no-scrollbar` keeps the tab strip swipeable on a phone without a
+            scrollbar cutting across the underline. */}
+        <nav className="no-scrollbar flex gap-1 overflow-x-auto">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => switchTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${activeTab === tab.id
+              className={`tap flex min-h-12 items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${activeTab === tab.id
                 ? 'border-primary text-primary'
                 : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
                 }`}

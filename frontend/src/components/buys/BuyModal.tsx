@@ -356,8 +356,8 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                                         <TableBody>
                                             {orderItems.map(item => (
                                             <TableRow key={item.productId}>
-                                                <TableCell className="font-medium">{item.productName}</TableCell>
-                                                <TableCell>
+                                                <TableCell className="font-medium" data-primary="">{item.productName}</TableCell>
+                                                <TableCell data-label="Quantity">
                                                     <div className="flex items-center justify-center gap-2">
                                                         <Button
                                                             type="button"
@@ -394,7 +394,7 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                                                         </span>
                                                     </div>
                                                 </TableCell>
-                                                <TableCell className="text-right">
+                                                <TableCell className="md:text-right" data-label="Price/Unit">
                                                     <Input
                                                         type="number"
                                                         step="0.01"
@@ -404,13 +404,13 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                                                         min="0"
                                                     />
                                                 </TableCell>
-                                                <TableCell className="text-right font-semibold text-foreground">
+                                                <TableCell className="font-semibold text-foreground md:text-right" data-label="Total">
                                                     <div>{formatCurrency(item.total, locale)}</div>
                                                     <div className="text-xs text-subtle-foreground font-normal">
                                                         {formatCurrency(item.price, locale)} × {item.quantity}
                                                     </div>
                                                 </TableCell>
-                                                    <TableCell className="text-right">
+                                                    <TableCell className="md:text-right">
                                                         <Button
                                                             type="button"
                                                             variant="ghost"

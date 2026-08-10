@@ -1,18 +1,39 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
-const Table = React.forwardRef<
-  HTMLTableElement,
-  React.HTMLAttributes<HTMLTableElement>
->(({ className, ...props }, ref) => (
-  <div className="relative w-full overflow-auto">
-    <table
-      ref={ref}
-      className={cn("w-full caption-bottom text-sm", className)}
-      {...props}
-    />
-  </div>
-))
+export interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
+  /**
+   * Below `md`, collapse each row into a labelled card instead of forcing a
+   * horizontal scroll. Each cell shows its `data-label` on the left and its
+   * value on the right; a cell with no `data-label` (typically the actions
+   * column) spans the card and aligns right.
+   *
+   * On by default — the app is mobile-first. Pass `stacked={false}` for the
+   * rare grid that genuinely has to stay a grid on a phone.
+   */
+  stacked?: boolean
+}
+
+const Table = React.forwardRef<HTMLTableElement, TableProps>(
+  ({ className, stacked = true, ...props }, ref) => (
+    <div className="relative w-full overflow-auto">
+      <table
+        ref={ref}
+        className={cn(
+          "w-full caption-bottom text-sm",
+          stacked
+            ? "table-stack"
+            : // Staying a grid on a phone only works if the cells stop eating
+            // 32px of horizontal padding each. Element-scoped so these beat
+            // the px-4/p-4 on TableHead/TableCell.
+            "[&_td]:px-2 [&_th]:px-2 md:[&_td]:px-4 md:[&_th]:px-4",
+          className
+        )}
+        {...props}
+      />
+    </div>
+  )
+)
 Table.displayName = "Table"
 
 const TableHeader = React.forwardRef<

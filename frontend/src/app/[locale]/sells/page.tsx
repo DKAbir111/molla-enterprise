@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { StatRail, StatTile } from '@/components/shared/StatRail'
+import { Fab } from '@/components/shared/Fab'
 import { useStore } from '@/store/useStore'
 import { formatCurrency, formatDate, formatOrderCode } from '@/lib/utils'
 import { Plus, Search, Eye, Edit, Printer } from 'lucide-react'
@@ -55,38 +57,24 @@ export default function SellsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
-        <div className="relative w-full max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-subtle-foreground" />
-          <Input placeholder={t('search')} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10" />
+        <div className="relative w-full md:max-w-md">
+          <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-subtle-foreground" />
+          <Input type="search" placeholder={t('search')} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="h-12 pl-10 md:h-10" />
         </div>
-        <Button className="flex items-center gap-2" onClick={() => setModalOpen(true)}>
+        {/* Mobile uses the floating action button below instead. */}
+        <Button className="hidden shrink-0 items-center gap-2 md:flex" onClick={() => setModalOpen(true)}>
           <Plus className="h-4 w-4" /> {t('newOrder')}
         </Button>
       </div>
 
       {/* Mini Dashboard */}
-      <div className="grid gap-4 md:grid-cols-5">
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total</CardTitle></CardHeader>
-          <CardContent><div className="text-2xl font-bold">{stats.total}</div></CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Pending</CardTitle></CardHeader>
-          <CardContent><div className="text-2xl font-bold text-warning">{stats.pending}</div></CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Processing</CardTitle></CardHeader>
-          <CardContent><div className="text-2xl font-bold text-info">{stats.processing}</div></CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Delivered</CardTitle></CardHeader>
-          <CardContent><div className="text-2xl font-bold text-success">{stats.delivered}</div></CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Cancelled</CardTitle></CardHeader>
-          <CardContent><div className="text-2xl font-bold text-danger">{stats.cancelled}</div></CardContent>
-        </Card>
-      </div>
+      <StatRail className="md:grid-cols-5">
+        <StatTile label="Total" value={stats.total} />
+        <StatTile label="Pending" value={stats.pending} tone="text-warning" />
+        <StatTile label="Processing" value={stats.processing} tone="text-info" />
+        <StatTile label="Delivered" value={stats.delivered} tone="text-success" />
+        <StatTile label="Cancelled" value={stats.cancelled} tone="text-danger" />
+      </StatRail>
 
       {filtered.length === 0 ? (
         <Card className="border-dashed">
@@ -122,10 +110,10 @@ export default function SellsPage() {
                   const due = Math.max(0, grand - paid)
                   return (
                     <TableRow key={`${o.id}-${idx}`}>
-                      <TableCell className="font-medium">{formatOrderCode(o.id, o.createdAt)}</TableCell>
-                      <TableCell>{o.customerName}</TableCell>
-                      <TableCell>{formatDate(o.createdAt, locale)}</TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="font-medium" data-primary="">{formatOrderCode(o.id, o.createdAt)}</TableCell>
+                      <TableCell data-label={t('customer')}>{o.customerName}</TableCell>
+                      <TableCell data-label={t('date')}>{formatDate(o.createdAt, locale)}</TableCell>
+                      <TableCell className="md:text-right" data-label="Status">
                         <div className="w-36 ml-auto">
                           <Select
                             value={o.status}
@@ -142,7 +130,7 @@ export default function SellsPage() {
                               }
                             }}
                           >
-                            <SelectTrigger className="h-8 px-2 py-1 text-xs">
+                            <SelectTrigger className="h-10 px-2 py-1 text-xs md:h-8">
                               <SelectValue placeholder={t('orderStatus.pending')} />
                             </SelectTrigger>
                             <SelectContent>
@@ -154,20 +142,20 @@ export default function SellsPage() {
                           </Select>
                         </div>
                       </TableCell>
-                      <TableCell className="text-right">{formatCurrency(paid, locale)} / {formatCurrency(due, locale)}</TableCell>
-                      <TableCell className="text-right font-medium">{formatCurrency(grand, locale)}</TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="md:text-right" data-label="Paid / Due">{formatCurrency(paid, locale)} / {formatCurrency(due, locale)}</TableCell>
+                      <TableCell className="font-medium md:text-right" data-label={t('total')}>{formatCurrency(grand, locale)}</TableCell>
+                      <TableCell className="md:text-right">
                         <div className="flex justify-end gap-1">
                           <a href={`/${locale}/sells/${o.id}`}>
-                            <Button variant="ghost" size="sm" title="View">
+                            <Button variant="ghost" size="icon" className="tap" title="View" aria-label="View">
                               <Eye className="h-4 w-4" />
                             </Button>
                           </a>
-                          <Button variant="ghost" size="sm" title="Edit" onClick={() => { setSelectedSell(o); setShowEdit(true) }}>
+                          <Button variant="ghost" size="icon" className="tap" title="Edit" aria-label="Edit" onClick={() => { setSelectedSell(o); setShowEdit(true) }}>
                             <Edit className="h-4 w-4" />
                           </Button>
                           <a href={`/${locale}/sells/${o.id}`}>
-                            <Button variant="ghost" size="sm" title="Print">
+                            <Button variant="ghost" size="icon" className="tap" title="Print" aria-label="Print">
                               <Printer className="h-4 w-4" />
                             </Button>
                           </a>
@@ -185,6 +173,8 @@ export default function SellsPage() {
       {modalOpen && (
         <SellModal open={modalOpen} mode="create" onClose={() => setModalOpen(false)} />
       )}
+
+      <Fab onClick={() => setModalOpen(true)} label={t('newOrder')} />
 
       {/* Details modal removed in favor of dedicated page */}
 

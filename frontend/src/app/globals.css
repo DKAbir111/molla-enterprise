@@ -360,10 +360,13 @@ html.theme-dark {
     padding-top: var(--safe-top);
   }
 
-  /* Bottom padding that clears the tab bar. Applied to the scroll container on
-     mobile; a no-op on desktop where the bar is not rendered. */
-  .pb-nav {
-    padding-bottom: calc(var(--nav-total) + 1rem);
+  /* Bottom padding that clears the tab bar. Deliberately scoped to the mobile
+     breakpoint rather than relying on a `md:` override winning the cascade:
+     the desktop layout renders no tab bar and must keep its own padding. */
+  @media (max-width: 767px) {
+    .pb-nav {
+      padding-bottom: calc(var(--nav-total) + 1rem);
+    }
   }
 
   /* --- Touch feedback --------------------------------------------------- */
@@ -392,29 +395,33 @@ html.theme-dark {
     display: none;
   }
 
-  /* Horizontal card rail: stat tiles and filter chips scroll sideways on a
-     phone instead of stacking into a wall of vertical cards. */
-  .rail {
-    display: flex;
-    gap: 0.75rem;
-    overflow-x: auto;
-    scroll-snap-type: x proximity;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    /* Bleed to the screen edges so the rail reads as scrollable, then pad the
-       content back in line with the page gutter. */
-    margin-inline: -1rem;
-    padding-inline: 1rem;
-    padding-bottom: 0.25rem;
-  }
+  /* Horizontal card rail: stat tiles scroll sideways on a phone instead of
+     stacking into a wall of full-width cards that buries the actual content.
+     Mobile-only by construction, so the desktop grid classes on the same
+     element apply untouched — no `md:` override has to win a cascade fight. */
+  @media (max-width: 767px) {
+    .rail {
+      display: flex;
+      gap: 0.75rem;
+      overflow-x: auto;
+      scroll-snap-type: x proximity;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      /* Bleed to the screen edges so the rail reads as scrollable, then pad
+         the content back in line with the page gutter. */
+      margin-inline: -1rem;
+      padding-inline: 1rem;
+      padding-bottom: 0.25rem;
+    }
 
-  .rail::-webkit-scrollbar {
-    display: none;
-  }
+    .rail::-webkit-scrollbar {
+      display: none;
+    }
 
-  .rail>* {
-    scroll-snap-align: start;
-    flex: 0 0 auto;
+    .rail>* {
+      scroll-snap-align: start;
+      flex: 0 0 auto;
+    }
   }
 
   /* --- Motion ----------------------------------------------------------- */
@@ -444,6 +451,94 @@ html.theme-dark {
 
   .animate-fade-in {
     animation: fade-in 200ms ease-out;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   RESPONSIVE TABLES
+   A six-column grid cannot be read on a 360px screen, and a horizontal scroll
+   hides half the data behind a gesture nobody discovers. Below `md` every row
+   becomes its own card: the header row is dropped and each cell carries its
+   column name, taken from the cell's `data-label`, as an inline label.
+
+   Applied by <Table> automatically; opt out with <Table stacked={false} />.
+   ---------------------------------------------------------------------------- */
+@media (max-width: 767px) {
+
+  .table-stack,
+  .table-stack tbody,
+  .table-stack tfoot,
+  .table-stack tr,
+  .table-stack td {
+    display: block;
+    width: 100%;
+  }
+
+  /* Column headers are redundant once every cell is self-labelling. */
+  .table-stack thead {
+    display: none;
+  }
+
+  .table-stack tr {
+    margin-bottom: 0.75rem;
+    padding: 0.25rem 0.875rem;
+    border: 1px solid var(--border-subtle);
+    border-radius: 0.75rem;
+    background: var(--surface);
+  }
+
+  .table-stack tr:last-child {
+    margin-bottom: 0;
+  }
+
+  .table-stack td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    /* Reset the desktop cell padding, which is far too generous stacked. */
+    padding: 0.625rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    text-align: right;
+  }
+
+  .table-stack tr td:last-child {
+    border-bottom: 0;
+  }
+
+  .table-stack td::before {
+    content: attr(data-label);
+    flex: 0 0 auto;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--subtle-foreground);
+    text-align: left;
+  }
+
+  /* A cell with no label — the actions column — gets the full card width. */
+  .table-stack td:not([data-label])::before {
+    content: none;
+  }
+
+  .table-stack td:not([data-label]) {
+    justify-content: flex-end;
+  }
+
+  /* The identity cell (name + avatar, invoice number, ...) is the card's
+     headline: full width, left aligned, no label. Mark it `data-primary`. */
+  .table-stack td[data-primary] {
+    display: block;
+    padding-top: 0.875rem;
+    text-align: left;
+  }
+
+  .table-stack td[data-primary]::before {
+    content: none;
+  }
+
+  /* Nested layout inside a cell should not be stretched by the flex parent. */
+  .table-stack td>* {
+    min-width: 0;
   }
 }
 

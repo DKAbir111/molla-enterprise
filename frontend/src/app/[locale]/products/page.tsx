@@ -2,21 +2,33 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { useTranslations } from 'next-intl'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import Link from 'next/link'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-// removed inline restock dialog; use Edit modal for stock changes
 import { useStore } from '@/store/useStore'
-import { formatCurrency } from '@/lib/utils'
+import { cn, formatCurrency } from '@/lib/utils'
 import { useLocale } from 'next-intl'
-import { Plus, Search, Edit, Trash2 } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, Eye, X } from 'lucide-react'
 import { ProductModal } from '@/components/products/ProductModal'
 import { DeleteConfirmationModal } from '@/components/shared/DeleteConfirmationModal'
+import { StatRail, StatTile } from '@/components/shared/StatRail'
+import { Fab } from '@/components/shared/Fab'
 import { Product } from '@/types'
 import { listProducts as fetchProducts, deleteProduct as apiDeleteProduct } from '@/lib/api'
 import { toast } from 'sonner'
 import { normalizeProduct } from '@/lib/api'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+
+/* Matches Button variant="outline" size="icon". Used for the View link, which
+   has to be a real anchor for prefetching and open-in-new-tab to work — Button
+   has no `asChild` escape hatch to render one. */
+const ICON_ACTION_CLASS =
+  'tap inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-border ' +
+  'bg-transparent text-sm font-medium text-foreground transition-all hover:bg-surface-hover ' +
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ' +
+  // From md up it matches the original `<Button variant="outline" size="sm" className="flex-1">`.
+  'md:h-9 md:w-auto md:flex-1 md:px-3'
 
 export default function ProductsPage() {
   const t = useTranslations('products')
@@ -28,7 +40,6 @@ export default function ProductsPage() {
   const [modal, setModal] = useState<{ open: boolean; mode: 'create' | 'edit'; product?: Product | null }>({ open: false, mode: 'create', product: null })
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [productToDeleteId, setProductToDeleteId] = useState<string | null>(null)
-  // restock handled inside Edit modal via stock field
 
   // Load from API
   useEffect(() => {
@@ -97,22 +108,39 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Controls */}
-      <div className="flex items-center gap-4 justify-between">
-        <div className="flex items-center gap-4 flex-1">
-          <div className="relative w-full max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-subtle-foreground" />
+    <div className="space-y-5 md:space-y-6">
+      {/* ---------------------------------------------------------------- */}
+      {/* Search + filters. On a phone the search field owns its own row and  */}
+      {/* the two filters split the next one; on desktop they share a line    */}
+      {/* with the Add button.                                                */}
+      {/* ---------------------------------------------------------------- */}
+      <div className="space-y-3 md:flex md:items-center md:justify-between md:gap-4 md:space-y-0">
+        <div className="space-y-3 md:flex md:flex-1 md:items-center md:gap-4 md:space-y-0">
+          <div className="relative md:w-full md:max-w-md">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle-foreground" />
             <Input
+              type="search"
+              inputMode="search"
               placeholder={t('search')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="h-12 pl-10 pr-10 md:h-10"
             />
+            {searchQuery && (
+              <button
+                type="button"
+                aria-label={t('search')}
+                onClick={() => setSearchQuery('')}
+                className="tap absolute right-1 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full text-subtle-foreground"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
-          <div className="w-44">
+
+          <div className="grid grid-cols-2 gap-3 md:flex md:gap-4">
             <Select value={filterGrade} onValueChange={setFilterGrade}>
-              <SelectTrigger className="h-10">
+              <SelectTrigger className="h-12 md:h-10 md:w-44">
                 <SelectValue placeholder={t('filter')} />
               </SelectTrigger>
               <SelectContent>
@@ -121,10 +149,9 @@ export default function ProductsPage() {
                 <SelectItem value="medium">{t('medium')}</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-          <div className="w-44">
+
             <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
-              <SelectTrigger className="h-10">
+              <SelectTrigger className="h-12 md:h-10 md:w-44">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
@@ -135,46 +162,24 @@ export default function ProductsPage() {
             </Select>
           </div>
         </div>
-        <Button className="flex items-center gap-2" onClick={() => setModal({ open: true, mode: 'create' })}>
+
+        {/* Mobile uses the floating action button at the bottom of the screen
+            instead — within thumb reach, and it stays put while scrolling. */}
+        <Button className="hidden shrink-0 items-center gap-2 md:flex" onClick={() => setModal({ open: true, mode: 'create' })}>
           <Plus className="h-4 w-4" /> {t('addProduct')}
         </Button>
       </div>
 
-      {/* Mini Dashboard */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Total Products</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Active Products</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-success">{stats.active}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Out of Stock</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-danger">{stats.out}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Inventory Value</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-info">{formatCurrency(stats.value, locale)}</div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* ---------------------------------------------------------------- */}
+      {/* Stats. Four stacked cards eat an entire phone screen before the      */}
+      {/* first product, so on mobile they become a swipeable rail.           */}
+      {/* ---------------------------------------------------------------- */}
+      <StatRail>
+        <StatTile label="Total Products" value={stats.total} />
+        <StatTile label="Active Products" value={stats.active} tone="text-success" />
+        <StatTile label="Out of Stock" value={stats.out} tone="text-danger" />
+        <StatTile label="Inventory Value" value={formatCurrency(stats.value, locale)} tone="text-info" />
+      </StatRail>
 
       {/* Product Modal (create/edit) */}
       <ProductModal
@@ -193,77 +198,138 @@ export default function ProductsPage() {
         description={t('deleteConfirmationDescription')}
       />
 
-      {/* Search and Filters moved above */}
-
       {/* Empty State */}
       {filteredProducts.length === 0 ? (
         <Card className="border-dashed">
-          <CardContent className="py-16 text-center">
-            <div className="mx-auto mb-4 h-14 w-14 rounded-full gradient-primary text-primary-foreground flex items-center justify-center text-2xl">+</div>
-            <h3 className="text-lg font-semibold mb-1">{t('emptyTitle')}</h3>
-            <p className="text-muted-foreground mb-4">{t('emptyDescription')}</p>
+          <CardContent className="px-4 py-12 text-center md:py-16">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full gradient-primary text-2xl text-primary-foreground">+</div>
+            <h3 className="mb-1 text-lg font-semibold">{t('emptyTitle')}</h3>
+            <p className="mb-4 text-muted-foreground">{t('emptyDescription')}</p>
             <Button onClick={() => setModal({ open: true, mode: 'create' })}>{t('addProduct')}</Button>
           </CardContent>
         </Card>
       ) : (
-        /* Products Grid */
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        /* ------------------------------------------------------------ */
+        /* One card structure that reflows: a horizontal list row on a    */
+        /* phone, a vertical tile from `sm` up. No duplicated markup.     */
+        /* ------------------------------------------------------------ */
+        <div className="grid gap-3 md:grid-cols-2 md:gap-6 lg:grid-cols-3 xl:grid-cols-4">
           {filteredProducts.map((product, idx) => (
-            <Card key={`${product.id}-${idx}`} className={`hover:shadow-lg transition-all group ${product.awaitingPurchase !== false ? 'bg-warning-subtle border-warning' : 'bg-surface'}`}>
-              <CardHeader className="pb-4 relative">
-                {!product.active && (
-                  <span className="absolute top-2 right-2 text-xs bg-danger-subtle text-danger px-2 py-0.5 rounded">Inactive</span>
-                )}
-                {product.awaitingPurchase !== false && (
-                  <span className="absolute top-2 left-2 text-xs bg-warning-subtle text-warning px-2 py-0.5 rounded">Awaiting Purchase</span>
-                )}
-                <div className={`h-32 rounded-lg mb-4 overflow-hidden ${product.imageUrl ? '' : `bg-linear-to-br ${getProductImage(product.type)} flex items-center justify-center text-white`}`}>
-                  {product.imageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={product.imageUrl} alt={product.name} className="h-full w-full object-cover" />
-                  ) : (
-                    <span className="text-4xl font-bold opacity-50">
-                      {product?.name?.split(" ")[0]}
-                    </span>
+            <Card
+              key={`${product.id}-${idx}`}
+              className={cn(
+                'group relative flex flex-row overflow-hidden transition-all hover:shadow-lg md:flex-col',
+                product.awaitingPurchase !== false ? 'border-warning bg-warning-subtle' : 'bg-surface'
+              )}
+            >
+              {/* Desktop keeps the original badges floating over the image. On a
+                  phone the image is a small square to the left, so they would
+                  land on top of the title — they move inline below instead. */}
+              <div className="pointer-events-none absolute inset-x-2 top-2 z-10 hidden items-start justify-between md:flex">
+                <span>
+                  {product.awaitingPurchase !== false && (
+                    <span className="rounded bg-warning-subtle px-2 py-0.5 text-xs text-warning">Awaiting Purchase</span>
                   )}
-                </div>
-                <CardTitle className="text-lg">{product?.name}</CardTitle>
-                {product.grade && (
-                  <span className="text-sm text-subtle-foreground capitalize">
-                    {product.grade}
+                </span>
+                <span>
+                  {!product.active && (
+                    <span className="rounded bg-danger-subtle px-2 py-0.5 text-xs text-danger">Inactive</span>
+                  )}
+                </span>
+              </div>
+
+              {/* Thumbnail: a fixed square beside the text on mobile, the
+                  original full-width banner from md up. */}
+              <div
+                className={cn(
+                  'h-28 w-28 shrink-0 overflow-hidden md:mb-4 md:h-32 md:w-full md:rounded-lg',
+                  product.imageUrl
+                    ? ''
+                    : `flex items-center justify-center bg-linear-to-br text-white ${getProductImage(product.type)}`
+                )}
+              >
+                {product.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={product.imageUrl} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  <span className="truncate px-2 text-2xl font-bold opacity-50 md:text-4xl">
+                    {product?.name?.split(' ')[0]}
                   </span>
                 )}
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-subtle-foreground">{t('pricePerUnit')}</span>
-                    <span className="font-semibold">
+              </div>
+
+              <CardContent className="flex min-w-0 flex-1 flex-col p-3 md:p-6 md:pt-0">
+                {/* Mobile-only inline status chips (see the note above). */}
+                {(product.active === false || product.awaitingPurchase !== false) && (
+                  <div className="mb-1.5 flex flex-wrap gap-1 md:hidden">
+                    {product.awaitingPurchase !== false && (
+                      <span className="rounded bg-warning-subtle px-1.5 py-0.5 text-[10px] font-medium text-warning">Awaiting Purchase</span>
+                    )}
+                    {product.active === false && (
+                      <span className="rounded bg-danger-subtle px-1.5 py-0.5 text-[10px] font-medium text-danger">Inactive</span>
+                    )}
+                  </div>
+                )}
+
+                <h3 className="truncate text-base font-semibold leading-tight text-foreground md:text-lg">
+                  {product?.name}
+                </h3>
+                {product.grade && (
+                  <span className="text-xs capitalize text-subtle-foreground md:text-sm">{product.grade}</span>
+                )}
+
+                <div className="mt-2 space-y-1 md:mt-4 md:space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs text-subtle-foreground md:text-sm">{t('pricePerUnit')}</span>
+                    <span className="truncate text-sm font-semibold md:text-base">
                       {formatCurrency(product.price, locale)}/{product.unit}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-subtle-foreground">{t('stock')}</span>
-                    <span className="font-semibold text-success">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs text-subtle-foreground md:text-sm">{t('stock')}</span>
+                    <span className={cn(
+                      'truncate text-sm font-semibold md:text-base',
+                      Number(product.stock || 0) <= 0 ? 'text-danger' : 'text-success'
+                    )}>
                       {product.stock} {product.unit}
                     </span>
                   </div>
                 </div>
 
-                <div className="flex gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <a href={`/${locale}/products/${product.id}`}>
-                    <Button variant="outline" size="sm" className="flex-1">
-                      {t('view') || 'View'}
-                    </Button>
-                  </a>
-                  <Button variant="outline" size="sm" className="flex-1" onClick={() => handleEditClick(product)}>
-                    <Edit className="h-3 w-3 mr-1" />
-                    {t('edit')}
+                {/* Desktop keeps the original hover-to-reveal labelled buttons.
+                    On touch there is no hover, so `opacity-0` made these
+                    permanently unreachable — mobile shows icon buttons instead. */}
+                <div className="mt-auto flex items-center gap-1.5 pt-3 transition-opacity md:mt-4 md:gap-2 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
+                  <Link
+                    href={`/${locale}/products/${product.id}`}
+                    aria-label={t('view')}
+                    title={t('view')}
+                    className={ICON_ACTION_CLASS}
+                  >
+                    <Eye className="h-4 w-4 md:hidden" />
+                    <span className="hidden md:inline">{t('view')}</span>
+                  </Link>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    aria-label={t('edit')}
+                    title={t('edit')}
+                    className="tap md:w-auto md:flex-1 md:px-3"
+                    onClick={() => handleEditClick(product)}
+                  >
+                    <Edit className="h-4 w-4 md:mr-1 md:h-3 md:w-3" />
+                    <span className="hidden md:inline">{t('edit')}</span>
                   </Button>
-                  <Button variant="outline" size="sm" className="text-danger hover:text-danger" onClick={() => handleDeleteClick(product.id)}>
-                    <Trash2 className="h-3 w-3" />
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    aria-label={t('delete')}
+                    title={t('delete')}
+                    className="tap text-danger hover:text-danger"
+                    onClick={() => handleDeleteClick(product.id)}
+                  >
+                    <Trash2 className="h-4 w-4 md:h-3 md:w-3" />
                   </Button>
-                  {/* Status and restock controls moved into Edit modal */}
                 </div>
               </CardContent>
             </Card>
@@ -271,6 +337,7 @@ export default function ProductsPage() {
         </div>
       )}
 
+      <Fab onClick={() => setModal({ open: true, mode: 'create' })} label={t('addProduct')} />
     </div>
   )
 }

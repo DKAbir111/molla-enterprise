@@ -396,11 +396,11 @@ export default function AccountsPage() {
                   .slice(0, 10)
                   .map((transaction, idx) => (
                     <TableRow key={`${transaction.id}-${idx}`}>
-                      <TableCell className="text-sm text-muted-foreground">
+                      <TableCell className="text-sm text-muted-foreground" data-label={t('date')}>
                         {formatDate(transaction.date as any, locale)}
                       </TableCell>
-                      <TableCell>{transaction.description}</TableCell>
-                      <TableCell>
+                      <TableCell data-primary="">{transaction.description}</TableCell>
+                      <TableCell data-label={t('type')}>
                         <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full ${transaction.type === 'income'
                           ? 'bg-success-subtle text-success'
                           : 'bg-danger-subtle text-danger'
@@ -413,8 +413,11 @@ export default function AccountsPage() {
                           {t(transaction.type)}
                         </span>
                       </TableCell>
-                      <TableCell className={`text-right font-medium ${transaction.type === 'income' ? 'text-success' : 'text-danger'
-                        }`}>
+                      <TableCell
+                        data-label={t('amount')}
+                        className={`font-medium md:text-right ${transaction.type === 'income' ? 'text-success' : 'text-danger'
+                          }`}
+                      >
                         {transaction.type === 'income' ? '+' : '-'}
                         {formatCurrency(transaction.amount, locale)}
                       </TableCell>

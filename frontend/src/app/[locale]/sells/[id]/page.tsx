@@ -67,7 +67,7 @@ export default function SellDetailsPage() {
               <div className="text-sm text-subtle-foreground">{sell.deliveryAddress || '-'}</div>
             </div>
           </div>
-          <Table>
+          <Table stacked={false}>
             <TableHeader>
               <TableRow>
                 <TableHead>Product</TableHead>

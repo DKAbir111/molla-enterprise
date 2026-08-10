@@ -120,16 +120,17 @@ export default function ReportsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-foreground">{t('title')}</h1>
-        <Button className="flex items-center gap-2">
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{t('title')}</h1>
+        <Button className="flex shrink-0 items-center gap-2">
           <Download className="h-4 w-4" />
-          {t('export')}
+          <span className="hidden sm:inline">{t('export')}</span>
         </Button>
       </div>
 
-      {/* Report Options */}
-      <div className="grid gap-4 md:grid-cols-4">
+      {/* Report Options — two-up on a phone rather than four full-width cards
+          stacked, which would push the charts off the first screen entirely. */}
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         <Card className="cursor-pointer hover:shadow-lg transition-shadow">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
