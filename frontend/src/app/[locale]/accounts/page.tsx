@@ -1,6 +1,9 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { useSearchParams, useRouter, usePathname } from 'next/navigation'
+import { ReportsPanel } from '@/components/reports/ReportsPanel'
+import { cn } from '@/lib/utils'
 import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -65,6 +68,23 @@ export default function AccountsPage() {
     date: new Date().toISOString().slice(0, 10),
   })
   const [quickForm, setQuickForm] = useState(() => createDefaultQuickForm())
+
+  // Reports used to be its own route. It is a tab here now, and ?tab=reports
+  // keeps the old /reports links (which redirect in) landing in the right place.
+  const search = useSearchParams()
+  const router = useRouter()
+  const pathname = usePathname()
+  const [tab, setTab] = useState<'overview' | 'reports'>(
+    search?.get('tab') === 'reports' ? 'reports' : 'overview',
+  )
+  const switchTab = (next: 'overview' | 'reports') => {
+    setTab(next)
+    const params = new URLSearchParams(search?.toString())
+    if (next === 'overview') params.delete('tab')
+    else params.set('tab', next)
+    const qs = params.toString()
+    router.replace(qs ? `${pathname}?${qs}` : pathname)
+  }
 
   const loadSummary = useCallback(async () => {
     setLoading(true)
@@ -233,15 +253,44 @@ export default function AccountsPage() {
     <Dialog open={quickOpen} onOpenChange={(open) => { setQuickOpen(open); if (!open) resetQuickForm() }}>
       <div className="space-y-6">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">{t('title')}</h1>
-            <p className="text-muted-foreground mt-2">Monitor income, expenses, and ad-hoc memos in one place.</p>
+          <div className="min-w-0">
+            <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{t('title')}</h1>
+            <p className="mt-2 text-muted-foreground">{t('subtitle')}</p>
           </div>
-          <DialogTrigger asChild>
-            <Button className="w-full md:w-auto">+ Quick Entry</Button>
-          </DialogTrigger>
+          {tab === 'overview' && (
+            <DialogTrigger asChild>
+              <Button className="w-full md:w-auto">{t('quickEntry')}</Button>
+            </DialogTrigger>
+          )}
         </div>
 
+        <div className="border-b border-border-subtle">
+          <nav className="no-scrollbar flex gap-1 overflow-x-auto">
+            {([
+              { key: 'overview' as const, label: t('overviewTab') },
+              { key: 'reports' as const, label: t('reportsTab') },
+            ]).map((item) => (
+              <button
+                key={item.key}
+                type="button"
+                onClick={() => switchTab(item.key)}
+                aria-current={tab === item.key ? 'page' : undefined}
+                className={cn(
+                  'tap flex min-h-12 items-center whitespace-nowrap border-b-2 px-4 py-3 text-sm font-medium transition-colors',
+                  tab === item.key
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-muted-foreground hover:border-border hover:text-foreground',
+                )}
+              >
+                {item.label}
+              </button>
+            ))}
+          </nav>
+        </div>
+
+        {tab === 'reports' && <ReportsPanel />}
+
+        {tab === 'overview' && (<>
         {/* Financial Overview */}
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
@@ -427,6 +476,7 @@ export default function AccountsPage() {
             </Table>
           </CardContent>
         </Card>
+        </>)}
       </div>
       {quickEntryDialog}
     </Dialog>

@@ -15,7 +15,6 @@ import {
   Receipt,
   Wallet,
   HandCoins,
-  BarChart3,
   Settings,
   Building2,
 } from 'lucide-react'
@@ -58,7 +57,6 @@ const NAV_GROUPS = [
       { key: 'dues', href: '/dues', icon: HandCoins },
       { key: 'quickEntries', href: '/quick-entries', icon: Receipt },
       { key: 'accounts', href: '/accounts', icon: Wallet },
-      { key: 'reports', href: '/reports', icon: BarChart3 },
     ],
   },
   {

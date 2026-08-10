@@ -13,7 +13,6 @@ import {
   Receipt,
   Wallet,
   HandCoins,
-  BarChart3,
   Settings,
   Building2,
   Languages,
@@ -45,7 +44,6 @@ const MORE_LINKS = [
   { key: 'dues', href: '/dues', icon: HandCoins },
   { key: 'quickEntries', href: '/quick-entries', icon: Receipt },
   { key: 'accounts', href: '/accounts', icon: Wallet },
-  { key: 'reports', href: '/reports', icon: BarChart3 },
   { key: 'settings', href: '/settings', icon: Settings },
 ] as const
 

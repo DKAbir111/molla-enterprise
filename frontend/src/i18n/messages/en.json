@@ -477,7 +477,11 @@
     "emptyTitle": "No transactions yet",
     "emptyDescription": "As you add income and expenses, trends and insights will appear here.",
     "loadingInsights": "Loading financial insights…",
-    "optional": "Optional"
+    "optional": "Optional",
+    "subtitle": "Monitor income, expenses and ad-hoc memos in one place.",
+    "quickEntry": "+ Quick Entry",
+    "overviewTab": "Overview",
+    "reportsTab": "Reports"
   },
   "oil": {
     "title": "Oil Business",
@@ -721,7 +725,12 @@
     "youOwe": "You owe",
     "netPosition": "Net position",
     "openOrders": "Open orders",
-    "noOpenOrders": "No open orders — everything is delivered and paid."
+    "noOpenOrders": "No open orders — everything is delivered and paid.",
+    "searchCustomers": "Search customers…",
+    "searchVendors": "Search vendors…",
+    "showingCount": "Showing {shown} of {total}",
+    "noMatches": "Nothing matches that search.",
+    "showMore": "Show more"
   },
   "invoice": {
     "invoice": "Invoice",
