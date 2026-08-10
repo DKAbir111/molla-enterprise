@@ -46,6 +46,7 @@ model Organization {
   transactions Transaction[]
   vendors      Vendor[]
   dryingGains  DryingGain[]
+  payments     Payment[]
 
   // One-to-one settings
   settings OrganizationSettings?
@@ -92,6 +93,7 @@ model Customer {
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
   sells          Sell[]
+  payments       Payment[]
 
   @@index([organizationId])
 }
@@ -115,7 +117,8 @@ model Sell {
   transportTrips   Int          @default(0)
   transportTotal   Decimal      @default(0) @db.Decimal(12, 2)
 
-  items SellItem[]
+  items    SellItem[]
+  payments Payment[]
 
   @@index([organizationId])
   @@index([customerId])
@@ -150,7 +153,8 @@ model Buy {
   transportTotal   Decimal      @default(0) @db.Decimal(12, 2)
   createdAt        DateTime     @default(now())
 
-  items BuyItem[]
+  items    BuyItem[]
+  payments Payment[]
 
   @@index([organizationId])
 }
@@ -166,6 +170,7 @@ model Vendor {
   organization   Organization @relation(fields: [organizationId], references: [id])
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
+  payments       Payment[]
 
   @@index([organizationId])
 }
@@ -191,12 +196,19 @@ model Transaction {
   type           String
   amount         Decimal      @db.Decimal(12, 2)
   category       String
+  // Where the row came from. "manual" is a Quick Entry or an Accounts entry the
+  // user typed; "order" marks the rows the sell/buy services used to generate
+  // automatically for payments. Accounts counts only "manual" rows, because an
+  // order's own total is already counted — including both double-counted every
+  // paid sale. Order payments are Payment rows now, not Transactions.
+  source         String       @default("manual")
   date           DateTime     @default(now())
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id])
   createdAt      DateTime     @default(now())
 
   @@index([organizationId])
+  @@index([organizationId, source])
 }
 
 model DryingGain {
@@ -226,6 +238,12 @@ model OrganizationSettings {
   notifyPayables     Boolean @default(true)
   emailAlerts        Boolean @default(false)
   smsAlerts          Boolean @default(false)
+
+  // Feature toggles
+  /// Drying gain is a sand/aggregate-trade concept: stock gains volume as it
+  /// dries. Businesses that do not deal in drying materials should not see the
+  /// field at all, so it is opt-in per organisation.
+  dryingGainEnabled Boolean @default(false)
 
   // Thresholds & aging
   lowStockThreshold      Int @default(5)
@@ -272,4 +290,47 @@ model LoginActivity {
   lastSeenAt  DateTime @updatedAt
 
   @@index([userId, createdAt])
+}
+
+/// A single dated movement of money against a customer or a vendor.
+///
+/// `Sell.paidAmount` / `Buy.paidAmount` used to be typed in by hand and simply
+/// overwritten, so paying in instalments destroyed the earlier figure and left
+/// no record of when anything was received. Those columns are now a cache
+/// recomputed from these rows — never written directly.
+model Payment {
+  id             String       @id @default(uuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  /// "in"  = received from a customer (settles a Sell)
+  /// "out" = paid to a vendor (settles a Buy)
+  direction String
+
+  amount Decimal  @db.Decimal(12, 2)
+  date   DateTime @default(now())
+  method String   @default("cash")
+  note   String?
+
+  /// Who the money moved with. Set even when the payment is applied to a
+  /// specific order, so a customer ledger can be built without walking orders.
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+  vendorId   String?
+  vendor     Vendor?   @relation(fields: [vendorId], references: [id])
+
+  /// Which invoice it settles. Null for an on-account payment not yet applied.
+  sellId String?
+  sell   Sell?   @relation(fields: [sellId], references: [id], onDelete: Cascade)
+  buyId  String?
+  buy    Buy?    @relation(fields: [buyId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([organizationId])
+  @@index([organizationId, direction])
+  @@index([sellId])
+  @@index([buyId])
+  @@index([customerId])
+  @@index([vendorId])
 }

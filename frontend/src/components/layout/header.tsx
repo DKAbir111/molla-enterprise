@@ -24,6 +24,7 @@ export function Header() {
   }
 
   const tNav = useTranslations('nav')
+  const tn = useTranslations('notifications')
 
   const segments = pathname.split('/')
   const routeKey = segments[2] ? segments[2] as any : 'dashboard'
@@ -170,7 +171,7 @@ export function Header() {
             variant="ghost"
             size="sm"
             onClick={() => setNotifOpen(!notifOpen)}
-            aria-label="Notifications"
+            aria-label={tn('title')}
             aria-expanded={notifOpen}
             /* 44px square on touch so the bell clears the minimum target size. */
             className="tap relative h-11 w-11 px-0 transition-colors hover:bg-surface-hover md:h-9 md:w-9"
@@ -190,10 +191,10 @@ export function Header() {
               {/* Header */}
               <div className="px-5 py-4 border-b border-border-subtle bg-surface-muted">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-foreground text-base">Notifications</h3>
+                  <h3 className="font-semibold text-foreground text-base">{tn('title')}</h3>
                   {badgeCount > 0 && (
                     <span className="text-xs font-medium text-subtle-foreground bg-surface-hover px-2.5 py-1 rounded-full">
-                      {badgeCount} active
+                      {badgeCount} {tn('active')}
                     </span>
                   )}
                 </div>
@@ -204,7 +205,7 @@ export function Header() {
                 {!alerts && (
                   <div className="flex flex-col items-center justify-center py-12">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                    <p className="text-sm text-subtle-foreground mt-3">Loading notifications...</p>
+                    <p className="text-sm text-subtle-foreground mt-3">{tn('loading')}</p>
                   </div>
                 )}
 
@@ -220,10 +221,10 @@ export function Header() {
                             </div>
                             <div className="flex-1 min-w-0">
                               <h3 className="font-semibold text-foreground text-sm truncate">{p.name}</h3>
-                              <p className="text-xs text-muted-foreground">Running low on inventory</p>
+                              <p className="text-xs text-muted-foreground">{tn('lowStock')}</p>
                             </div>
                           </div>
-                          <span className="font-bold text-base text-warning ml-2 shrink-0">{p.stock} left</span>
+                          <span className="font-bold text-base text-warning ml-2 shrink-0">{p.stock} {tn('left')}</span>
                         </div>
 
                         <div className="flex items-center gap-2">
@@ -234,12 +235,12 @@ export function Header() {
                               const snapshot = JSON.stringify(alerts)
                               removeItem('lowStock', p.id)
                               snoozeAlert({ type: 'lowStock', refId: p.id, days: 7 })
-                                .then(() => toast.success('Snoozed for 7 days'))
-                                .catch(() => { try { setAlerts(JSON.parse(snapshot)) } catch { }; toast.error('Failed to snooze') })
+                                .then(() => toast.success(tn('snoozed')))
+                                .catch(() => { try { setAlerts(JSON.parse(snapshot)) } catch { }; toast.error(tn('snoozeFailed')) })
                             }}
                           >
                             <Clock className="h-3 w-3" />
-                            Snooze 7d
+                            {tn('snooze7d')}
                           </button>
                           <button
                             type="button"
@@ -248,12 +249,12 @@ export function Header() {
                               const snapshot = JSON.stringify(alerts)
                               removeItem('lowStock', p.id)
                               snoozeAlert({ type: 'lowStock', refId: p.id, forever: true })
-                                .then(() => toast.success("Won't remind"))
-                                .catch(() => { try { setAlerts(JSON.parse(snapshot)) } catch { }; toast.error('Failed to mute') })
+                                .then(() => toast.success(tn('wontRemind')))
+                                .catch(() => { try { setAlerts(JSON.parse(snapshot)) } catch { }; toast.error(tn('muteFailed')) })
                             }}
                           >
                             <Trash2 className="h-3 w-3" />
-                            Dismiss
+                            {tn('dismiss')}
                           </button>
                         </div>
                       </div>
@@ -268,7 +269,7 @@ export function Header() {
                               <Clock className="h-4 w-4 text-info" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h3 className="font-semibold text-foreground text-sm truncate">Order #{o.id.slice(0, 6)}</h3>
+                              <h3 className="font-semibold text-foreground text-sm truncate">{tn('order')} #{o.id.slice(0, 6)}</h3>
                               <p className="text-xs text-muted-foreground truncate">{o.customerName}</p>
                             </div>
                           </div>
@@ -283,12 +284,12 @@ export function Header() {
                               const snapshot = JSON.stringify(alerts)
                               removeItem('pendingOrder', o.id)
                               snoozeAlert({ type: 'pendingOrder', refId: o.id, days: 7 })
-                                .then(() => toast.success('Snoozed for 7 days'))
-                                .catch(() => { try { setAlerts(JSON.parse(snapshot)) } catch { }; toast.error('Failed to snooze') })
+                                .then(() => toast.success(tn('snoozed')))
+                                .catch(() => { try { setAlerts(JSON.parse(snapshot)) } catch { }; toast.error(tn('snoozeFailed')) })
                             }}
                           >
                             <Clock className="h-3 w-3" />
-                            Snooze 7d
+                            {tn('snooze7d')}
                           </button>
                           <button
                             type="button"
@@ -297,12 +298,12 @@ export function Header() {
                               const snapshot = JSON.stringify(alerts)
                               removeItem('pendingOrder', o.id)
                               snoozeAlert({ type: 'pendingOrder', refId: o.id, forever: true })
-                                .then(() => toast.success("Won't remind"))
-                                .catch(() => { try { setAlerts(JSON.parse(snapshot)) } catch { }; toast.error('Failed to mute') })
+                                .then(() => toast.success(tn('wontRemind')))
+                                .catch(() => { try { setAlerts(JSON.parse(snapshot)) } catch { }; toast.error(tn('muteFailed')) })
                             }}
                           >
                             <Trash2 className="h-3 w-3" />
-                            Dismiss
+                            {tn('dismiss')}
                           </button>
                         </div>
                       </div>
@@ -318,7 +319,7 @@ export function Header() {
                             </div>
                             <div className="flex-1 min-w-0">
                               <h3 className="font-semibold text-foreground text-sm truncate">{r.customerName}</h3>
-                              <p className="text-xs text-muted-foreground">Outstanding receivable</p>
+                              <p className="text-xs text-muted-foreground">{tn('outstandingReceivable')}</p>
                             </div>
                           </div>
                           <span className="font-bold text-base text-success ml-2 shrink-0">
@@ -334,12 +335,12 @@ export function Header() {
                               const snapshot = JSON.stringify(alerts)
                               removeItem('receivable', r.id)
                               snoozeAlert({ type: 'receivable', refId: r.id, days: 7 })
-                                .then(() => toast.success('Snoozed for 7 days'))
-                                .catch(() => { try { setAlerts(JSON.parse(snapshot)) } catch { }; toast.error('Failed to snooze') })
+                                .then(() => toast.success(tn('snoozed')))
+                                .catch(() => { try { setAlerts(JSON.parse(snapshot)) } catch { }; toast.error(tn('snoozeFailed')) })
                             }}
                           >
                             <Clock className="h-3 w-3" />
-                            Snooze 7d
+                            {tn('snooze7d')}
                           </button>
                           <button
                             type="button"
@@ -348,12 +349,12 @@ export function Header() {
                               const snapshot = JSON.stringify(alerts)
                               removeItem('receivable', r.id)
                               snoozeAlert({ type: 'receivable', refId: r.id, forever: true })
-                                .then(() => toast.success("Won't remind"))
-                                .catch(() => { try { setAlerts(JSON.parse(snapshot)) } catch { }; toast.error('Failed to mute') })
+                                .then(() => toast.success(tn('wontRemind')))
+                                .catch(() => { try { setAlerts(JSON.parse(snapshot)) } catch { }; toast.error(tn('muteFailed')) })
                             }}
                           >
                             <Trash2 className="h-3 w-3" />
-                            Dismiss
+                            {tn('dismiss')}
                           </button>
                         </div>
                       </div>
@@ -369,7 +370,7 @@ export function Header() {
                             </div>
                             <div className="flex-1 min-w-0">
                               <h3 className="font-semibold text-foreground text-sm truncate">{r.vendorName}</h3>
-                              <p className="text-xs text-muted-foreground">Outstanding payable</p>
+                              <p className="text-xs text-muted-foreground">{tn('outstandingPayable')}</p>
                             </div>
                           </div>
                           <span className="font-bold text-base text-danger ml-2 shrink-0">
@@ -385,12 +386,12 @@ export function Header() {
                               const snapshot = JSON.stringify(alerts)
                               removeItem('payable', r.id)
                               snoozeAlert({ type: 'payable', refId: r.id, days: 7 })
-                                .then(() => toast.success('Snoozed for 7 days'))
-                                .catch(() => { try { setAlerts(JSON.parse(snapshot)) } catch { }; toast.error('Failed to snooze') })
+                                .then(() => toast.success(tn('snoozed')))
+                                .catch(() => { try { setAlerts(JSON.parse(snapshot)) } catch { }; toast.error(tn('snoozeFailed')) })
                             }}
                           >
                             <Clock className="h-3 w-3" />
-                            Snooze 7d
+                            {tn('snooze7d')}
                           </button>
                           <button
                             type="button"
@@ -399,12 +400,12 @@ export function Header() {
                               const snapshot = JSON.stringify(alerts)
                               removeItem('payable', r.id)
                               snoozeAlert({ type: 'payable', refId: r.id, forever: true })
-                                .then(() => toast.success("Won't remind"))
-                                .catch(() => { try { setAlerts(JSON.parse(snapshot)) } catch { }; toast.error('Failed to mute') })
+                                .then(() => toast.success(tn('wontRemind')))
+                                .catch(() => { try { setAlerts(JSON.parse(snapshot)) } catch { }; toast.error(tn('muteFailed')) })
                             }}
                           >
                             <Trash2 className="h-3 w-3" />
-                            Dismiss
+                            {tn('dismiss')}
                           </button>
                         </div>
                       </div>
@@ -415,8 +416,8 @@ export function Header() {
                         <div className="w-16 h-16 rounded-full bg-success-subtle flex items-center justify-center mb-4">
                           <span className="text-3xl">✓</span>
                         </div>
-                        <p className="text-sm font-medium text-foreground">All Caught Up!</p>
-                        <p className="text-xs text-subtle-foreground mt-1">No pending notifications</p>
+                        <p className="text-sm font-medium text-foreground">{tn('allCaughtUp')}</p>
+                        <p className="text-xs text-subtle-foreground mt-1">{tn('noPending')}</p>
                       </div>
                     )}
                   </>
@@ -429,7 +430,7 @@ export function Header() {
           <Button
             variant="ghost"
             size="sm"
-            aria-label="Organization"
+            aria-label={tn('organization')}
             className="hidden md:inline-flex"
             onClick={() => router.push(`/${locale}/organization`)}
           >
@@ -438,7 +439,7 @@ export function Header() {
           <Button
             variant="ghost"
             size="sm"
-            aria-label="Sign out"
+            aria-label={tn('signOut')}
             className="hidden md:inline-flex"
             onClick={() => { logout(); router.replace(`/${locale}/login`) }}
           >

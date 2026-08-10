@@ -11,6 +11,7 @@ import {
   AppearanceSection,
   OtherSection,
   DangerZoneSection,
+  FeaturesSection,
 } from '@/components/settings'
 
 export default function SettingsPage() {
@@ -167,6 +168,8 @@ export default function SettingsPage() {
         )}
 
         {activeTab === 'notifications' && <NotificationsSection orgId={orgId} />}
+
+        {activeTab === 'business' && <FeaturesSection orgId={orgId} />}
 
         {activeTab === 'appearance' && <AppearanceSection />}
 

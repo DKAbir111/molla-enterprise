@@ -6,8 +6,19 @@ import { Button } from '@/components/ui/button'
 import { useStore } from '@/store/useStore'
 import { formatCurrency } from '@/lib/utils'
 import { listTransactions, listSells, normalizeOrder } from '@/lib/api'
+import { listBuys } from '@/lib/api/buy-api'
+import { DateFilter } from '@/components/shared/DateFilter'
+import { DailyReport } from '@/components/reports/DailyReport'
+import { useOrganizationStore } from '@/store/useOrganization'
+import type { DateRange } from '@/lib/date-range'
+import { isWithinRange, formatDayKey } from '@/lib/date-range'
+import { exportTablePdf, plainAmount, plainNumber } from '@/lib/pdf'
+import { listProducts } from '@/lib/api/product-api'
+import { listCustomers } from '@/lib/api/customer-api'
+import { normalizeProduct, normalizeCustomer } from '@/lib/api'
+import { toast } from 'sonner'
 import { useLocale } from 'next-intl'
-import { Download, FileText, BarChart3, PieChart, TrendingUp } from 'lucide-react'
+import { FileText, BarChart3, PieChart, TrendingUp } from 'lucide-react'
 import React from 'react'
 import {
   AreaChart,
@@ -37,6 +48,13 @@ export default function ReportsPage() {
   const [categorySales, setCategorySales] = React.useState<{ name: string; value: number; color: string }[]>([])
   const [customerDistribution, setCustomerDistribution] = React.useState<{ range: string; count: number }[]>([])
   const [topProducts, setTopProducts] = React.useState<{ name: string; sales: number; revenue: number }[]>([])
+  const [range, setRange] = React.useState<DateRange>({})
+  const [allSells, setAllSells] = React.useState<any[]>([])
+  const [allBuys, setAllBuys] = React.useState<any[]>([])
+  const { organization } = useOrganizationStore()
+  const [allProducts, setAllProducts] = React.useState<any[]>([])
+  const [allCustomers, setAllCustomers] = React.useState<any[]>([])
+  const [busyReport, setBusyReport] = React.useState<string | null>(null)
 
   React.useEffect(() => {
     let mounted = true
@@ -68,6 +86,7 @@ export default function ReportsPage() {
       .then((raw) => {
         if (!mounted) return
         const normalized = (raw || []).map(normalizeOrder)
+        setAllSells(normalized)
         const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 90)
 
         // Top products by quantity and revenue
@@ -115,18 +134,173 @@ export default function ReportsPage() {
         setCategorySales([]); setCustomerDistribution([]); setTopProducts([])
       })
 
+    listBuys<any[]>()
+      .then((res) => { if (mounted) setAllBuys(res || []) })
+      .catch(() => { if (mounted) setAllBuys([]) })
+
+    // The inventory and customer reports need these; the page never loaded
+    // them before, so those two cards had nothing to export even in principle.
+    listProducts<any[]>()
+      .then((res) => { if (mounted) setAllProducts((res || []).map(normalizeProduct)) })
+      .catch(() => { if (mounted) setAllProducts([]) })
+    listCustomers<any[]>()
+      .then((res) => { if (mounted) setAllCustomers((res || []).map(normalizeCustomer)) })
+      .catch(() => { if (mounted) setAllCustomers([]) })
+
     return () => { mounted = false }
   }, [locale])
 
+
+  const orgName = organization?.name || 'Business Manager'
+  const rangeLabel = range.start && range.end
+    ? `${formatDayKey(range.start, 'en-US')} - ${formatDayKey(range.end, 'en-US')}`
+    : 'All time'
+  const stamp = range.start && range.end ? `${range.start}_${range.end}` : 'all-time'
+
+  /** Line items + transport - discount. The same definition the rest of the app uses. */
+  const grand = (o: any) => {
+    const items = (o?.items || []).reduce((s: number, it: any) => s + Number(it?.total || 0), 0)
+    return Math.max(0, items + Number(o?.transportTotal || 0) - Number(o?.discount || 0))
+  }
+
+  const runReport = async (key: string, build: () => Parameters<typeof exportTablePdf>[0] | null) => {
+    setBusyReport(key)
+    try {
+      const spec = build()
+      if (!spec || spec.body.length === 0) {
+        toast.error(t('noDataForRange'))
+        return
+      }
+      await exportTablePdf(spec)
+    } catch {
+      toast.error(t('pdfFailed'))
+    } finally {
+      setBusyReport(null)
+    }
+  }
+
+  // Every report below is scoped to the date filter above and emits Latin text
+  // and digits, because jsPDF's built-in fonts have no Bengali glyphs.
+  const generateSalesReport = () => runReport('sales', () => {
+    const rows = allSells
+      .filter((o) => String(o?.status) !== 'cancelled' && isWithinRange(o?.createdAt, range))
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    const total = rows.reduce((s, o) => s + grand(o), 0)
+    const paid = rows.reduce((s, o) => s + Number(o?.paidAmount || 0), 0)
+    return {
+      title: orgName,
+      subtitle: 'Sales report',
+      meta: rangeLabel,
+      head: ['Date', 'Order', 'Customer', 'Total', 'Paid', 'Due'],
+      body: rows.map((o) => {
+        const g = grand(o)
+        const p = Number(o?.paidAmount || 0)
+        return [
+          formatDayKey(new Date(o.createdAt).toISOString().slice(0, 10), 'en-US'),
+          String(o.id).slice(0, 8),
+          o.customerName || '-',
+          plainAmount(g),
+          plainAmount(p),
+          plainAmount(Math.max(0, g - p)),
+        ]
+      }),
+      foot: ['Total', '', '', plainAmount(total), plainAmount(paid), plainAmount(Math.max(0, total - paid))],
+      align: { 3: 'right' as const, 4: 'right' as const, 5: 'right' as const },
+      filename: `sales-report-${stamp}`,
+    }
+  })
+
+  const generateInventoryReport = () => runReport('inventory', () => {
+    const rows = allProducts
+    const value = rows.reduce((s, p) => s + Number(p.price || 0) * Number(p.stock || 0), 0)
+    return {
+      title: orgName,
+      subtitle: 'Inventory report',
+      // Stock is a live figure, not a historical one, so this report ignores
+      // the date filter by design.
+      meta: 'Current stock on hand',
+      head: ['Product', 'Unit', 'Stock', 'Unit price', 'Stock value', 'Status'],
+      body: rows.map((p) => [
+        p.name || '-',
+        p.unit || '-',
+        plainNumber(Number(p.stock || 0)),
+        plainAmount(Number(p.price || 0)),
+        plainAmount(Number(p.price || 0) * Number(p.stock || 0)),
+        p.active === false ? 'Inactive' : 'Active',
+      ]),
+      foot: ['Total', '', '', '', plainAmount(value), ''],
+      align: { 2: 'right' as const, 3: 'right' as const, 4: 'right' as const },
+      filename: `inventory-report-${stamp}`,
+      orientation: 'landscape' as const,
+    }
+  })
+
+  const generateCustomerReport = () => runReport('customer', () => {
+    const rows = [...allCustomers].sort((a, b) => Number(b.totalSpent || 0) - Number(a.totalSpent || 0))
+    const spent = rows.reduce((s, c) => s + Number(c.totalSpent || 0), 0)
+    const orders = rows.reduce((s, c) => s + Number(c.totalOrders || 0), 0)
+    return {
+      title: orgName,
+      subtitle: 'Customer report',
+      meta: 'All customers, ranked by total spend',
+      head: ['Customer', 'Phone', 'Address', 'Orders', 'Total spent'],
+      body: rows.map((c) => [
+        c.name || '-',
+        c.phone || '-',
+        c.address || '-',
+        plainNumber(Number(c.totalOrders || 0)),
+        plainAmount(Number(c.totalSpent || 0)),
+      ]),
+      foot: ['Total', '', '', plainNumber(orders), plainAmount(spent)],
+      align: { 3: 'right' as const, 4: 'right' as const },
+      filename: `customer-report-${stamp}`,
+    }
+  })
+
+  const generateFinancialReport = () => runReport('financial', () => {
+    const sells = allSells.filter((o) => String(o?.status) !== 'cancelled' && isWithinRange(o?.createdAt, range))
+    const buys = allBuys.filter((b) => isWithinRange(b?.createdAt, range))
+    const salesTotal = sells.reduce((s, o) => s + grand(o), 0)
+    const salesPaid = sells.reduce((s, o) => s + Number(o?.paidAmount || 0), 0)
+    const purchaseTotal = buys.reduce((s, b) => s + grand(b), 0)
+    const purchasePaid = buys.reduce((s, b) => s + Number(b?.paidAmount || 0), 0)
+    const transport = sells.reduce((s, o) => s + Number(o?.transportTotal || 0), 0)
+
+    return {
+      title: orgName,
+      subtitle: 'Financial report',
+      meta: rangeLabel,
+      head: ['Line', 'Count', 'Amount'],
+      body: [
+        ['Sales (invoiced)', plainNumber(sells.length), plainAmount(salesTotal)],
+        ['  of which transport', '', plainAmount(transport)],
+        ['Received from customers', '', plainAmount(salesPaid)],
+        ['Receivable (outstanding)', '', plainAmount(Math.max(0, salesTotal - salesPaid))],
+        ['Purchases (invoiced)', plainNumber(buys.length), plainAmount(purchaseTotal)],
+        ['Paid to vendors', '', plainAmount(purchasePaid)],
+        ['Payable (outstanding)', '', plainAmount(Math.max(0, purchaseTotal - purchasePaid))],
+      ],
+      foot: ['Net (sales - purchases)', '', plainAmount(salesTotal - purchaseTotal)],
+      align: { 1: 'right' as const, 2: 'right' as const },
+      filename: `financial-report-${stamp}`,
+      orientation: 'portrait' as const,
+    }
+  })
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-3">
+      <div className="space-y-3">
         <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{t('title')}</h1>
-        <Button className="flex shrink-0 items-center gap-2">
-          <Download className="h-4 w-4" />
-          <span className="hidden sm:inline">{t('export')}</span>
-        </Button>
+        <DateFilter value={range} onChange={(v) => setRange({ start: v.start, end: v.end })} />
       </div>
+
+      <DailyReport
+        sells={allSells}
+        buys={allBuys}
+        range={range}
+        locale={locale as string}
+        organizationName={organization?.name}
+      />
 
       {/* Report Options — two-up on a phone rather than four full-width cards
           stacked, which would push the charts off the first screen entirely. */}
@@ -139,7 +313,7 @@ export default function ReportsPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <Button variant="outline" size="sm" className="w-full">
+            <Button variant="outline" size="sm" className="w-full" onClick={generateSalesReport} disabled={busyReport === 'sales'}>
               {t('generateReport')}
             </Button>
           </CardContent>
@@ -153,7 +327,7 @@ export default function ReportsPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <Button variant="outline" size="sm" className="w-full">
+            <Button variant="outline" size="sm" className="w-full" onClick={generateInventoryReport} disabled={busyReport === 'inventory'}>
               {t('generateReport')}
             </Button>
           </CardContent>
@@ -167,7 +341,7 @@ export default function ReportsPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <Button variant="outline" size="sm" className="w-full">
+            <Button variant="outline" size="sm" className="w-full" onClick={generateCustomerReport} disabled={busyReport === 'customer'}>
               {t('generateReport')}
             </Button>
           </CardContent>
@@ -176,12 +350,12 @@ export default function ReportsPage() {
         <Card className="cursor-pointer hover:shadow-lg transition-shadow">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium">Financial Report</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('financialReport')}</CardTitle>
               <TrendingUp className="h-4 w-4 text-warning" />
             </div>
           </CardHeader>
           <CardContent>
-            <Button variant="outline" size="sm" className="w-full">
+            <Button variant="outline" size="sm" className="w-full" onClick={generateFinancialReport} disabled={busyReport === 'financial'}>
               {t('generateReport')}
             </Button>
           </CardContent>

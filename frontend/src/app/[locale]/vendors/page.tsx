@@ -85,29 +85,29 @@ export default function VendorsPage() {
       <div className="flex items-center justify-between gap-4">
         <div className="relative w-full md:max-w-md">
           <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-subtle-foreground" />
-          <Input type="search" placeholder="Search vendors..." value={search} onChange={(e) => setSearch(e.target.value)} className="h-12 pl-10 md:h-10" />
+          <Input type="search" placeholder={t('search')} value={search} onChange={(e) => setSearch(e.target.value)} className="h-12 pl-10 md:h-10" />
         </div>
         {/* Mobile uses the floating action button below instead. */}
         <Button className="hidden shrink-0 items-center gap-2 md:flex" onClick={() => setModal({ open: true, mode: 'create' })}>
-          <Plus className="h-4 w-4" /> Add Vendor
+          <Plus className="h-4 w-4" /> {t('addVendor')}
         </Button>
       </div>
 
       {/* Mini Dashboard */}
       <StatRail>
-        <StatTile label="Vendors" value={totals.vendors} />
-        <StatTile label="Purchases" value={totals.purchases} />
-        <StatTile label="Total Spent" value={formatCurrency(totals.spent, locale as any)} tone="text-info" />
-        <StatTile label="Total Due" value={formatCurrency(totals.due, locale as any)} tone="text-warning" />
+        <StatTile label={t('vendorsCount')} value={totals.vendors} />
+        <StatTile label={t('purchases')} value={totals.purchases} />
+        <StatTile label={t('totalSpent')} value={formatCurrency(totals.spent, locale as any)} tone="text-info" />
+        <StatTile label={t('totalDue')} value={formatCurrency(totals.due, locale as any)} tone="text-warning" />
       </StatRail>
 
       {filtered.length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="py-16 text-center">
             <div className="mx-auto mb-4 h-14 w-14 rounded-full gradient-primary text-primary-foreground flex items-center justify-center text-2xl">+</div>
-            <h3 className="text-lg font-semibold mb-1">No vendors yet</h3>
-            <p className="text-muted-foreground mb-4">Record purchases to build your vendor directory.</p>
-            <Button onClick={() => setModal({ open: true, mode: 'create' })}>Add Vendor</Button>
+            <h3 className="text-lg font-semibold mb-1">{t('emptyTitle')}</h3>
+            <p className="text-muted-foreground mb-4">{t('emptyDescription')}</p>
+            <Button onClick={() => setModal({ open: true, mode: 'create' })}>{t('addVendor')}</Button>
           </CardContent>
         </Card>
       ) : (
@@ -116,12 +116,12 @@ export default function VendorsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Phone</TableHead>
-                  <TableHead>Address</TableHead>
-                  <TableHead className="text-center">Total Purchases</TableHead>
-                  <TableHead className="text-right">Total Spent</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>{t('name')}</TableHead>
+                  <TableHead>{t('phone')}</TableHead>
+                  <TableHead>{t('address')}</TableHead>
+                  <TableHead className="text-center">{t('totalPurchases')}</TableHead>
+                  <TableHead className="text-right">{t('totalSpent')}</TableHead>
+                  <TableHead className="text-right">{t('actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -136,38 +136,38 @@ export default function VendorsPage() {
                           <a href={`/${locale}/vendors/${encodeURIComponent(v.name)}--${encodeURIComponent(v.phone || '')}`}>
                             <p className="font-medium hover:text-info cursor-pointer">{v.name}</p>
                           </a>
-                          <p className="text-sm text-subtle-foreground">Since {v.since ? formatDate(v.since, locale as any) : '-'}</p>
+                          <p className="text-sm text-subtle-foreground">{t('since')} {v.since ? formatDate(v.since, locale as any) : '-'}</p>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell data-label="Phone">
+                    <TableCell data-label={t('phone')}>
                       <div className="flex items-center gap-1 text-muted-foreground">
                         <Phone className="h-3 w-3 shrink-0" />
                         {v.phone || '-'}
                       </div>
                     </TableCell>
-                    <TableCell data-label="Address">
+                    <TableCell data-label={t('address')}>
                       <div className="flex items-center gap-1 text-muted-foreground">
                         <MapPin className="h-3 w-3 shrink-0" />
                         {v.address || '-'}
                       </div>
                     </TableCell>
-                    <TableCell className="md:text-center" data-label="Total Purchases">
+                    <TableCell className="md:text-center" data-label={t('totalPurchases')}>
                       <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full bg-info-subtle text-info">{v.purchases}</span>
                     </TableCell>
-                    <TableCell className="font-medium md:text-right" data-label="Total Spent">{formatCurrency(v.totalSpent, locale as any)}</TableCell>
+                    <TableCell className="font-medium md:text-right" data-label={t('totalSpent')}>{formatCurrency(v.totalSpent, locale as any)}</TableCell>
                     <TableCell className="md:text-right">
                       <div className="flex justify-end gap-2">
                         <a href={`/${locale}/vendors/${encodeURIComponent(v.name)}--${encodeURIComponent(v.phone || '')}`}>
-                          <Button variant="ghost" size="icon" className="tap" title="View" aria-label="View"><Eye className="h-4 w-4" /></Button>
+                          <Button variant="ghost" size="icon" className="tap" title={t('view')} aria-label={t('view')}><Eye className="h-4 w-4" /></Button>
                         </a>
-                        <Button variant="ghost" size="icon" className="tap" title="Edit" aria-label="Edit" onClick={() => {
+                        <Button variant="ghost" size="icon" className="tap" title={t('edit')} aria-label={t('edit')} onClick={() => {
                           const match = vendorsState.find(x => x.name === v.name && x.phone === v.phone)
                           if (match) { setModal({ open: true, mode: 'edit', vendor: match }) }
                         }}>
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="tap text-danger" title="Delete" aria-label="Delete" onClick={() => {
+                        <Button variant="ghost" size="icon" className="tap text-danger" title={t('delete')} aria-label={t('delete')} onClick={() => {
                           const match = vendorsState.find(x => x.name === v.name && x.phone === v.phone)
                           if (match) setVendorToDelete(match)
                         }}>
@@ -182,7 +182,7 @@ export default function VendorsPage() {
           </CardContent>
         </Card>
       )}
-      <Fab onClick={() => setModal({ open: true, mode: 'create' })} label="Add Vendor" />
+      <Fab onClick={() => setModal({ open: true, mode: 'create' })} label={t('addVendor')} />
 
       <VendorModal
         open={modal.open}
@@ -198,7 +198,7 @@ export default function VendorsPage() {
         <DeleteConfirmationModal isOpen={!!vendorToDelete} onClose={() => setVendorToDelete(null)} onConfirm={async () => {
           try { await deleteVendor(vendorToDelete.id); setVendorsState(prev => prev.filter(x => x.id !== vendorToDelete.id)) } catch { }
           setVendorToDelete(null)
-        }} title={'Delete Vendor'} description={`Are you sure you want to delete ${vendorToDelete.name}?`} />
+        }} title={t('deleteTitle')} description={t('deleteConfirm', { name: vendorToDelete.name })} />
       )}
     </div>
   )

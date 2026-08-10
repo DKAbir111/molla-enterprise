@@ -98,10 +98,10 @@ export default function CustomersPage() {
 
       {/* Mini Dashboard */}
       <StatRail>
-        <StatTile label="Total Customers" value={stats.total} />
-        <StatTile label="Active Customers" value={stats.active} tone="text-success" />
-        <StatTile label="Total Revenue" value={formatCurrency(stats.totalRevenue, locale)} tone="text-info" />
-        <StatTile label="Avg. Order Value" value={formatCurrency(stats.avgOrderValue, locale)} />
+        <StatTile label={t('totalCustomers')} value={stats.total} />
+        <StatTile label={t('activeCustomers')} value={stats.active} tone="text-success" />
+        <StatTile label={t('totalRevenue')} value={formatCurrency(stats.totalRevenue, locale)} tone="text-info" />
+        <StatTile label={t('avgOrderValue')} value={formatCurrency(stats.avgOrderValue, locale)} />
       </StatRail>
 
       {/* Empty State */}
@@ -147,7 +147,7 @@ export default function CustomersPage() {
                               </p>
                             </Link>
                             <p className="text-sm text-subtle-foreground">
-                              Since {formatDate(customer.createdAt, locale)}
+                              {t('since')} {formatDate(customer.createdAt, locale)}
                             </p>
                           </div>
                         </div>

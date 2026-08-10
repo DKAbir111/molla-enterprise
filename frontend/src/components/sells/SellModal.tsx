@@ -33,6 +33,7 @@ interface SellModalProps {
 
 export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
     const t = useTranslations('createOrder')
+    const ts = useTranslations('sells')
     const locale = useLocale()
     const { customers, products, addSell, updateSell, addCustomer, addProduct } = useStore()
 
@@ -232,7 +233,7 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                         <div className="space-y-4">
                             <div className="flex items-center gap-2 text-base font-semibold text-foreground pb-2 border-b">
                                 <User className="h-5 w-5 text-primary" />
-                                <span>Customer Information</span>
+                                <span>{ts('customerInformation')}</span>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div className="space-y-2">
@@ -246,7 +247,7 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-subtle-foreground z-10" />
                                         <Input
                                             id="customer"
-                                            placeholder="Search by name or phone..."
+                                            placeholder={ts('searchCustomer')}
                                             value={customerSearch}
                                             onChange={(e) => {
                                                 setCustomerSearch(e.target.value)
@@ -291,7 +292,7 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                                         id="phone"
                                         value={customerPhone}
                                         onChange={(e) => setCustomerPhone(e.target.value)}
-                                        placeholder="Enter phone"
+                                        placeholder={ts('enterPhone')}
                                         className="h-11 border-border focus:border-primary focus:ring-ring"
                                         required
                                         disabled={isEdit}
@@ -308,7 +309,7 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                                         id="address"
                                         value={deliveryAddress}
                                         onChange={(e) => setDeliveryAddress(e.target.value)}
-                                        placeholder="Enter delivery address"
+                                        placeholder={ts('enterDeliveryAddress')}
                                         className="h-11 border-border focus:border-primary focus:ring-ring"
                                         required
                                     />
@@ -320,7 +321,7 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                         <div className="space-y-4">
                             <div className="flex items-center gap-2 text-base font-semibold text-foreground pb-2 border-b">
                                 <Package className="h-5 w-5 text-primary" />
-                                <span>Products</span>
+                                <span>{ts('products')}</span>
                             </div>
                             {!isEdit && (
                                 <div className="space-y-2">
@@ -328,7 +329,7 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                                     <div className="relative">
                                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-subtle-foreground z-10" />
                                         <Input
-                                            placeholder="Search products to add..."
+                                            placeholder={ts('searchProducts')}
                                             value={productSearch}
                                             onChange={(e) => {
                                                 setProductSearch(e.target.value)
@@ -363,10 +364,10 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                                     <Table>
                                         <TableHeader>
                                             <TableRow className="bg-surface-muted">
-                                                <TableHead className="font-semibold">Product</TableHead>
-                                                <TableHead className="text-center font-semibold">Quantity</TableHead>
-                                                <TableHead className="text-right font-semibold">Price/Unit</TableHead>
-                                                <TableHead className="text-right font-semibold">Total</TableHead>
+                                                <TableHead className="font-semibold">{ts('product')}</TableHead>
+                                                <TableHead className="text-center font-semibold">{ts('quantity')}</TableHead>
+                                                <TableHead className="text-right font-semibold">{ts('pricePerUnit')}</TableHead>
+                                                <TableHead className="text-right font-semibold">{ts('total')}</TableHead>
                                                 <TableHead className="w-16"></TableHead>
                                             </TableRow>
                                         </TableHeader>
@@ -374,7 +375,7 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                                             {orderItems.map(item => (
                                                 <TableRow key={item.productId}>
                                                     <TableCell className="font-medium" data-primary="">{item.productName}</TableCell>
-                                                    <TableCell data-label="Quantity">
+                                                    <TableCell data-label={ts('quantity')}>
                                                         <div className="flex items-center justify-center gap-2">
                                                             <Button
                                                                 type="button"
@@ -403,7 +404,7 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                                                             </Button>
                                                         </div>
                                                     </TableCell>
-                                                    <TableCell className="md:text-right" data-label="Price/Unit">
+                                                    <TableCell className="md:text-right" data-label={ts('pricePerUnit')}>
                                                         <Input
                                                             type="number"
                                                             step="0.01"
@@ -413,7 +414,7 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                                                             min="0"
                                                         />
                                                     </TableCell>
-                                                    <TableCell className="font-semibold text-foreground md:text-right" data-label="Total">
+                                                    <TableCell className="font-semibold text-foreground md:text-right" data-label={ts('total')}>
                                                         {formatCurrency(item.total, locale)}
                                                     </TableCell>
                                                     <TableCell className="md:text-right">
@@ -443,7 +444,7 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                         <div className="space-y-4">
                             <div className="flex items-center gap-2 text-base font-semibold text-foreground pb-2 border-b">
                                 <TrendingUp className="h-5 w-5 text-primary" />
-                                <span>Financial Details</span>
+                                <span>{ts('financialDetails')}</span>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
@@ -491,23 +492,23 @@ export function SellModal({ open, mode, onClose, sell }: SellModalProps) {
                             {/* Summary */}
                             <div className="bg-primary-subtle rounded-lg p-5 space-y-3 border border-primary">
                                 <div className="flex justify-between items-center text-sm">
-                                    <span className="text-muted-foreground">Subtotal</span>
+                                    <span className="text-muted-foreground">{ts('subtotal')}</span>
                                     <span className="font-semibold text-foreground">{formatCurrency(subtotal, locale)}</span>
                                 </div>
                                 <div className="flex justify-between items-center text-sm">
-                                    <span className="text-muted-foreground">Transport</span>
+                                    <span className="text-muted-foreground">{ts('transport')}</span>
                                     <span className="font-semibold text-foreground">{formatCurrency(transportTotal, locale)}</span>
                                 </div>
                                 <div className="flex justify-between items-center text-sm">
-                                    <span className="text-muted-foreground">Discount</span>
+                                    <span className="text-muted-foreground">{ts('discount')}</span>
                                     <span className="font-semibold text-danger">- {formatCurrency(discount, locale)}</span>
                                 </div>
                                 <div className="border-t border-primary pt-3 flex justify-between items-center">
-                                    <span className="text-lg font-bold text-foreground">Grand Total</span>
+                                    <span className="text-lg font-bold text-foreground">{ts('grandTotal')}</span>
                                     <span className="text-2xl font-bold text-primary">{formatCurrency(grandTotal, locale)}</span>
                                 </div>
                                 <div className="flex items-center gap-3 pt-2">
-                                    <Label className="text-sm font-medium text-muted-foreground whitespace-nowrap">Paid Amount</Label>
+                                    <Label className="text-sm font-medium text-muted-foreground whitespace-nowrap">{ts('paidAmount')}</Label>
                                     <Input
                                         type="number"
                                         value={paidAmount}

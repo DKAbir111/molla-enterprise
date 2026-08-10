@@ -149,7 +149,7 @@ export default function AccountsPage() {
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-foreground">{t('title')}</h1>
-          <p className="text-subtle-foreground mt-2">Loading financial insights...</p>
+          <p className="text-subtle-foreground mt-2">{t('loadingInsights')}</p>
         </div>
       </div>
     )
@@ -171,8 +171,8 @@ export default function AccountsPage() {
               value={quickForm.type}
               onChange={(e) => setQuickForm((prev) => ({ ...prev, type: e.target.value as 'income' | 'expense' }))}
             >
-              <option value="income">Income</option>
-              <option value="expense">Expense</option>
+              <option value="income">{t('income')}</option>
+              <option value="expense">{t('expense')}</option>
             </select>
           </div>
           <div>
@@ -191,7 +191,7 @@ export default function AccountsPage() {
           </div>
           <div>
             <Label htmlFor="quick-category">Category</Label>
-            <Input id="quick-category" value={quickForm.category} onChange={(e) => setQuickForm((prev) => ({ ...prev, category: e.target.value }))} placeholder="Optional" className="mt-1" />
+            <Input id="quick-category" value={quickForm.category} onChange={(e) => setQuickForm((prev) => ({ ...prev, category: e.target.value }))} placeholder={t('optional')} className="mt-1" />
           </div>
         </div>
         <DialogFooter>

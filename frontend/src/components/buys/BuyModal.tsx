@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { useLocale } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -34,8 +35,12 @@ interface BuyModalProps {
 }
 
 export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
+    const tb = useTranslations('buys')
     const locale = useLocale()
-    const { products, addBuy, updateBuy: updateBuyStore, addProduct, updateProduct } = useStore()
+    // NOTE: there is no addBuy/updateBuy on the store — the Buys page keeps its
+    // own list and refetches through onSaved. These were destructured anyway and
+    // called with `?.`, so they were always silent no-ops (and a type error).
+    const { products, addProduct, updateProduct } = useStore()
 
     const isEdit = mode === 'edit' && !!buy
 
@@ -198,7 +203,6 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                     otherCost,
                     total: subtotal
                 }
-                updateBuyStore?.(buy.id, updatedLocal as any)
                 // mark purchased products locally
                 orderItems.forEach(i => updateProduct(i.productId, { awaitingPurchase: false }))
                 toast.success('Purchase updated successfully')
@@ -216,7 +220,6 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                 }
                 const created = await apiCreateBuy<any>(payload)
                 const normalized = normalizeOrder(created)
-                addBuy?.(normalized as any)
                 // mark purchased products locally
                 orderItems.forEach(i => updateProduct(i.productId, { awaitingPurchase: false }))
                 toast.success('Purchase created successfully')
@@ -255,16 +258,16 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                         <div className="space-y-4">
                             <div className="flex items-center gap-2 text-base font-semibold text-foreground pb-2 border-b">
                                 <Building2 className="h-5 w-5 text-success" />
-                                <span>Vendor Information</span>
+                                <span>{tb('vendorInformation')}</span>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                                 <div className="space-y-2">
-                                    <Label htmlFor="vendor" className="text-sm font-medium text-muted-foreground">Vendor</Label>
+                                    <Label htmlFor="vendor" className="text-sm font-medium text-muted-foreground">{tb('vendor')}</Label>
                                     <div className="relative">
                                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-subtle-foreground z-10" />
                                         <Input
                                             id="vendor"
-                                            placeholder="Search vendor by name..."
+                                            placeholder={tb('searchVendor')}
                                             value={vendorName}
                                             onChange={(e) => { setVendorName(e.target.value); setVendorSearchOpen(true) }}
                                             onFocus={() => setVendorSearchOpen(true)}
@@ -282,19 +285,19 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                                                         </div>
                                                     ))}
                                                 {filteredVendors.length === 0 && (
-                                                    <div className="p-3 text-sm text-subtle-foreground">No vendors found</div>
+                                                    <div className="p-3 text-sm text-subtle-foreground">{tb('noVendorsFound')}</div>
                                                 )}
                                             </div>
                                         )}
                                     </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-sm font-medium text-muted-foreground">Phone</Label>
+                                    <Label className="text-sm font-medium text-muted-foreground">{tb('phone')}</Label>
                                     <Input value={vendorPhone} onChange={(e) => setVendorPhone(e.target.value)} className="h-11 border-border focus:border-success focus:ring-success" placeholder="e.g., +880 1XXXXXXXXX" />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-sm font-medium text-muted-foreground">Address</Label>
-                                    <Input value={vendorAddress} onChange={(e) => setVendorAddress(e.target.value)} className="h-11 border-border focus:border-success focus:ring-success" placeholder="Street, City, Country" />
+                                    <Label className="text-sm font-medium text-muted-foreground">{tb('address')}</Label>
+                                    <Input value={vendorAddress} onChange={(e) => setVendorAddress(e.target.value)} className="h-11 border-border focus:border-success focus:ring-success" placeholder={tb('addressPlaceholder')} />
                                 </div>
                             </div>
                         </div>
@@ -303,7 +306,7 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                         <div className="space-y-4">
                             <div className="flex items-center gap-2 text-base font-semibold text-foreground pb-2 border-b">
                                 <Package className="h-5 w-5 text-success" />
-                                <span>Products</span>
+                                <span>{tb('products')}</span>
                             </div>
                             {!isEdit && (
                                 <div className="space-y-2">
@@ -311,7 +314,7 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                                     <div className="relative">
                                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-subtle-foreground z-10" />
                                         <Input
-                                            placeholder="Search products to add..."
+                                            placeholder={tb('searchProducts')}
                                             value={productSearch}
                                             onChange={(e) => {
                                                 setProductSearch(e.target.value)
@@ -346,10 +349,10 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                                     <Table>
                                         <TableHeader>
                                             <TableRow className="bg-surface-muted">
-                                                <TableHead className="font-semibold">Product</TableHead>
-                                                <TableHead className="text-center font-semibold">Quantity</TableHead>
-                                                <TableHead className="text-right font-semibold">Unit Cost</TableHead>
-                                                <TableHead className="text-right font-semibold">Total Cost</TableHead>
+                                                <TableHead className="font-semibold">{tb('product')}</TableHead>
+                                                <TableHead className="text-center font-semibold">{tb('quantity')}</TableHead>
+                                                <TableHead className="text-right font-semibold">{tb('unitCost')}</TableHead>
+                                                <TableHead className="text-right font-semibold">{tb('totalCost')}</TableHead>
                                                 <TableHead className="w-16"></TableHead>
                                             </TableRow>
                                         </TableHeader>
@@ -357,7 +360,7 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                                             {orderItems.map(item => (
                                             <TableRow key={item.productId}>
                                                 <TableCell className="font-medium" data-primary="">{item.productName}</TableCell>
-                                                <TableCell data-label="Quantity">
+                                                <TableCell data-label={tb('quantity')}>
                                                     <div className="flex items-center justify-center gap-2">
                                                         <Button
                                                             type="button"
@@ -394,7 +397,7 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                                                         </span>
                                                     </div>
                                                 </TableCell>
-                                                <TableCell className="md:text-right" data-label="Price/Unit">
+                                                <TableCell className="md:text-right" data-label={tb('unitCost')}>
                                                     <Input
                                                         type="number"
                                                         step="0.01"
@@ -404,7 +407,7 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                                                         min="0"
                                                     />
                                                 </TableCell>
-                                                <TableCell className="font-semibold text-foreground md:text-right" data-label="Total">
+                                                <TableCell className="font-semibold text-foreground md:text-right" data-label={tb('totalCost')}>
                                                     <div>{formatCurrency(item.total, locale)}</div>
                                                     <div className="text-xs text-subtle-foreground font-normal">
                                                         {formatCurrency(item.price, locale)} × {item.quantity}
@@ -437,7 +440,7 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                         <div className="space-y-4">
                             <div className="flex items-center gap-2 text-base font-semibold text-foreground pb-2 border-b">
                                 <DollarSign className="h-5 w-5 text-success" />
-                                <span>Additional Costs</span>
+                                <span>{tb('additionalCosts')}</span>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
@@ -490,23 +493,23 @@ export function BuyModal({ open, mode, onClose, buy, onSaved }: BuyModalProps) {
                         <div className="space-y-4">
                             <div className="bg-success-subtle rounded-lg p-5 space-y-3 border border-success">
                                 <div className="flex justify-between items-center text-sm">
-                                    <span className="text-muted-foreground">Products Subtotal</span>
+                                    <span className="text-muted-foreground">{tb('productsSubtotal')}</span>
                                     <span className="font-semibold text-foreground">{formatCurrency(subtotal, locale)}</span>
                                 </div>
                                 <div className="flex justify-between items-center text-sm">
-                                    <span className="text-muted-foreground">Transport Cost</span>
+                                    <span className="text-muted-foreground">{tb('transportCost')}</span>
                                     <span className="font-semibold text-foreground">{formatCurrency(transportTotal, locale)}</span>
                                 </div>
                                 <div className="flex justify-between items-center text-sm">
-                                    <span className="text-muted-foreground">Other Cost</span>
+                                    <span className="text-muted-foreground">{tb('otherCost')}</span>
                                     <span className="font-semibold text-foreground">{formatCurrency(otherCost, locale)}</span>
                                 </div>
                                 <div className="border-t border-success pt-3 flex justify-between items-center">
-                                    <span className="text-lg font-bold text-foreground">Total Purchase Cost</span>
+                                    <span className="text-lg font-bold text-foreground">{tb('totalPurchaseCost')}</span>
                                     <span className="text-2xl font-bold text-success">{formatCurrency(grandTotal, locale)}</span>
                                 </div>
                                 <div className="flex items-center gap-3 pt-2">
-                                    <Label className="text-sm font-medium text-muted-foreground whitespace-nowrap">Paid Amount</Label>
+                                    <Label className="text-sm font-medium text-muted-foreground whitespace-nowrap">{tb('paidAmount')}</Label>
                                     <Input
                                         type="number"
                                         value={paidAmount}

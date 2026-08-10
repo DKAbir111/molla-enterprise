@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table'
@@ -12,6 +12,7 @@ import { ChevronLeft } from 'lucide-react'
 import { useReactToPrint } from 'react-to-print'
 
 export default function SellDetailsPage() {
+  const t = useTranslations('invoice')
   const params = useParams()
   const router = useRouter()
   const locale = useLocale()
@@ -38,7 +39,7 @@ export default function SellDetailsPage() {
 
   if (!sell) {
     return (
-      <div className="flex items-center justify-center h-64 text-subtle-foreground">Loading invoice...</div>
+      <div className="flex items-center justify-center h-64 text-subtle-foreground">{t('loadingInvoice')}</div>
     )
   }
 
@@ -51,18 +52,18 @@ export default function SellDetailsPage() {
           <p className="text-muted-foreground">{formatDate(sell.createdAt, locale as any)}</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handlePrint}>Print</Button>
+          <Button variant="outline" onClick={handlePrint}>{t('print')}</Button>
         </div>
       </div>
 
       <Card ref={ref}>
         <CardHeader>
-          <CardTitle>Invoice</CardTitle>
+          <CardTitle>{t('invoice')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-start justify-between mb-4">
             <div>
-              <div className="text-sm text-subtle-foreground">Customer</div>
+              <div className="text-sm text-subtle-foreground">{t('customer')}</div>
               <div className="font-semibold">{sell.customer?.name || 'Customer'}</div>
               <div className="text-sm text-subtle-foreground">{sell.deliveryAddress || '-'}</div>
             </div>
@@ -70,10 +71,10 @@ export default function SellDetailsPage() {
           <Table stacked={false}>
             <TableHeader>
               <TableRow>
-                <TableHead>Product</TableHead>
-                <TableHead className="text-center">Qty</TableHead>
-                <TableHead className="text-right">Price</TableHead>
-                <TableHead className="text-right">Total</TableHead>
+                <TableHead>{t('product')}</TableHead>
+                <TableHead className="text-center">{t('qty')}</TableHead>
+                <TableHead className="text-right">{t('price')}</TableHead>
+                <TableHead className="text-right">{t('total')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -86,27 +87,27 @@ export default function SellDetailsPage() {
                 </TableRow>
               ))}
               <TableRow>
-                <TableCell colSpan={3} className="text-right">Subtotal</TableCell>
+                <TableCell colSpan={3} className="text-right">{t('subtotal')}</TableCell>
                 <TableCell className="text-right font-semibold">{formatCurrency(totals.itemsTotal, locale as any)}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell colSpan={3} className="text-right">Discount</TableCell>
+                <TableCell colSpan={3} className="text-right">{t('discount')}</TableCell>
                 <TableCell className="text-right font-semibold">-{formatCurrency(totals.discount, locale as any)}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell colSpan={3} className="text-right">Transport</TableCell>
+                <TableCell colSpan={3} className="text-right">{t('transport')}</TableCell>
                 <TableCell className="text-right font-semibold">{formatCurrency(totals.transport, locale as any)}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell colSpan={3} className="text-right">Grand Total</TableCell>
+                <TableCell colSpan={3} className="text-right">{t('grandTotal')}</TableCell>
                 <TableCell className="text-right font-bold">{formatCurrency(totals.grand, locale as any)}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell colSpan={3} className="text-right">Paid</TableCell>
+                <TableCell colSpan={3} className="text-right">{t('paid')}</TableCell>
                 <TableCell className="text-right font-semibold">{formatCurrency(totals.paid, locale as any)}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell colSpan={3} className="text-right">Due</TableCell>
+                <TableCell colSpan={3} className="text-right">{t('due')}</TableCell>
                 <TableCell className="text-right font-semibold">{formatCurrency(totals.due, locale as any)}</TableCell>
               </TableRow>
             </TableBody>

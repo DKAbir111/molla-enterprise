@@ -185,6 +185,7 @@ export class OrganizationsService {
         notifyPayables: dto.notifyPayables,
         emailAlerts: dto.emailAlerts,
         smsAlerts: dto.smsAlerts,
+        dryingGainEnabled: dto.dryingGainEnabled,
         lowStockThreshold: dto.lowStockThreshold,
         pendingOrderAgingHours: dto.pendingOrderAgingHours,
         receivableReminderDays: dto.receivableReminderDays,

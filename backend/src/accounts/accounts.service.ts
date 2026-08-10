@@ -20,9 +20,15 @@ export class AccountsService {
     const organizationId = this.ensureOrg(orgId)
 
     const [sells, buys, transactions] = await Promise.all([
-      this.prisma.sell.findMany({ where: { organizationId }, orderBy: { createdAt: 'desc' }, select: { id: true, customerId: true, createdAt: true, total: true, discount: true, transportTotal: true, customer: { select: { name: true } } } }),
+      this.prisma.sell.findMany({ where: { organizationId, status: { not: 'cancelled' } }, orderBy: { createdAt: 'desc' }, select: { id: true, customerId: true, createdAt: true, total: true, discount: true, transportTotal: true, customer: { select: { name: true } } } }),
       this.prisma.buy.findMany({ where: { organizationId }, orderBy: { createdAt: 'desc' }, select: { id: true, vendorName: true, createdAt: true, total: true, discount: true, transportTotal: true } }),
-      this.prisma.transaction.findMany({ where: { organizationId }, orderBy: { date: 'desc' } }),
+      // ACCRUAL BASIS. Income is what was invoiced, not what was collected,
+      // so an order's own total is the income and its payments are not income
+      // again. Only user-entered rows are counted here: the sell/buy services
+      // used to auto-create a Transaction per payment, and summing those
+      // alongside the order totals double-counted every paid order. Those rows
+      // are marked source='order' and are represented by Payment rows now.
+      this.prisma.transaction.findMany({ where: { organizationId, source: 'manual' }, orderBy: { date: 'desc' } }),
     ])
 
     const manualIncome = transactions

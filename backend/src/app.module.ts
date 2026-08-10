@@ -14,6 +14,7 @@ import { BuysModule } from './buys/buys.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { VendorsModule } from './vendors/vendors.module';
+import { PaymentsModule } from './payments/payments.module';
 import { AccountsModule } from './accounts/accounts.module';
 import { DryingGainsModule } from './drying-gains/drying-gains.module';
 import { AlertsModule } from './alerts/alerts.module';
@@ -40,6 +41,7 @@ import { UploadModule } from './common/upload/upload.module';
     DashboardModule,
     VendorsModule,
     AccountsModule,
+    PaymentsModule,
     DryingGainsModule,
     AlertsModule,
     MailModule,

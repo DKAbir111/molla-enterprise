@@ -11,27 +11,72 @@ import {
   Package,
   Users,
   ShoppingCart,
-  FileText,
   Truck,
-  Calculator,
-  Droplet,
+  Receipt,
+  Wallet,
+  HandCoins,
   BarChart3,
   Settings,
   Building2,
 } from 'lucide-react'
 
-const navigation = [
-  { name: 'dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'products', href: '/products', icon: Package },
-  { name: 'customers', href: '/customers', icon: Users },
-  { name: 'vendors', href: '/vendors', icon: Building2 },
-  { name: 'sells', href: '/sells', icon: ShoppingCart },
-  { name: 'buys', href: '/buys', icon: Package },
-  { name: 'quickEntries', label: 'Quick Entries', href: '/quick-entries', icon: Calculator },
-  { name: 'accounts', href: '/accounts', icon: Calculator },
-  { name: 'reports', href: '/reports', icon: BarChart3 },
-  { name: 'settings', href: '/settings', icon: Settings },
-]
+/* ----------------------------------------------------------------------------
+   Navigation, grouped by what the user is actually doing rather than as one
+   flat list of ten links. Dashboard leads on its own; everything after it sits
+   under a section label, which is what lets the eye jump straight to the right
+   part of the app instead of reading every entry.
+
+   `label` is a key under the `nav.groups` namespace. A group without one (the
+   first) renders its items with no heading.
+   -------------------------------------------------------------------------- */
+const NAV_GROUPS = [
+  {
+    label: null,
+    items: [{ key: 'dashboard', href: '/', icon: LayoutDashboard }],
+  },
+  {
+    label: 'catalog',
+    items: [{ key: 'products', href: '/products', icon: Package }],
+  },
+  {
+    label: 'sales',
+    items: [
+      { key: 'sells', href: '/sells', icon: ShoppingCart },
+      { key: 'customers', href: '/customers', icon: Users },
+    ],
+  },
+  {
+    label: 'purchasing',
+    items: [
+      { key: 'buys', href: '/buys', icon: Truck },
+      { key: 'vendors', href: '/vendors', icon: Building2 },
+    ],
+  },
+  {
+    label: 'finance',
+    items: [
+      { key: 'dues', href: '/dues', icon: HandCoins },
+      { key: 'quickEntries', href: '/quick-entries', icon: Receipt },
+      { key: 'accounts', href: '/accounts', icon: Wallet },
+      { key: 'reports', href: '/reports', icon: BarChart3 },
+    ],
+  },
+  {
+    label: 'system',
+    items: [{ key: 'settings', href: '/settings', icon: Settings }],
+  },
+] as const
+
+/**
+ * True when `pathname` is the item's route or a page nested beneath it.
+ * The trailing-slash check matters: a plain `startsWith` would light up
+ * /products for a hypothetical /products-archive.
+ */
+function isRouteActive(pathname: string, href: string, base: string) {
+  if (href === '/') return pathname === base || pathname === `${base}/`
+  const full = `${base}${href}`
+  return pathname === full || pathname.startsWith(`${full}/`)
+}
 
 type SidebarProps = {
   onNavigate?: () => void
@@ -41,6 +86,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
   const pathname = usePathname()
   const t = useTranslations('nav')
   const locale = pathname.split('/')[1]
+  const base = `/${locale}`
   const { organization, fetchOrganization } = useOrganizationStore()
 
   React.useEffect(() => {
@@ -53,45 +99,69 @@ export function Sidebar({ onNavigate }: SidebarProps) {
   const logoUrl = organization?.logoUrl || '/conix.png'
 
   return (
-    <aside className="w-64 border-r border-border-subtle bg-surface/90 backdrop-blur-md min-h-screen">
-      <div className="flex h-full flex-col">
-        <div className="flex h-16 items-center gap-2 px-4 border-b border-border-subtle">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={logoUrl}
-            alt=""
-            aria-hidden="true"
-            className="h-8 w-8 shrink-0 rounded-md object-contain"
-            onError={(e) => { e.currentTarget.style.display = 'none' }}
-          />
-          <h2 className="text-base font-semibold text-foreground truncate" title={orgName}>{orgName}</h2>
-        </div>
-
-        <nav className="flex-1 space-y-1 p-3">
-          {navigation.map((item) => {
-            const href = `/${locale}${item.href}`
-            const isActive = pathname === href || (item.href !== '/' && pathname.startsWith(href))
-            const label = item.label || t(item.name)
-
-            return (
-              <Link
-                key={item.name}
-                href={href}
-                onClick={onNavigate}
-                className={cn(
-                  'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                  isActive
-                    ? 'gradient-primary text-primary-foreground shadow'
-                    : 'text-foreground/80 hover:bg-surface-hover'
-                )}
-              >
-                <item.icon className="h-5 w-5" />
-                {label}
-              </Link>
-            )
-          })}
-        </nav>
+    <aside className="flex h-screen w-64 flex-col border-r border-border-subtle bg-surface">
+      {/* Brand lockup, held apart from the nav by its own rule. */}
+      <div className="flex h-16 shrink-0 items-center gap-3 border-b border-border-subtle px-5">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={logoUrl}
+          alt=""
+          aria-hidden="true"
+          className="h-9 w-9 shrink-0 rounded-lg object-contain"
+          onError={(e) => { e.currentTarget.style.display = 'none' }}
+        />
+        <span
+          className="truncate text-[15px] font-bold tracking-tight text-foreground"
+          title={orgName}
+        >
+          {orgName}
+        </span>
       </div>
+
+      {/* Scrolls independently once the groups outgrow a short viewport. */}
+      <nav className="flex-1 overflow-y-auto px-3 pb-6 pt-4">
+        {NAV_GROUPS.map((group, groupIndex) => (
+          <div key={group.label ?? 'primary'} className={cn(groupIndex > 0 && 'mt-6')}>
+            {group.label && (
+              <h2 className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-subtle-foreground">
+                {t(`groups.${group.label}` as any)}
+              </h2>
+            )}
+
+            <ul className="space-y-1">
+              {group.items.map((item) => {
+                const href = `${base}${item.href === '/' ? '' : item.href}`
+                const active = isRouteActive(pathname, item.href, base)
+
+                return (
+                  <li key={item.key}>
+                    <Link
+                      href={href}
+                      onClick={onNavigate}
+                      aria-current={active ? 'page' : undefined}
+                      className={cn(
+                        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] transition-colors',
+                        active
+                          ? 'gradient-primary font-semibold text-primary-foreground shadow-sm'
+                          : 'font-medium text-foreground/85 hover:bg-surface-hover hover:text-foreground'
+                      )}
+                    >
+                      <item.icon
+                        className={cn(
+                          'h-[18px] w-[18px] shrink-0',
+                          active ? 'text-primary-foreground' : 'text-subtle-foreground'
+                        )}
+                        strokeWidth={active ? 2.2 : 1.8}
+                      />
+                      <span className="truncate">{t(item.key)}</span>
+                    </Link>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        ))}
+      </nav>
     </aside>
   )
 }

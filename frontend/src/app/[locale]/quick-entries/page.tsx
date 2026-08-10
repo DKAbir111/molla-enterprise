@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useLocale } from 'next-intl'
-import { Dialog } from '@/components/ui/dialog'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { createTransaction, deleteTransaction, listTransactions } from '@/lib/api/transaction-api'
@@ -137,8 +136,17 @@ export default function QuickEntriesPage() {
     )
   }, [entries, search])
 
+  const closeDialog = () => {
+    setDialogOpen(false)
+    resetForm()
+  }
+
+  // The page used to be wrapped in a Radix <Dialog> root that owned no content
+  // of its own, while QuickEntryDialog opened a second, nested root. The X
+  // button belongs to the inner one, so its dismissals never reached this
+  // handler. There is now a single root, inside QuickEntryDialog.
   return (
-    <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm() }}>
+    <>
       <div className="space-y-6">
         <QuickEntriesHeader
           search={search}
@@ -175,7 +183,8 @@ export default function QuickEntriesPage() {
         onAddLine={addLine}
         onUpdateLine={updateLine}
         onRemoveLine={removeLine}
+        onClose={closeDialog}
       />
-    </Dialog>
+    </>
   )
 }

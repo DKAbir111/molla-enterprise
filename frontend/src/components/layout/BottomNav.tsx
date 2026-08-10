@@ -10,7 +10,9 @@ import {
   Users,
   ShoppingCart,
   Truck,
-  Calculator,
+  Receipt,
+  Wallet,
+  HandCoins,
   BarChart3,
   Settings,
   Building2,
@@ -35,12 +37,14 @@ const PRIMARY_TABS = [
   { key: 'customers', href: '/customers', icon: Users },
 ] as const
 
-/* Everything else lives one tap deep, behind "More". */
+/* Everything else lives one tap deep, behind "More". Icons match the desktop
+   sidebar so the two navigations read as the same app. */
 const MORE_LINKS = [
   { key: 'buys', href: '/buys', icon: Truck },
   { key: 'vendors', href: '/vendors', icon: Building2 },
-  { key: 'quickEntries', href: '/quick-entries', icon: Calculator },
-  { key: 'accounts', href: '/accounts', icon: Calculator },
+  { key: 'dues', href: '/dues', icon: HandCoins },
+  { key: 'quickEntries', href: '/quick-entries', icon: Receipt },
+  { key: 'accounts', href: '/accounts', icon: Wallet },
   { key: 'reports', href: '/reports', icon: BarChart3 },
   { key: 'settings', href: '/settings', icon: Settings },
 ] as const

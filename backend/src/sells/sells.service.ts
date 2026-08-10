@@ -1,6 +1,7 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AlertsService } from '../alerts/alerts.service';
+import { PaymentsService } from '../payments/payments.service';
 import { CreateSellDto } from './dto/create-sell.dto';
 import { UpdateSellDto } from './dto/update-sell.dto';
 import { UpdateSellItemsDto } from './dto/update-sell-items.dto';
@@ -9,7 +10,11 @@ type ProductLite = { id: string; name: string; price: any; stock: number; target
 
 @Injectable()
 export class SellsService {
-  constructor(private prisma: PrismaService, private alertsSvc: AlertsService) {}
+  constructor(
+    private prisma: PrismaService,
+    private alertsSvc: AlertsService,
+    private payments: PaymentsService,
+  ) {}
 
   private ensureOrg(orgId?: string | null) {
     if (!orgId) throw new ForbiddenException('Organization required');
@@ -101,15 +106,20 @@ export class SellsService {
         }
       }
 
+      // An opening payment is a Payment row, not a Transaction. The
+      // Transaction copy is what made Accounts count every paid sale twice:
+      // once as the sale total, once as its own payment.
       if (paidAmount && paidAmount > 0) {
-        await tx.transaction.create({
+        await tx.payment.create({
           data: {
             organizationId,
-            description: `Sell payment - ${sell.id}`,
-            type: 'income',
+            direction: 'in',
             amount: paidAmount as any,
-            category: 'sales',
             date: new Date(),
+            method: 'cash',
+            note: 'Paid at the time of sale',
+            customerId: dto.customerId,
+            sellId: sell.id,
           },
         });
       }
@@ -124,9 +134,17 @@ export class SellsService {
 
   async update(orgId: string | null | undefined, id: string, dto: UpdateSellDto) {
     const organizationId = this.ensureOrg(orgId);
-    const found = await this.prisma.sell.findFirst({ where: { id, organizationId } });
+    const found = await this.prisma.sell.findFirst({ where: { id, organizationId }, include: { items: true } });
     if (!found) throw new NotFoundException('Sell not found');
     const data: any = { ...dto };
+
+    // `paidAmount` is a cache derived from the Payment ledger, so the form must
+    // not write it directly — that is what used to destroy the earlier figure
+    // when someone paid in instalments. The field states a running total, so
+    // the difference is booked as a payment and the cache is recomputed.
+    const paidTarget = typeof (dto as any).paidAmount === 'number' ? Number((dto as any).paidAmount) : null;
+    delete data.paidAmount;
+
     const tPerTrip = (dto as any).transportPerTrip ?? (found as any).transportPerTrip ?? 0;
     const tTrips = (dto as any).transportTrips ?? (found as any).transportTrips ?? 0;
     if (tPerTrip != null || tTrips != null) {
@@ -136,7 +154,60 @@ export class SellsService {
       data.transportTrips = trips
       data.transportTotal = per * trips
     }
-    return this.prisma.sell.update({ where: { id }, data });
+
+    // Cancelling an order has to put the goods back. Creating the sell
+    // decremented stock, but moving it to 'cancelled' used to write the status
+    // and nothing else, so the inventory was lost for good. Un-cancelling has
+    // to take it out again, and the comparison is against the CURRENT status so
+    // that saving an already-cancelled order twice cannot restock it twice.
+    const wasCancelled = String((found as any).status) === 'cancelled';
+    const nextStatus = typeof dto.status === 'string' ? dto.status : String((found as any).status);
+    const nowCancelled = nextStatus === 'cancelled';
+
+    if (wasCancelled === nowCancelled) {
+      if (paidTarget === null) return this.prisma.sell.update({ where: { id }, data });
+      return this.prisma.$transaction(async (tx) => {
+        const updated = await tx.sell.update({ where: { id }, data });
+        await this.payments.setOrderPaidTotal(tx, {
+          organizationId,
+          sellId: id,
+          customerId: (found as any).customerId,
+          target: paidTarget,
+        });
+        return updated;
+      });
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      for (const it of (found as any).items ?? []) {
+        const quantity = Number((it as any).quantity ?? 0);
+        if (!(quantity > 0)) continue;
+        const updated = await tx.product.update({
+          where: { id: (it as any).productId },
+          data: nowCancelled
+            ? { stock: { increment: quantity } }
+            : { stock: { decrement: quantity } },
+        });
+        // Mirror the create path: a product with stock is sellable again, one
+        // that has run out is not.
+        try {
+          await tx.product.update({
+            where: { id: (it as any).productId },
+            data: { active: Number((updated as any).stock ?? 0) > 0 },
+          });
+        } catch {}
+      }
+      const updated = await tx.sell.update({ where: { id }, data });
+      if (paidTarget !== null) {
+        await this.payments.setOrderPaidTotal(tx, {
+          organizationId,
+          sellId: id,
+          customerId: (found as any).customerId,
+          target: paidTarget,
+        });
+      }
+      return updated;
+    });
   }
 
   async updateItems(orgId: string | null | undefined, id: string, dto: UpdateSellItemsDto) {

@@ -1,7 +1,7 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import { DateFilter } from '@/components/dashboard/DateFilter'
+import { DateFilter } from '@/components/shared/DateFilter'
 import { RecentOrders } from '@/components/dashboard/RecentOrders'
 import { RecentBuys } from '@/components/dashboard/RecentBuys'
 import { DashboardStatsGrid } from '@/components/dashboard/DashboardStatsGrid'
@@ -109,7 +109,9 @@ export default function DashboardPage() {
     <div className="space-y-6">
       {/* Editorial page header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
+        {/* `min-w-0` lets the copy shrink instead of pushing the date filter
+            past the right edge once the two sit side by side. */}
+        <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-wider text-primary">
             {t('overviewEyebrow')}
           </p>

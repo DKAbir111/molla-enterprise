@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { useTranslations, useLocale } from 'next-intl'
+import { getMyOrganizationSettings } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -35,6 +36,16 @@ interface ProductModalProps {
 
 export function ProductModal({ open, mode, onClose, product }: ProductModalProps) {
   const t = useTranslations('products')
+  // Drying gain is opt-in per organisation (Settings -> Business Info ->
+  // Features); trades that do not deal in drying materials never see the field.
+  const [dryingGainEnabled, setDryingGainEnabled] = React.useState(false)
+  React.useEffect(() => {
+    let mounted = true
+    getMyOrganizationSettings<any>()
+      .then((cfg) => { if (mounted && cfg) setDryingGainEnabled(!!cfg.dryingGainEnabled) })
+      .catch(() => { })
+    return () => { mounted = false }
+  }, [])
   const locale = useLocale()
   const addProduct = useStore((s) => s.addProduct)
   const updateProduct = useStore((s) => s.updateProduct)
@@ -209,12 +220,12 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
                     onDragOver={(e) => { e.preventDefault(); e.stopPropagation() }}
                     onDrop={(e) => { e.preventDefault(); handlePickFile(e.dataTransfer.files?.[0]) }}
                     className="group relative h-40 w-[150px] rounded-xl border border-border overflow-hidden bg-surface-muted flex items-center justify-center shadow-sm hover:shadow-md transition cursor-pointer"
-                    aria-label="Upload product image"
+                    aria-label={t('uploadImage')}
                   >
                     {imagePreview ? (
                       <img src={imagePreview} alt="Preview" className="h-full w-full object-cover" />
                     ) : (
-                      <span className="text-sm text-subtle-foreground">No image</span>
+                      <span className="text-sm text-subtle-foreground">{t('noImage')}</span>
                     )}
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition" />
                     {imagePreview && (
@@ -224,7 +235,7 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
                         onClick={(e) => { e.stopPropagation(); revokePreview(imagePreview); setImagePreview(null); setImageFile(null) }}
                         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); revokePreview(imagePreview); setImagePreview(null); setImageFile(null) } }}
                         className="absolute top-1.5 right-1.5 inline-flex items-center justify-center h-6 w-6 rounded-full bg-white/95 border border-border shadow hover:bg-danger-subtle cursor-pointer"
-                        aria-label="Remove image"
+                        aria-label={t('removeImage')}
                       >
                         <X className="h-4 w-4 text-muted-foreground" />
                       </span>
@@ -294,9 +305,9 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
               </div>
             </div>
 
-            {isEdit && (
+            {isEdit && dryingGainEnabled && (
               <div className="space-y-3 pt-4 border-t border-border-subtle">
-                <div className="text-base font-semibold text-foreground">Drying Gain</div>
+                <div className="text-base font-semibold text-foreground">{t('dryingGain')}</div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-end">
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-muted-foreground">Add Quantity ({product?.unit})</Label>
@@ -320,7 +331,7 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-muted-foreground opacity-0 select-none">Action</Label>
+                    <Label className="text-sm font-medium text-muted-foreground opacity-0 select-none">{t('action')}</Label>
                     <Button type="button" className="h-11" disabled={dgSaving || dgQty <= 0} onClick={async () => {
                       if (!product || dgQty <= 0) return
                       setDgSaving(true)
@@ -332,12 +343,12 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
                         setDgQty(0)
                       } catch { }
                       finally { setDgSaving(false) }
-                    }}>Add Gain</Button>
+                    }}>{t('addGain')}</Button>
                   </div>
                 </div>
                 {dryingGains.length > 0 && (
                   <div className="border rounded-lg">
-                    <div className="px-3 py-2 text-sm text-muted-foreground border-b bg-surface-muted">Recent Gains</div>
+                    <div className="px-3 py-2 text-sm text-muted-foreground border-b bg-surface-muted">{t('recentGains')}</div>
                     <div className="max-h-40 overflow-y-auto divide-y">
                       {dryingGains.slice(0, 5).map((g) => (
                         <div key={g.id} className="px-3 py-2 text-sm flex justify-between">
@@ -369,7 +380,7 @@ export function ProductModal({ open, mode, onClose, product }: ProductModalProps
 
             {isEdit && (
               <div className="flex items-center gap-3">
-                <Label className="text-sm font-medium text-muted-foreground">Active</Label>
+                <Label className="text-sm font-medium text-muted-foreground">{t('active')}</Label>
                 <button
                   type="button"
                   onClick={() => setActive((v) => !v)}

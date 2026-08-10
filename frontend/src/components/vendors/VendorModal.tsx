@@ -27,6 +27,7 @@ interface VendorModalProps {
 }
 
 export function VendorModal({ open, mode, onClose, vendor, onSaved }: VendorModalProps) {
+    const t = useTranslations('vendors')
     const tCommon = useTranslations('common')
 
     const isEdit = mode === 'edit' && !!vendor
@@ -163,13 +164,13 @@ export function VendorModal({ open, mode, onClose, vendor, onSaved }: VendorModa
                                         onDragOver={(e) => { e.preventDefault(); e.stopPropagation() }}
                                         onDrop={(e) => { e.preventDefault(); handlePickFile(e.dataTransfer.files?.[0]) }}
                                         className="group relative h-40 w-[150px] rounded-xl border border-border overflow-hidden bg-surface-muted flex items-center justify-center shadow-sm hover:shadow-md transition cursor-pointer"
-                                        aria-label="Upload vendor logo"
+                                        aria-label={t('uploadLogo')}
                                     >
                                         {avatarPreview ? (
                                             // eslint-disable-next-line @next/next/no-img-element
                                             <img src={avatarPreview} alt="Preview" className="h-full w-full object-cover" />
                                         ) : (
-                                            <span className="text-sm text-subtle-foreground">No logo</span>
+                                            <span className="text-sm text-subtle-foreground">{t('noLogo')}</span>
                                         )}
                                         {/* subtle hover overlay without text */}
                                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition" />
@@ -180,7 +181,7 @@ export function VendorModal({ open, mode, onClose, vendor, onSaved }: VendorModa
                                                 onClick={(e) => { e.stopPropagation(); revokePreview(avatarPreview); setAvatarPreview(null); setAvatarFile(null) }}
                                                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); revokePreview(avatarPreview); setAvatarPreview(null); setAvatarFile(null) } }}
                                                 className="absolute top-1.5 right-1.5 inline-flex items-center justify-center h-6 w-6 rounded-full bg-white/95 border border-border shadow hover:bg-danger-subtle cursor-pointer"
-                                                aria-label="Remove logo"
+                                                aria-label={t('removeLogo')}
                                             >
                                                 <X className="h-4 w-4 text-muted-foreground" />
                                             </span>
@@ -200,12 +201,12 @@ export function VendorModal({ open, mode, onClose, vendor, onSaved }: VendorModa
                             {/* Right side: first row name, second row address */}
                             <div className="space-y-5 self-start min-w-0 md:flex-1">
                                 <div className="space-y-2">
-                                    <Label htmlFor="name" className="text-sm font-medium text-muted-foreground">Vendor Name</Label>
+                                    <Label htmlFor="name" className="text-sm font-medium text-muted-foreground">{t('vendorName')}</Label>
                                     <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required className="h-11 border-border focus:border-info focus:ring-info" placeholder="e.g., ABC Traders" />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="address" className="text-sm font-medium text-muted-foreground">Address</Label>
-                                    <Input id="address" value={address} onChange={(e) => setAddress(e.target.value)} className="h-11 border-border focus:border-info focus:ring-info" placeholder="Street, City, Country" />
+                                    <Label htmlFor="address" className="text-sm font-medium text-muted-foreground">{t('address')}</Label>
+                                    <Input id="address" value={address} onChange={(e) => setAddress(e.target.value)} className="h-11 border-border focus:border-info focus:ring-info" placeholder={t('addressPlaceholder')} />
                                 </div>
                             </div>
                         </div>
@@ -213,7 +214,7 @@ export function VendorModal({ open, mode, onClose, vendor, onSaved }: VendorModa
                         {/* Phone and Email (below image) */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div className="space-y-2">
-                                <Label htmlFor="phone" className="text-sm font-medium text-muted-foreground">Phone</Label>
+                                <Label htmlFor="phone" className="text-sm font-medium text-muted-foreground">{t('phone')}</Label>
                                 <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} required className="h-11 border-border focus:border-info focus:ring-info" placeholder="e.g., +880 1XXXXXXXXX" />
                             </div>
                             <div className="space-y-2">

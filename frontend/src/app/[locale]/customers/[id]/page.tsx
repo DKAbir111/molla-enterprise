@@ -15,6 +15,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { useStore } from '@/store/useStore'
+import { CustomerAccountCard } from '@/components/payments/CustomerAccountCard'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { useLocale } from 'next-intl'
 import {
@@ -310,6 +311,19 @@ export default function CustomerDetailsPage() {
             </Table>
           </CardContent>
         </Card>
+
+        {/* Running account: what is still open and the payment entry point. */}
+
+        <CustomerAccountCard
+
+          customerId={customer.id}
+
+          customerName={customer.name}
+
+          locale={locale as string}
+
+        />
+
 
         {/* Purchase History */}
         <Card>

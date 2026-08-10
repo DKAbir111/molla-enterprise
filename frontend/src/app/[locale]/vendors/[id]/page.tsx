@@ -23,7 +23,7 @@ type PurchaseHistoryItem = {
 }
 
 export default function VendorDetailsPage() {
-  const t = useTranslations('customerDetails') // reuse common labels
+  const t = useTranslations('vendors')
   const locale = useLocale()
   const params = useParams()
   const router = useRouter()
@@ -96,7 +96,7 @@ export default function VendorDetailsPage() {
         </div>
         <div className="text-center">
           <h1 className="text-3xl font-bold text-foreground">{vendorName}</h1>
-          <p className="text-muted-foreground">Vendor Details</p>
+          <p className="text-muted-foreground">{t('details')}</p>
         </div>
         <div className="flex gap-2">
           <Button onClick={handlePrint} variant="outline">{t('print')}</Button>
@@ -111,15 +111,15 @@ export default function VendorDetailsPage() {
           <CardContent><div className="text-xl font-bold">{vendorPhone || '-'}</div></CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2"><Calendar className="h-4 w-4" />Vendor Since</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2"><Calendar className="h-4 w-4" />{t('vendorSince')}</CardTitle></CardHeader>
           <CardContent><div className="text-xl font-bold">{meta.vendorSince ? formatDate(meta.vendorSince, locale as string) : '-'}</div></CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">Total Purchases</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">{t('totalPurchases')}</CardTitle></CardHeader>
           <CardContent><div className="text-2xl font-bold">{meta.totalPurchases}</div></CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">Total Spent</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">{t('totalSpent')}</CardTitle></CardHeader>
           <CardContent><div className="text-2xl font-bold text-info">{formatCurrency(meta.totalSpent, locale as string)}</div></CardContent>
         </Card>
       </div>
@@ -127,29 +127,29 @@ export default function VendorDetailsPage() {
       {/* Product Summary */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><Package className="h-5 w-5" />Products Supplied</CardTitle>
+          <CardTitle className="flex items-center gap-2"><Package className="h-5 w-5" />{t('productsSupplied')}</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Product</TableHead>
-                <TableHead className="text-center">Transactions</TableHead>
-                <TableHead className="text-center">Total Qty</TableHead>
-                <TableHead className="text-right">Total Spent</TableHead>
+                <TableHead>{t('product')}</TableHead>
+                <TableHead className="text-center">{t('transactions')}</TableHead>
+                <TableHead className="text-center">{t('totalQty')}</TableHead>
+                <TableHead className="text-right">{t('totalSpent')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {Object.entries(productSummary).map(([name, data]) => (
                 <TableRow key={name}>
                   <TableCell className="font-medium" data-primary="">{name}</TableCell>
-                  <TableCell className="md:text-center" data-label="Transactions">{data.transactions}</TableCell>
-                  <TableCell className="md:text-center" data-label="Total Qty">{data.quantity}</TableCell>
-                  <TableCell className="font-medium md:text-right" data-label="Total Spent">{formatCurrency(data.totalAmount, locale as string)}</TableCell>
+                  <TableCell className="md:text-center" data-label={t('transactions')}>{data.transactions}</TableCell>
+                  <TableCell className="md:text-center" data-label={t('totalQty')}>{data.quantity}</TableCell>
+                  <TableCell className="font-medium md:text-right" data-label={t('totalSpent')}>{formatCurrency(data.totalAmount, locale as string)}</TableCell>
                 </TableRow>
               ))}
               {Object.keys(productSummary).length === 0 && (
-                <TableRow><TableCell colSpan={4} className="text-center text-subtle-foreground py-8">No products yet</TableCell></TableRow>
+                <TableRow><TableCell colSpan={4} className="text-center text-subtle-foreground py-8">{t('noProductsYet')}</TableCell></TableRow>
               )}
             </TableBody>
           </Table>
@@ -160,7 +160,7 @@ export default function VendorDetailsPage() {
       <div ref={printRef}>
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><FileText className="h-5 w-5" />Purchase History</CardTitle>
+            <CardTitle className="flex items-center gap-2"><FileText className="h-5 w-5" />{t('purchaseHistory')}</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
@@ -171,7 +171,7 @@ export default function VendorDetailsPage() {
                   <TableHead className="text-center">{t('quantity')}</TableHead>
                   <TableHead className="text-right">{t('price')}</TableHead>
                   <TableHead className="text-right">{t('total')}</TableHead>
-                  <TableHead className="text-center">Purchase</TableHead>
+                  <TableHead className="text-center">{t('purchase')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -182,11 +182,11 @@ export default function VendorDetailsPage() {
                     <TableCell className="md:text-center" data-label={t('quantity')}>{item.quantity}</TableCell>
                     <TableCell className="md:text-right" data-label={t('price')}>{formatCurrency(item.price, locale as string)}</TableCell>
                     <TableCell className="font-medium md:text-right" data-label={t('total')}>{formatCurrency(item.total, locale as string)}</TableCell>
-                    <TableCell className="md:text-center" data-label="Purchase"><span className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full bg-surface-hover text-muted-foreground">{item.purchaseId}</span></TableCell>
+                    <TableCell className="md:text-center" data-label={t('purchase')}><span className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full bg-surface-hover text-muted-foreground">{item.purchaseId}</span></TableCell>
                   </TableRow>
                 ))}
                 {history.length === 0 && (
-                  <TableRow><TableCell colSpan={6} className="text-center text-subtle-foreground py-8">No purchases yet</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={6} className="text-center text-subtle-foreground py-8">{t('noPurchasesYet')}</TableCell></TableRow>
                 )}
               </TableBody>
             </Table>

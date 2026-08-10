@@ -8,6 +8,8 @@ import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { StatRail, StatTile } from '@/components/shared/StatRail'
 import { Fab } from '@/components/shared/Fab'
+import { DateFilter } from '@/components/shared/DateFilter'
+import { isWithinRange, type DateRange } from '@/lib/date-range'
 import { formatCurrency } from '@/lib/utils'
 import { Plus, Search, Eye, Edit, Printer } from 'lucide-react'
 import { listBuys } from '@/lib/api/buy-api'
@@ -23,6 +25,7 @@ export default function BuysPage() {
   const locale = useLocale()
   const [buys, setBuys] = useState<any[]>([])
   const [search, setSearch] = useState('')
+  const [range, setRange] = useState<DateRange>({})
   const [open, setOpen] = useState(false)
   const { products, addProduct } = useStore()
   const [selectedBuy, setSelectedBuy] = useState<any | null>(null)
@@ -36,13 +39,19 @@ export default function BuysPage() {
     return () => { mounted = false }
   }, [products.length, addProduct])
 
-  const filtered = buys.filter(b => search === '' || String(b.vendorName || '').toLowerCase().includes(search.toLowerCase()))
+  const inRange = useMemo(
+    () => buys.filter((b: any) => isWithinRange(b.createdAt, range)),
+    [buys, range],
+  )
 
-  // Mini dashboard stats
+  const filtered = inRange.filter(b => search === '' || String(b.vendorName || '').toLowerCase().includes(search.toLowerCase()))
+
+  // Totals follow the selected range, so "Today" answers what was bought today
+  // rather than repeating the all-time figure.
   const stats = useMemo(() => {
-    const total = buys.length
+    const total = inRange.length
     let spent = 0, paid = 0, due = 0
-    buys.forEach((b: any) => {
+    inRange.forEach((b: any) => {
       const itemsTotal = (b.items || []).reduce((s: number, it: any) => s + Number(it.total || 0), 0)
       const discount = Number(b.discount || 0)
       const transport = Number(b.transportTotal || 0)
@@ -52,11 +61,11 @@ export default function BuysPage() {
       due += Math.max(0, grand - Number(b.paidAmount || 0))
     })
     return { total, spent, paid, due }
-  }, [buys])
+  }, [inRange])
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center justify-between gap-3">
         <div className="relative w-full md:max-w-md">
           <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-subtle-foreground" />
           <Input type="search" placeholder={t('search')} value={search} onChange={(e) => setSearch(e.target.value)} className="h-12 pl-10 md:h-10" />
@@ -67,12 +76,16 @@ export default function BuysPage() {
         </Button>
       </div>
 
+      {/* Its own row: beside the search and Add button there was not enough
+          width for the Bengali labels, and the Clear button wrapped. */}
+      <DateFilter value={range} onChange={(v) => setRange({ start: v.start, end: v.end })} />
+
       {/* Mini Dashboard like Sells */}
       <StatRail>
-        <StatTile label="Total Purchases" value={stats.total} />
-        <StatTile label="Total Spent" value={formatCurrency(stats.spent, locale)} tone="text-info" />
-        <StatTile label="Total Paid" value={formatCurrency(stats.paid, locale)} tone="text-success" />
-        <StatTile label="Total Due" value={formatCurrency(stats.due, locale)} tone="text-warning" />
+        <StatTile label={t('totalPurchases')} value={stats.total} />
+        <StatTile label={t('totalSpent')} value={formatCurrency(stats.spent, locale)} tone="text-info" />
+        <StatTile label={t('totalPaid')} value={formatCurrency(stats.paid, locale)} tone="text-success" />
+        <StatTile label={t('totalDue')} value={formatCurrency(stats.due, locale)} tone="text-warning" />
       </StatRail>
 
       {filtered.length === 0 ? (
@@ -85,9 +98,9 @@ export default function BuysPage() {
                 <TableRow>
                   <TableHead>{t('vendor')}</TableHead>
                   <TableHead>{t('date')}</TableHead>
-                  <TableHead className="text-right">Paid / Due</TableHead>
+                  <TableHead className="text-right">{t('paidDue')}</TableHead>
                   <TableHead className="text-right">{t('total')}</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="text-right">{t('actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -102,20 +115,20 @@ export default function BuysPage() {
                     <TableRow key={`${b.id}-${idx}`}>
                       <TableCell className="font-medium" data-primary="">{b.vendorName || '-'}</TableCell>
                       <TableCell data-label={t('date')}>{new Date(b.createdAt).toLocaleDateString()}</TableCell>
-                      <TableCell className="md:text-right" data-label="Paid / Due">{formatCurrency(paid, locale)} / {formatCurrency(due, locale)}</TableCell>
+                      <TableCell className="md:text-right" data-label={t('paidDue')}>{formatCurrency(paid, locale)} / {formatCurrency(due, locale)}</TableCell>
                       <TableCell className="font-medium md:text-right" data-label={t('total')}>{formatCurrency(grand, locale)}</TableCell>
                       <TableCell className="md:text-right">
                         <div className="flex justify-end gap-1">
                           <a href={`/${locale}/buys/${b.id}`}>
-                            <Button variant="ghost" size="icon" className="tap" title="View" aria-label="View">
+                            <Button variant="ghost" size="icon" className="tap" title={t('view')} aria-label={t('view')}>
                               <Eye className="h-4 w-4" />
                             </Button>
                           </a>
-                          <Button variant="ghost" size="icon" className="tap" title="Edit" aria-label="Edit" onClick={() => { setSelectedBuy(b); setShowEdit(true) }}>
+                          <Button variant="ghost" size="icon" className="tap" title={t('edit')} aria-label={t('edit')} onClick={() => { setSelectedBuy(b); setShowEdit(true) }}>
                             <Edit className="h-4 w-4" />
                           </Button>
                           <a href={`/${locale}/buys/${b.id}`}>
-                            <Button variant="ghost" size="icon" className="tap" title="Print" aria-label="Print">
+                            <Button variant="ghost" size="icon" className="tap" title={t('print')} aria-label={t('print')}>
                               <Printer className="h-4 w-4" />
                             </Button>
                           </a>

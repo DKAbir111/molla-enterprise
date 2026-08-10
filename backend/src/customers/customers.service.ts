@@ -16,14 +16,25 @@ export class CustomersService {
     const organizationId = this.ensureOrg(orgId);
     const [customers, aggregates] = await Promise.all([
       this.prisma.customer.findMany({ where: { organizationId }, orderBy: { createdAt: 'desc' } }),
-      // Aggregate by joining sell items to avoid relying on totals
+      // "Total spent" has to mean the same thing here as everywhere else in
+      // the app: line items + transport - discount. Summing SellItem.total
+      // alone ignored both, and cancelled orders were counted as spend.
+      //
+      // The per-sell figures are pulled through a LATERAL subquery rather than
+      // a plain join, because joining SellItem directly would repeat the
+      // order-level transport and discount once per line item.
       this.prisma.$queryRaw<Array<{ customerId: string; orders: number; total_spent: any }>>`
-        SELECT s."customerId"    AS "customerId",
-               COUNT(DISTINCT s."id")::int AS orders,
-               COALESCE(SUM(si.total), 0)   AS total_spent
+        SELECT s."customerId" AS "customerId",
+               COUNT(*)::int  AS orders,
+               COALESCE(SUM(GREATEST(li.items_total + s."transportTotal" - s."discount", 0)), 0) AS total_spent
         FROM "Sell" s
-        LEFT JOIN "SellItem" si ON si."sellId" = s."id"
+        LEFT JOIN LATERAL (
+          SELECT COALESCE(SUM(si."total"), 0) AS items_total
+          FROM "SellItem" si
+          WHERE si."sellId" = s."id"
+        ) li ON TRUE
         WHERE s."organizationId" = ${organizationId}
+          AND s."status" <> 'cancelled'
         GROUP BY s."customerId"
       `,
     ]);

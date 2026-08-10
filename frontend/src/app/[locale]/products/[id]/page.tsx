@@ -24,6 +24,7 @@ import type { DryingGain } from '@/types'
 type SaleRow = { id: string; date: Date; orderId: string; quantity: number; price: number; total: number }
 
 export default function ProductDetailsPage() {
+  const t = useTranslations('products')
   const locale = useLocale()
   const params = useParams()
   const router = useRouter()
@@ -102,8 +103,8 @@ export default function ProductDetailsPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <h2 className="text-xl font-semibold text-foreground mb-2">Product Not Found</h2>
-          <Button onClick={() => router.push(`/${locale}/products`)} variant="outline" className="mt-2 flex items-center gap-2"><ChevronLeft className="h-4 w-4" />Back to Products</Button>
+          <h2 className="text-xl font-semibold text-foreground mb-2">{t('notFound')}</h2>
+          <Button onClick={() => router.push(`/${locale}/products`)} variant="outline" className="mt-2 flex items-center gap-2"><ChevronLeft className="h-4 w-4" />{t('backToProducts')}</Button>
         </div>
       </div>
     )
@@ -132,11 +133,11 @@ export default function ProductDetailsPage() {
           <CardContent><div className="text-2xl font-bold">{summary.totalQty}</div></CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total Revenue</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">{t('totalRevenue')}</CardTitle></CardHeader>
           <CardContent><div className="text-2xl font-bold text-success">{formatCurrency(summary.totalRevenue, locale)}</div></CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Sells</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">{t('sellsCount')}</CardTitle></CardHeader>
           <CardContent><div className="text-2xl font-bold">{summary.ordersCount}</div></CardContent>
         </Card>
         <Card>
@@ -164,7 +165,7 @@ export default function ProductDetailsPage() {
           <CardContent><div className="text-lg font-semibold">{formatCurrency(summary.avgSellPrice, locale)}</div></CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Stock Left</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">{t('stockLeft')}</CardTitle></CardHeader>
           <CardContent><div className="text-lg font-semibold">{product?.stock} {product?.unit}</div></CardContent>
         </Card>
       </div>
@@ -172,30 +173,30 @@ export default function ProductDetailsPage() {
       {/* Drying Gains */}
       <Card>
         <CardHeader className="flex-row items-center justify-between">
-          <CardTitle>Drying Gains</CardTitle>
+          <CardTitle>{t('dryingGains')}</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead className="text-center">Quantity</TableHead>
-                <TableHead className="text-right">Unit Cost</TableHead>
-                <TableHead>Note</TableHead>
+                <TableHead>{t('date')}</TableHead>
+                <TableHead className="text-center">{t('quantity')}</TableHead>
+                <TableHead className="text-right">{t('unitCost')}</TableHead>
+                <TableHead>{t('note')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {gains.map((g) => (
                 <TableRow key={g.id}>
-                  <TableCell data-label="Date">{formatDate(g.createdAt, locale)}</TableCell>
-                  <TableCell className="md:text-center" data-label="Quantity">{g.quantity} {product?.unit}</TableCell>
-                  <TableCell className="md:text-right" data-label="Unit Cost">{formatCurrency(g.unitCost || 0, locale)}</TableCell>
-                  <TableCell className="md:max-w-[400px] md:truncate" data-label="Note" title={g.note}>{g.note || ''}</TableCell>
+                  <TableCell data-label={t('date')}>{formatDate(g.createdAt, locale)}</TableCell>
+                  <TableCell className="md:text-center" data-label={t('quantity')}>{g.quantity} {product?.unit}</TableCell>
+                  <TableCell className="md:text-right" data-label={t('unitCost')}>{formatCurrency(g.unitCost || 0, locale)}</TableCell>
+                  <TableCell className="md:max-w-[400px] md:truncate" data-label={t('note')} title={g.note}>{g.note || ''}</TableCell>
                 </TableRow>
               ))}
               {gains.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center text-subtle-foreground py-10">No drying gains recorded.</TableCell>
+                  <TableCell colSpan={4} className="text-center text-subtle-foreground py-10">{t('noDryingGains')}</TableCell>
                 </TableRow>
               )}
             </TableBody>
@@ -208,32 +209,32 @@ export default function ProductDetailsPage() {
       {/* Sales History */}
       <Card>
         <CardHeader>
-          <CardTitle>Sales History</CardTitle>
+          <CardTitle>{t('salesHistory')}</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Order</TableHead>
-                <TableHead className="text-center">Quantity</TableHead>
-                <TableHead className="text-right">Price</TableHead>
-                <TableHead className="text-right">Total</TableHead>
+                <TableHead>{t('date')}</TableHead>
+                <TableHead>{t('order')}</TableHead>
+                <TableHead className="text-center">{t('quantity')}</TableHead>
+                <TableHead className="text-right">{t('price')}</TableHead>
+                <TableHead className="text-right">{t('totalLabel')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {sales.map((row) => (
                 <TableRow key={row.id}>
-                  <TableCell data-label="Date">{formatDate(row.date, locale)}</TableCell>
+                  <TableCell data-label={t('date')}>{formatDate(row.date, locale)}</TableCell>
                   <TableCell className="font-medium" data-primary="">{formatOrderCode(row.orderId, row.date)}</TableCell>
-                  <TableCell className="md:text-center" data-label="Quantity">{row.quantity}</TableCell>
-                  <TableCell className="md:text-right" data-label="Price">{formatCurrency(row.price, locale)}</TableCell>
-                  <TableCell className="font-semibold md:text-right" data-label="Total">{formatCurrency(row.total, locale)}</TableCell>
+                  <TableCell className="md:text-center" data-label={t('quantity')}>{row.quantity}</TableCell>
+                  <TableCell className="md:text-right" data-label={t('price')}>{formatCurrency(row.price, locale)}</TableCell>
+                  <TableCell className="font-semibold md:text-right" data-label={t('totalLabel')}>{formatCurrency(row.total, locale)}</TableCell>
                 </TableRow>
               ))}
               {sales.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center text-subtle-foreground py-10">No sales yet for this product.</TableCell>
+                  <TableCell colSpan={5} className="text-center text-subtle-foreground py-10">{t('noSalesYet')}</TableCell>
                 </TableRow>
               )}
             </TableBody>

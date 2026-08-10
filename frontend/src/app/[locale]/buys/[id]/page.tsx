@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table'
@@ -12,6 +12,7 @@ import { ChevronLeft } from 'lucide-react'
 import { useReactToPrint } from 'react-to-print'
 
 export default function BuyDetailsPage() {
+  const t = useTranslations('invoice')
   const params = useParams()
   const router = useRouter()
   const locale = useLocale()
@@ -35,7 +36,7 @@ export default function BuyDetailsPage() {
     return { itemsTotal, discount, transport, grand, paid, due }
   }, [buy])
 
-  if (!buy) return <div className="flex items-center justify-center h-64 text-subtle-foreground">Loading purchase...</div>
+  if (!buy) return <div className="flex items-center justify-center h-64 text-subtle-foreground">{t('loadingPurchase')}</div>
 
   return (
     <div className="space-y-6">
@@ -45,26 +46,26 @@ export default function BuyDetailsPage() {
           <h1 className="text-2xl font-bold">{buy.vendorName || 'Vendor'}</h1>
           <p className="text-muted-foreground">{formatDate(buy.createdAt, locale as any)}</p>
         </div>
-        <div className="flex gap-2"><Button variant="outline" onClick={handlePrint}>Print</Button></div>
+        <div className="flex gap-2"><Button variant="outline" onClick={handlePrint}>{t('print')}</Button></div>
       </div>
 
       <Card ref={ref}>
-        <CardHeader><CardTitle>Purchase</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t('purchase')}</CardTitle></CardHeader>
         <CardContent>
           <Table stacked={false}>
             <TableHeader>
-              <TableRow><TableHead>Product</TableHead><TableHead className="text-center">Qty</TableHead><TableHead className="text-right">Price</TableHead><TableHead className="text-right">Total</TableHead></TableRow>
+              <TableRow><TableHead>{t('product')}</TableHead><TableHead className="text-center">{t('qty')}</TableHead><TableHead className="text-right">{t('price')}</TableHead><TableHead className="text-right">{t('total')}</TableHead></TableRow>
             </TableHeader>
             <TableBody>
               {(buy.items || []).map((it: any) => (
                 <TableRow key={it.id}><TableCell className="font-medium">{it.productName}</TableCell><TableCell className="text-center">{it.quantity}</TableCell><TableCell className="text-right">{formatCurrency(Number(it.price||0), locale as any)}</TableCell><TableCell className="text-right font-semibold">{formatCurrency(Number(it.total||0), locale as any)}</TableCell></TableRow>
               ))}
-              <TableRow><TableCell colSpan={3} className="text-right">Subtotal</TableCell><TableCell className="text-right font-semibold">{formatCurrency(totals.itemsTotal, locale as any)}</TableCell></TableRow>
-              <TableRow><TableCell colSpan={3} className="text-right">Discount</TableCell><TableCell className="text-right font-semibold">-{formatCurrency(totals.discount, locale as any)}</TableCell></TableRow>
-              <TableRow><TableCell colSpan={3} className="text-right">Transport</TableCell><TableCell className="text-right font-semibold">{formatCurrency(totals.transport, locale as any)}</TableCell></TableRow>
-              <TableRow><TableCell colSpan={3} className="text-right">Grand Total</TableCell><TableCell className="text-right font-bold">{formatCurrency(totals.grand, locale as any)}</TableCell></TableRow>
-              <TableRow><TableCell colSpan={3} className="text-right">Paid</TableCell><TableCell className="text-right font-semibold">{formatCurrency(totals.paid, locale as any)}</TableCell></TableRow>
-              <TableRow><TableCell colSpan={3} className="text-right">Due</TableCell><TableCell className="text-right font-semibold">{formatCurrency(totals.due, locale as any)}</TableCell></TableRow>
+              <TableRow><TableCell colSpan={3} className="text-right">{t('subtotal')}</TableCell><TableCell className="text-right font-semibold">{formatCurrency(totals.itemsTotal, locale as any)}</TableCell></TableRow>
+              <TableRow><TableCell colSpan={3} className="text-right">{t('discount')}</TableCell><TableCell className="text-right font-semibold">-{formatCurrency(totals.discount, locale as any)}</TableCell></TableRow>
+              <TableRow><TableCell colSpan={3} className="text-right">{t('transport')}</TableCell><TableCell className="text-right font-semibold">{formatCurrency(totals.transport, locale as any)}</TableCell></TableRow>
+              <TableRow><TableCell colSpan={3} className="text-right">{t('grandTotal')}</TableCell><TableCell className="text-right font-bold">{formatCurrency(totals.grand, locale as any)}</TableCell></TableRow>
+              <TableRow><TableCell colSpan={3} className="text-right">{t('paid')}</TableCell><TableCell className="text-right font-semibold">{formatCurrency(totals.paid, locale as any)}</TableCell></TableRow>
+              <TableRow><TableCell colSpan={3} className="text-right">{t('due')}</TableCell><TableCell className="text-right font-semibold">{formatCurrency(totals.due, locale as any)}</TableCell></TableRow>
             </TableBody>
           </Table>
         </CardContent>

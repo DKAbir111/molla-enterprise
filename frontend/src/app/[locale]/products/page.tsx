@@ -97,9 +97,9 @@ export default function ProductsPage() {
       try {
         await apiDeleteProduct(productToDeleteId)
         deleteProduct(productToDeleteId)
-        toast.success('Product deleted')
+        toast.success(t('deleted'))
       } catch (err: any) {
-        const msg = err?.response?.data?.message || 'Failed to delete product. It may be used in sells/buys.'
+        const msg = err?.response?.data?.message || t('deleteFailed')
         toast.error(msg)
       }
       setProductToDeleteId(null)
@@ -152,12 +152,12 @@ export default function ProductsPage() {
 
             <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
               <SelectTrigger className="h-12 md:h-10 md:w-44">
-                <SelectValue placeholder="Status" />
+                <SelectValue placeholder={t('status')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
+                <SelectItem value="all">{t('allStatus')}</SelectItem>
+                <SelectItem value="active">{t('active')}</SelectItem>
+                <SelectItem value="inactive">{t('inactive')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -175,10 +175,10 @@ export default function ProductsPage() {
       {/* first product, so on mobile they become a swipeable rail.           */}
       {/* ---------------------------------------------------------------- */}
       <StatRail>
-        <StatTile label="Total Products" value={stats.total} />
-        <StatTile label="Active Products" value={stats.active} tone="text-success" />
-        <StatTile label="Out of Stock" value={stats.out} tone="text-danger" />
-        <StatTile label="Inventory Value" value={formatCurrency(stats.value, locale)} tone="text-info" />
+        <StatTile label={t('totalProducts')} value={stats.total} />
+        <StatTile label={t('activeProducts')} value={stats.active} tone="text-success" />
+        <StatTile label={t('outOfStock')} value={stats.out} tone="text-danger" />
+        <StatTile label={t('inventoryValue')} value={formatCurrency(stats.value, locale)} tone="text-info" />
       </StatRail>
 
       {/* Product Modal (create/edit) */}
@@ -228,12 +228,12 @@ export default function ProductsPage() {
               <div className="pointer-events-none absolute inset-x-2 top-2 z-10 hidden items-start justify-between md:flex">
                 <span>
                   {product.awaitingPurchase !== false && (
-                    <span className="rounded bg-warning-subtle px-2 py-0.5 text-xs text-warning">Awaiting Purchase</span>
+                    <span className="rounded bg-warning-subtle px-2 py-0.5 text-xs text-warning">{t('awaitingPurchase')}</span>
                   )}
                 </span>
                 <span>
                   {!product.active && (
-                    <span className="rounded bg-danger-subtle px-2 py-0.5 text-xs text-danger">Inactive</span>
+                    <span className="rounded bg-danger-subtle px-2 py-0.5 text-xs text-danger">{t('inactive')}</span>
                   )}
                 </span>
               </div>
