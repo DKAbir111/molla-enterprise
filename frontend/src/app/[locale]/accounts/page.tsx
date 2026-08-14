@@ -167,10 +167,7 @@ export default function AccountsPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">{t('title')}</h1>
-          <p className="text-subtle-foreground mt-2">{t('loadingInsights')}</p>
-        </div>
+        <p className="text-subtle-foreground">{t('loadingInsights')}</p>
       </div>
     )
   }
@@ -227,11 +224,7 @@ export default function AccountsPage() {
     return (
       <Dialog open={quickOpen} onOpenChange={(open) => { setQuickOpen(open); if (!open) resetQuickForm() }}>
         <div className="space-y-6">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">{t('title')}</h1>
-              <p className="text-muted-foreground mt-2">{t('emptyDescription') || 'Record income or expenses to see analytics.'}</p>
-            </div>
+          <div className="flex justify-end">
             <DialogTrigger asChild>
               <Button className="w-full md:w-auto">+ Quick Entry</Button>
             </DialogTrigger>
@@ -252,19 +245,9 @@ export default function AccountsPage() {
   return (
     <Dialog open={quickOpen} onOpenChange={(open) => { setQuickOpen(open); if (!open) resetQuickForm() }}>
       <div className="space-y-6">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div className="min-w-0">
-            <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{t('title')}</h1>
-            <p className="mt-2 text-muted-foreground">{t('subtitle')}</p>
-          </div>
-          {tab === 'overview' && (
-            <DialogTrigger asChild>
-              <Button className="w-full md:w-auto">{t('quickEntry')}</Button>
-            </DialogTrigger>
-          )}
-        </div>
-
-        <div className="border-b border-border-subtle">
+        {/* Tabs and the one page-level action share a row — the app bar
+            already carries the title, so nothing else needs the space. */}
+        <div className="flex items-center justify-between gap-3 border-b border-border-subtle">
           <nav className="no-scrollbar flex gap-1 overflow-x-auto">
             {([
               { key: 'overview' as const, label: t('overviewTab') },
@@ -286,6 +269,11 @@ export default function AccountsPage() {
               </button>
             ))}
           </nav>
+          {tab === 'overview' && (
+            <DialogTrigger asChild>
+              <Button size="sm" className="mb-2 shrink-0">{t('quickEntry')}</Button>
+            </DialogTrigger>
+          )}
         </div>
 
         {tab === 'reports' && <ReportsPanel />}

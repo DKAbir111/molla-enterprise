@@ -168,8 +168,6 @@
   },
   "dashboard": {
     "title": "ব্যবসার সংক্ষিপ্ত বিবরণ",
-    "overviewEyebrow": "অ্যানালিটিক্স ও রিপোর্টিং",
-    "overviewSubtitle": "আয়, বিক্রয় ও গ্রাহক কার্যকলাপের সরাসরি চিত্র — লেনদেন যুক্ত হওয়ার সাথে সাথে হালনাগাদ হয়।",
     "totalRevenue": "মোট আয়",
     "activeOrders": "সক্রিয় বিক্রি",
     "customers": "গ্রাহক",
@@ -705,7 +703,6 @@
     "other": "অন্যান্য",
     "outstanding": "বকেয়া",
     "receivables": "আপনার পাওনা",
-    "receivablesHint": "যেসব গ্রাহকের বকেয়া আছে, বেশি থেকে কম।",
     "noReceivables": "এখন কারও কাছে কোনো পাওনা নেই।",
     "openInvoices": "{count}টি অপরিশোধিত",
     "oldestSince": "{date} থেকে পুরোনো",
@@ -725,7 +722,6 @@
     "payTo": "{name}-কে পরিশোধ",
     "savePayment": "পেমেন্ট রেকর্ড করুন",
     "payables": "আপনার দেনা",
-    "payablesHint": "যেসব সরবরাহকারীর পাওনা আছে, বেশি থেকে কম।",
     "noPayables": "এখন আপনার কোনো দেনা নেই।",
     "vendor": "সরবরাহকারী",
     "makePayment": "পরিশোধ",
@@ -742,8 +738,6 @@
     "showMore": "আরও দেখান",
     "contactsWithDue": "বকেয়াসহ যোগাযোগ",
     "oldestOutstanding": "সবচেয়ে পুরোনো বকেয়া",
-    "receivablesTitle": "গ্রাহকদের কাছে আপনার পাওনা",
-    "payablesTitle": "সরবরাহকারীদের কাছে আপনার দেনা",
     "none": "—"
   },
   "invoice": {

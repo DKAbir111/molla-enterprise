@@ -107,21 +107,9 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* Editorial page header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        {/* `min-w-0` lets the copy shrink instead of pushing the date filter
-            past the right edge once the two sit side by side. */}
-        <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-wider text-primary">
-            {t('overviewEyebrow')}
-          </p>
-          <h1 className="mt-1.5 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            {t('title')}
-          </h1>
-          <p className="mt-2 max-w-xl text-sm text-muted-foreground">
-            {t('overviewSubtitle')}
-          </p>
-        </div>
+      {/* The app bar already names the screen, so the date filter is the whole
+          header — pushed right, on one line. */}
+      <div className="flex justify-end">
         <DateFilter value={range} onChange={(v) => setRange({ start: v.start, end: v.end })} />
       </div>
 

@@ -168,8 +168,6 @@
   },
   "dashboard": {
     "title": "Business overview",
-    "overviewEyebrow": "Analytics & Reporting",
-    "overviewSubtitle": "A live read of revenue, sales and customer activity — updated as transactions post.",
     "totalRevenue": "Total Revenue",
     "activeOrders": "Active Sells",
     "customers": "Customers",
@@ -705,7 +703,6 @@
     "other": "Other",
     "outstanding": "Outstanding",
     "receivables": "Money owed to you",
-    "receivablesHint": "Customers with an unpaid balance, largest first.",
     "noReceivables": "Nobody owes you anything right now.",
     "openInvoices": "{count} unpaid",
     "oldestSince": "Oldest since {date}",
@@ -725,7 +722,6 @@
     "payTo": "Pay {name}",
     "savePayment": "Record payment",
     "payables": "Money you owe",
-    "payablesHint": "Vendors with an unpaid balance, largest first.",
     "noPayables": "You do not owe anything right now.",
     "vendor": "Vendor",
     "makePayment": "Pay",
@@ -742,8 +738,6 @@
     "showMore": "Show more",
     "contactsWithDue": "Contacts with a balance",
     "oldestOutstanding": "Oldest outstanding",
-    "receivablesTitle": "Money customers owe you",
-    "payablesTitle": "Money you owe vendors",
     "none": "—"
   },
   "invoice": {

@@ -38,16 +38,9 @@ export function DuesPage({ direction }: { direction: 'in' | 'out' }) {
     .sort()[0]
 
   return (
+    // No page heading: the app bar already names the screen, and repeating it
+    // here only pushed the numbers below the fold.
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">
-          {direction === 'in' ? t('receivablesTitle') : t('payablesTitle')}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {direction === 'in' ? t('receivablesHint') : t('payablesHint')}
-        </p>
-      </div>
-
       <StatRail columns={3}>
         <StatTile
           label={direction === 'in' ? t('owedToYou') : t('youOwe')}
